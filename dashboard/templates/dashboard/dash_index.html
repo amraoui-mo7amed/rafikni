@@ -1,0 +1,221 @@
+{% extends "index.html" %}
+
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet"
+          href="{% static 'css/dash_index.css' %}?v={% now 'U' %}" />
+{% endblock css %}
+
+{% block navbar %}{% endblock navbar %}
+
+{% block content %}
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Floating Sidebar Toggle -->
+    <button id="sidebarToggle" class="btn btn-primary shadow-lg floating-toggle">
+        <i class="fa-solid fa-bars-staggered"></i>
+    </button>
+
+    <div class="dashboard-wrapper d-flex" dir="rtl">
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar bg-glass shadow-sm">
+            <div class="sidebar-header d-flex align-items-center p-3">
+                <div class="logo-container d-flex align-items-center">
+                    <h4 class="m-0 fw-bold text-primary logo-text">
+                        رافقني
+                    </h4>
+                </div>
+            </div>
+            <div class="sidebar-content mt-3 d-flex flex-column h-100">
+                <ul class="nav flex-column p-2 flex-grow-1">
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'dashboard:index' %}"
+                           class="nav-link active d-flex align-items-center rounded-3 p-3 transition">
+                            <i class="fa-solid fa-house-chimney me-3"></i>
+                            <span class="link-text">الرئيسية</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#"
+                           class="nav-link d-flex align-items-center rounded-3 p-3 transition">
+                            <i class="fa-solid fa-user-group me-3"></i>
+                            <span class="link-text">المرضى</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#"
+                           class="nav-link d-flex align-items-center rounded-3 p-3 transition">
+                            <i class="fa-solid fa-calendar-check me-3"></i>
+                            <span class="link-text">المواعيد</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#"
+                           class="nav-link d-flex align-items-center rounded-3 p-3 transition">
+                            <i class="fa-solid fa-file-medical me-3"></i>
+                            <span class="link-text">التقارير</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'dashboard:email_settings' %}"
+                           class="nav-link d-flex align-items-center rounded-3 p-3 transition">
+                            <i class="fa-solid fa-envelope-open-text me-3"></i>
+                            <span class="link-text">إعدادات البريد</span>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="nav flex-column p-2 mt-auto mb-2">
+                    <li class="nav-item border-top pt-2">
+                        <a href="{% url 'user_auth:logout' %}"
+                           class="nav-link d-flex align-items-center rounded-3 p-3 transition text-danger">
+                            <i class="fa-solid fa-right-from-bracket me-3"></i>
+                            <span class="link-text">تسجيل الخروج</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="main-container flex-grow-1">
+            <!-- Top Navbar -->
+            <nav class="top-nav shadow-sm mb-4 p-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="search-box">
+                        <div class="input-group">
+                            <span class="input-group-text border-0 bg-transparent"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                            <input type="text"
+                                   class="form-control border-0 bg-transparent"
+                                   placeholder="بحث..." />
+                        </div>
+                    </div>
+                </div>
+                <div class="user-actions d-flex align-items-center">
+                    <!-- Notifications Dropdown -->
+                    <div class="dropdown me-4 position-relative">
+                        <div class="notifications cursor-pointer" id="notificationDropdown" data-bs-toggle="dropdown" data-bs-offset="0,15" aria-expanded="false">
+                            <i class="fa-solid fa-bell text-muted fa-lg"></i>
+                            <span class="badge rounded-pill bg-danger border border-light position-absolute top-0 start-100 translate-middle p-1 pulse-animation">
+                                <span class="visually-hidden">تنبيهات</span>
+                            </span>
+                        </div>
+                        <div class="dropdown-menu bg-glass dropdown-menu-end border-0 shadow-lg p-0 mt-3 notification-panel" aria-labelledby="notificationDropdown">
+                            <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+                                <h6 class="m-0 fw-bold text-dark">التنبيهات</h6>
+                                <span class="badge bg-soft-primary text-primary small">3 جديدة</span>
+                            </div>
+                            <div class="notification-list" style="max-height: 350px; overflow-y: auto;">
+                                <!-- Sample Notification 1 -->
+                                <a href="#" class="dropdown-item p-3 border-bottom d-flex align-items-start transition">
+                                    <div class="icon-box bg-soft-primary p-2 rounded-3 text-primary me-3">
+                                        <i class="fa-solid fa-calendar-check small"></i>
+                                    </div>
+                                    <div class="flex-grow-1 text-wrap">
+                                        <p class="m-0 small fw-bold">موعد جديد</p>
+                                        <p class="m-0 x-small text-muted">لديك موعد جديد مع المريض "أحمد علي" اليوم الساعة 4:00 مساءً.</p>
+                                        <span class="x-small text-primary mt-1 d-block">منذ 5 دقائق</span>
+                                    </div>
+                                </a>
+                                <!-- Sample Notification 2 -->
+                                <a href="#" class="dropdown-item p-3 border-bottom d-flex align-items-start transition">
+                                    <div class="icon-box bg-soft-success p-2 rounded-3 text-success me-3">
+                                        <i class="fa-solid fa-user-plus small"></i>
+                                    </div>
+                                    <div class="flex-grow-1 text-wrap">
+                                        <p class="m-0 small fw-bold">ملف مريض جديد</p>
+                                        <p class="m-0 x-small text-muted">تمت إضافة ملف طبي جديد للمريضة "سارة خالد".</p>
+                                        <span class="x-small text-primary mt-1 d-block">منذ ساعة</span>
+                                    </div>
+                                </a>
+                                <!-- Sample Notification 3 -->
+                                <a href="#" class="dropdown-item p-3 d-flex align-items-start transition">
+                                    <div class="icon-box bg-soft-warning p-2 rounded-3 text-warning me-3">
+                                        <i class="fa-solid fa-triangle-exclamation small"></i>
+                                    </div>
+                                    <div class="flex-grow-1 text-wrap">
+                                        <p class="m-0 small fw-bold">تحديث النظام</p>
+                                        <p class="m-0 x-small text-muted">توجد تحديثات جديدة متوفرة لمنصة رافقني.</p>
+                                        <span class="x-small text-primary mt-1 d-block">منذ يوم</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="p-2 border-top text-center">
+                                <a href="#" class="btn btn-link btn-sm text-primary text-decoration-none fw-bold">مشاهدة الكل</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-profile d-flex align-items-center cursor-pointer">
+
+                        <div class="user-info text-end me-3 d-none d-sm-block">
+                            <h6 class="m-0 fw-bold">
+                                {{ user.get_full_name|default:user.username }}
+                            </h6>
+                            <small class="text-muted">طبيب مختص</small>
+                        </div>
+                        <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=0D6EFD&color=fff"
+                             alt="Profile"
+                             id="userAvatar"
+                             class="rounded"
+                             style="width: 45px;
+                                    height: 45px;
+                                    object-fit: cover" />
+                    </div>
+                </div>
+            </nav>
+            <!-- Dashboard Content -->
+            <div class="container-fluid">
+                {% block dash_content %}
+                    <div class="welcome-section mb-4">
+                        <h2 class="fw-bold text-dark">
+                            أهلاً بك، د. {{ user.first_name|default:user.username }} 👋
+                        </h2>
+                        <p class="text-muted">
+                            هذا ملخص لما يحدث اليوم في عيادتك.
+                        </p>
+                    </div>
+                    <div class="row g-4">
+                        <!-- Placeholder Cards -->
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-glass border-0 shadow-sm transition p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="icon-box bg-soft-primary p-3 rounded-circle text-primary">
+                                        <i class="fa-solid fa-user-plus fa-lg"></i>
+                                    </div>
+                                    <span class="badge bg-soft-success text-success">+12%</span>
+                                </div>
+                                <h3 class="fw-bold m-0">
+                                    124
+                                </h3>
+                                <p class="text-muted m-0 small">
+                                    إجمالي المرضى
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-glass border-0 shadow-sm transition p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="icon-box bg-soft-warning p-3 rounded-circle text-warning">
+                                        <i class="fa-solid fa-clock fa-lg"></i>
+                                    </div>
+                                    <span class="badge bg-soft-danger text-danger">-5%</span>
+                                </div>
+                                <h3 class="fw-bold m-0">
+                                    18
+                                </h3>
+                                <p class="text-muted m-0 small">
+                                    مواعيد اليوم
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endblock dash_content %}
+            </div>
+        </main>
+    </div>
+{% endblock content %}
+
+{% block footer %}{% endblock footer %}
+{% block js %}
+    <script src="{% static 'js/dash_index.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}

@@ -1,0 +1,172 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v={% now "U" %}" />
+{% endblock extra_css %}
+
+{% block navbar %}
+{% endblock navbar %}
+
+{% block content %}
+    <section class="auth-section d-flex align-items-center justify-content-center"
+             style="min-height: 100vh;
+                    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+                    padding: 40px 0">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card glass-card border-0 shadow-lg">
+                        <div class="card-body p-4 p-md-5">
+                            {% if mode == 'login' %}
+                                <div class="text-center mb-4">
+                                    <h2 class="fw-bold text-primary mb-2">مرحباً بعودتك!</h2>
+                                    <p class="text-muted">سجل الدخول للمتابعة إلى حسابك في رافقني</p>
+                                </div>
+                                <form method="post" class="form" action="{% url 'user_auth:login' %}" id="LoginForm">
+                                    {% csrf_token %}
+                                    {% include "partials/errorList.html" with form_id="LoginForm" %}
+                                    <div class="mb-4">
+                                        <label for="username" class="form-label fw-bold small text-muted">اسم المستخدم</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-user text-secondary"></i></span>
+                                            <input type="text"
+                                                   class="form-control border-start-0 ps-0 py-2"
+                                                   id="username"
+                                                   name="username"
+                                                   placeholder="اسم المستخدم"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="password" class="form-label fw-bold small text-muted">كلمة المرور</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-lock text-secondary"></i></span>
+                                            <input type="password"
+                                                   class="form-control border-start-0 border-end-0 ps-0 py-2"
+                                                   id="password"
+                                                   name="password"
+                                                   placeholder="********"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="remember" />
+                                            <label class="form-check-label small text-muted" for="remember">تذكرني</label>
+                                        </div>
+                                        <a href="{% url 'user_auth:lost_password' %}" class="text-primary text-decoration-none small fw-bold">نسيت كلمة المرور؟</a>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm rounded">تسجيل الدخول</button>
+                                </form>
+                                <div class="text-center mt-4 pt-3 border-top">
+                                    <p class="mb-0 text-muted small">
+                                        ليس لديك حساب؟ <a href="{% url 'user_auth:signup' %}" class="text-primary fw-bold text-decoration-none">إنشاء حساب جديد</a>
+                                    </p>
+                                </div>
+                            {% elif mode == 'signup' %}
+                                <div class="text-center mb-4">
+                                    <h2 class="fw-bold text-primary mb-2">إنشاء حساب جديد</h2>
+                                    <p class="text-muted">انضم إلى مجتمع رافقني اليوم</p>
+                                </div>
+                                <form method="post" class="form" action="{% url 'user_auth:signup' %}" id="SignupForm">
+                                    {% csrf_token %}
+                                    {% include "partials/errorList.html" with form_id="SignupForm" %}
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label fw-bold small text-muted">اسم المستخدم</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-user text-secondary"></i></span>
+                                            <input type="text"
+                                                   class="form-control border-start-0 ps-0 py-2"
+                                                   id="username"
+                                                   name="username"
+                                                   placeholder="اختر اسم مستخدم"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label fw-bold small text-muted">البريد الإلكتروني</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-envelope text-secondary"></i></span>
+                                            <input type="email"
+                                                   class="form-control border-start-0 ps-0 py-2"
+                                                   id="email"
+                                                   name="email"
+                                                   placeholder="example@mail.com"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label fw-bold small text-muted">كلمة المرور</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-lock text-secondary"></i></span>
+                                            <input type="password"
+                                                   class="form-control border-start-0 border-end-0 ps-0 py-2"
+                                                   id="password"
+                                                   name="password"
+                                                   placeholder="********"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="confirm_password" class="form-label fw-bold small text-muted">تأكيد كلمة المرور</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-check-double text-secondary"></i></span>
+                                            <input type="password"
+                                                   class="form-control border-start-0 border-end-0 ps-0 py-2"
+                                                   id="confirm_password"
+                                                   name="confirm_password"
+                                                   placeholder="********"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm rounded">إنشاء الحساب</button>
+                                </form>
+                                <div class="text-center mt-4 pt-3 border-top">
+                                    <p class="mb-0 text-muted small">
+                                        لديك حساب بالفعل؟ <a href="{% url 'user_auth:login' %}" class="text-primary fw-bold text-decoration-none">تسجيل الدخول</a>
+                                    </p>
+                                </div>
+                            {% elif mode == 'lost_password' %}
+                                <div class="text-center mb-4">
+                                    <h2 class="fw-bold text-primary mb-2">استعادة كلمة المرور</h2>
+                                    <p class="text-muted">أدخل بريدك الإلكتروني لإرسال رابط الاستعادة</p>
+                                </div>
+                                <form method="post" class="form" action="{% url 'user_auth:lost_password' %}" id="LostPasswordForm">
+                                    {% csrf_token %}
+                                    {% include "partials/errorList.html" with form_id="LostPasswordForm" %}
+                                    <div class="mb-4">
+                                        <label for="email" class="form-label fw-bold small text-muted">البريد الإلكتروني</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-envelope text-secondary"></i></span>
+                                            <input type="email"
+                                                   class="form-control border-start-0 ps-0 py-2"
+                                                   id="email"
+                                                   name="email"
+                                                   placeholder="example@mail.com"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm rounded">إرسال رابط الاستعادة</button>
+                                </form>
+                                <div class="text-center mt-4 pt-3 border-top">
+                                    <p class="mb-0 text-muted small">
+                                        تذكرت كلمة المرور؟ <a href="{% url 'user_auth:login' %}" class="text-primary fw-bold text-decoration-none">تسجيل الدخول</a>
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+
+{% block footer %}
+{% endblock footer %}
+
+{% block extra_js %}
+    <script src="{% static 'js/auth.js' %}?v={% now "U" %}"></script>
+{% endblock extra_js %}

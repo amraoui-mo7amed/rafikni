@@ -1,0 +1,207 @@
+{% extends "dashboard/dash_index.html" %}
+
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet"
+          href="{% static 'css/email_settings.css' %}?v={% now 'U' %}" />
+{% endblock extra_css %}
+{% block dash_content %}
+    <div class="welcome-section mb-4">
+        <h2 class="fw-bold text-dark">
+            إعدادات البريد الإلكتروني
+        </h2>
+        <p class="text-muted">
+            تحكم في خادم البريد الصادر (SMTP) الخاص بالمنصة.
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card bg-glass border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <form method="post"
+                          class="form"
+                          id="EmailSettingsForm"
+                          action="{% url 'dashboard:email_settings' %}">
+                        {% csrf_token %}
+                        {% include "partials/errorList.html" with form_id="EmailSettingsForm" %}
+
+                        <div class="row g-4">
+                            <!-- Config Name -->
+                            <div class="col-md-6">
+                                <label for="name" class="form-label fw-bold small text-muted">
+                                    اسم الإعداد
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-tag text-secondary"></i></span>
+                                    <input type="text"
+                                           name="name"
+                                           class="form-control border-start-0 ps-0 py-2"
+                                           id="name"
+                                           value="{{ config.name|default:'Primary Configuration' }}"
+                                           required />
+                                </div>
+                            </div>
+                            <!-- SMTP Host -->
+                            <div class="col-md-6">
+                                <label for="email_host" class="form-label fw-bold small text-muted">
+                                    خادم البريد (SMTP Host)
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-server text-secondary"></i></span>
+                                    <input type="text"
+                                           name="email_host"
+                                           class="form-control border-start-0 ps-0 py-2"
+                                           id="email_host"
+                                           value="{{ config.email_host|default:'' }}"
+                                           placeholder="smtp.gmail.com"
+                                           required />
+                                </div>
+                            </div>
+                            <!-- SMTP Port -->
+                            <div class="col-md-4">
+                                <label for="email_port" class="form-label fw-bold small text-muted">
+                                    المنفذ (Port)
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-plug text-secondary"></i></span>
+                                    <input type="number"
+                                           name="email_port"
+                                           class="form-control border-start-0 ps-0 py-2"
+                                           id="email_port"
+                                           value="{{ config.email_port|default:587 }}"
+                                           required />
+                                </div>
+                            </div>
+                            <!-- Default From Email -->
+                            <div class="col-md-8">
+                                <label for="default_from_email" class="form-label fw-bold small text-muted">
+                                    البريد المرسل الافتراضي
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-envelope text-secondary"></i></span>
+                                    <input type="email"
+                                           name="default_from_email"
+                                           class="form-control border-start-0 ps-0 py-2"
+                                           id="default_from_email"
+                                           value="{{ config.default_from_email|default:'' }}"
+                                           placeholder="noreply@rafikni.com"
+                                           required />
+                                </div>
+                            </div>
+                            <!-- SMTP User -->
+                            <div class="col-md-6">
+                                <label for="email_host_user" class="form-label fw-bold small text-muted">
+                                    اسم المستخدم
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-user text-secondary"></i></span>
+                                    <input type="text"
+                                           name="email_host_user"
+                                           class="form-control border-start-0 ps-0 py-2"
+                                           id="email_host_user"
+                                           value="{{ config.email_host_user|default:'' }}"
+                                           required />
+                                </div>
+                            </div>
+                            <!-- SMTP Password -->
+                            <div class="col-md-6">
+                                <label for="email_host_password" class="form-label fw-bold small text-muted">
+                                    كلمة المرور
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-lock text-secondary"></i></span>
+                                    <input type="password"
+                                           name="email_host_password"
+                                           class="form-control border-start-0 ps-0 py-2"
+                                           id="email_host_password"
+                                           value="{{ config.email_host_password|default:'' }}"
+                                           required />
+                                </div>
+                            </div>
+                            <!-- Switches -->
+                            <div class="col-12 mt-4">
+                                <div class="p-3 bg-light rounded-3 d-flex flex-wrap gap-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="email_use_tls"
+                                               id="email_use_tls"
+                                               {% if config.email_use_tls %}checked{% endif %} />
+                                        <label class="form-check-label fw-bold {% if config.email_use_tls %}text-primary{% else %}text-muted{% endif %} small ms-2"
+                                               for="email_use_tls">
+                                            استخدام TLS
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="email_use_ssl"
+                                               id="email_use_ssl"
+                                               {% if config.email_use_ssl %}checked{% endif %} />
+                                        <label class="form-check-label fw-bold {% if config.email_use_ssl %}text-primary{% else %}text-muted{% endif %} small ms-2"
+                                               for="email_use_ssl">
+                                            استخدام SSL
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="is_active"
+                                               id="is_active"
+                                               {% if config.is_active %}checked{% endif %} />
+                                        <label class="form-check-label fw-bold {% if config.is_active %}text-primary{% else %}text-muted{% endif %} small ms-2"
+                                               for="is_active">
+                                            تفعيل الإعداد
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-5">
+                                <button type="submit"
+                                        class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded transition">
+                                    حفظ الإعدادات
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <!-- Main Info Card -->
+            <div class="card border-0 shadow-sm bg-primary text-white mb-4">
+                <div class="card-header">
+                    <h4 class="fw-bold mb-0">
+                        معلومات هامة
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="small opacity-75 mb-0">
+                        تأكد من صحة بيانات الـ SMTP لتجنب فشل إرسال رسائل التحقق أو التنبيهات للمستخدمين.
+                    </p>
+                </div>
+            </div>
+            <!-- App Password Advice Card -->
+            <div class="card border-0 shadow-sm bg-danger">
+                <div class="card-header">
+                    <h4 class="fw-bold text-light mb-0">
+                        تنبيه
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="small text-white">
+                            في حال استخدام  <strong>Gmail</strong> يجب استخدام
+                            <strong>"كلمة مرور التطبيق"</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock dash_content %}
+{% block extra_js %}
+    <script src="{% static 'js/email_settings.js' %}?v={% now 'U' %}"></script>
+{% endblock extra_js %}

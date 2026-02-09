@@ -1,0 +1,14 @@
+{
+    "blank_line_after_tag": "load,extends,include",
+    "close_void_tags": true,
+    "format_css": true,
+    "css": {
+        "indent_size": 4
+    },
+    "format_js": true,
+    "js": {
+        "indent_size": 4
+    },
+    "line_break_after_multiline_tag": true,
+    "ignore": "H031,H006,H014,H020,H021,H023,H026,H008,H013,H029,D018,T002,H030,H012,T027"
+}
