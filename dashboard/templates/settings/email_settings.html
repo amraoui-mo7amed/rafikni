@@ -18,6 +18,15 @@
     </div>
     <div class="row">
         <div class="col-lg-8">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4 border-0 shadow-sm"
+                         role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
             <div class="card bg-glass border-0 shadow-sm">
                 <div class="card-body p-4 p-md-5">
                     <form method="post"
@@ -158,10 +167,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 mt-5">
+                            <div class="col-12 mt-5 d-flex gap-3">
                                 <button type="submit"
                                         class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded transition">
                                     حفظ الإعدادات
+                                </button>
+                                <button type="button"
+                                        id="testConnectionBtn"
+                                        class="btn btn-outline-primary px-4 py-3 fw-bold rounded transition">
+                                    تجربة الاتصال
                                 </button>
                             </div>
                         </div>
