@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Q
+from django.db import transaction
 from user_auth.models import UserProfile
 from ..decorators import admin_required
 
@@ -103,3 +104,54 @@ def user_toggle_status(request, pk):
             {"success": True, "message": f"تم {status_text} المستخدم بنجاح"}
         )
     return JsonResponse({"success": False, "message": "طلب غير صالح"})
+
+
+@login_required
+def profile_update(request):
+    user = request.user
+    profile, created = UserProfile.objects.get_or_create(user=user)
+
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        email = request.POST.get("email")
+        phone_number = request.POST.get("phone_number")
+        birthdate = request.POST.get("birthdate")
+        profile_pic = request.FILES.get("profile_pic")
+
+        errors = []
+
+        # Validation
+        if not email:
+            errors.append("البريد الإلكتروني مطلوب")
+        elif User.objects.filter(email=email).exclude(pk=user.pk).exists():
+            errors.append("هذا البريد الإلكتروني مستخدم بالفعل")
+        
+
+        if not errors:
+            try:
+                with transaction.atomic():
+                    user.first_name = first_name
+                    user.last_name = last_name
+                    user.email = email
+                    user.save()
+
+                    profile.phone_number = phone_number
+                    if birthdate:
+                        profile.birthdate = birthdate
+                    if profile_pic:
+                        profile.profile_pic = profile_pic
+                    profile.save()
+
+                return JsonResponse(
+                    {"success": True, "message": "تم تحديث الملف الشخصي بنجاح"}
+                )
+            except Exception as e:
+                return JsonResponse({"success": False, "errors": [str(e)]})
+
+        return JsonResponse({"success": False, "errors": errors})
+
+    context = {
+        "profile": profile,
+    }
+    return render(request, "dashboard/profile_update.html", context)

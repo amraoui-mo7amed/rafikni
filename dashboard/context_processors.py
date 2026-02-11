@@ -19,7 +19,7 @@ def sidebar_menu(request):
                     "name": "الرئيسية",
                     "url_name": "dashboard:index",
                     "icon": "fa-solid fa-house-chimney",
-                }
+                },
             ],
         },
         {
@@ -29,10 +29,9 @@ def sidebar_menu(request):
                     "name": "المستخدمين",
                     "url_name": "dashboard:user_list",
                     "icon": "fa-solid fa-users",
-                }, 
+                },
             ],
             "mt_auto": False,
-
         },
         {
             "label": "النظام",
@@ -41,6 +40,11 @@ def sidebar_menu(request):
                     "name": "إعدادات البريد",
                     "url_name": "dashboard:email_settings",
                     "icon": "fa-solid fa-envelope-open-text",
+                },
+                {
+                    "name": "الملف الشخصي",
+                    "url_name": "dashboard:profile_update",
+                    "icon": "fa-solid fa-user-pen",
                 },
                 {
                     "name": "تسجيل الخروج",

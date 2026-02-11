@@ -14,6 +14,7 @@ urlpatterns = [
         users.user_toggle_status,
         name="user_toggle_status",
     ),
+    path("profile/update/", users.profile_update, name="profile_update"),
     path("settings/email/", settings.email_settings, name="email_settings"),
     path(
         "settings/email/test/",
