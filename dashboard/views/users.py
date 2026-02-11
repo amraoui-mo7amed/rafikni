@@ -1,19 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Q
 from user_auth.models import UserProfile
-
-
-def is_admin(user):
-    return user.is_authenticated and (
-        user.is_superuser or (hasattr(user, "profile") and user.profile.role == "admin")
-    )
+from ..decorators import admin_required
 
 
 @login_required
-@user_passes_test(is_admin)
+@admin_required
 def user_list(request):
     query = request.GET.get("q", "")
     role = request.GET.get("role", "")
@@ -44,12 +39,13 @@ def user_list(request):
         "role": role,
         "status": status,
         "role_choices": UserProfile.RoleChoices.choices,
+        "status_choices": [("active", "نشط"), ("inactive", "محظور / غير نشط")],
     }
     return render(request, "dashboard/users/user_list.html", context)
 
 
 @login_required
-@user_passes_test(is_admin)
+@admin_required
 def user_detail(request, pk):
     user = get_object_or_404(User, pk=pk)
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
@@ -78,7 +74,7 @@ def user_detail(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin)
+@admin_required
 def user_delete(request, pk):
     if request.method == "POST":
         user = get_object_or_404(User, pk=pk)
@@ -92,7 +88,7 @@ def user_delete(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin)
+@admin_required
 def user_toggle_status(request, pk):
     if request.method == "POST":
         user = get_object_or_404(User, pk=pk)
