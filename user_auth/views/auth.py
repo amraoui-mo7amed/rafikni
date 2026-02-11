@@ -11,6 +11,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
+from dashboard.models import EmailConfiguration
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,9 +29,27 @@ def send_styled_email(request, user, subject, template_name, context_extra):
         **context_extra,
     }
     message = render_to_string(template_name, context)
-    email = EmailMessage(subject, message, to=[user.email])
+
+    # Get the configured sender email
+    from_email = None
+    try:
+        email_config = EmailConfiguration.objects.filter(is_active=True).first()
+        if email_config:
+            from_email = email_config.default_from_email
+            logger.info(f"Using configured from_email: {from_email}")
+    except Exception as e:
+        logger.warning(f"Could not load email configuration: {str(e)}")
+
+    email = EmailMessage(subject, message, from_email=from_email, to=[user.email])
     email.content_subtype = "html"
-    return email.send()
+
+    try:
+        result = email.send(fail_silently=False)
+        logger.info(f"Email sent successfully to {user.email}")
+        return result
+    except Exception as e:
+        logger.error(f"Failed to send email to {user.email}: {str(e)}")
+        raise
 
 
 def login_view(request):

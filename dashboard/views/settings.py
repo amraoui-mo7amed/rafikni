@@ -5,9 +5,10 @@ from django.http import JsonResponse
 from django.core.mail import get_connection
 from django.core.mail.backends.smtp import EmailBackend
 from ..models import EmailConfiguration
+from ..decorators import admin_required
 
 
-# @login_required
+@admin_required
 def test_email_connection(request):
     if request.method == "POST":
         email_host = request.POST.get("email_host")
@@ -43,7 +44,7 @@ def test_email_connection(request):
     return JsonResponse({"success": False, "errors": ["طلب غير صالح"]})
 
 
-# @login_required
+@admin_required
 def email_settings(request):
     config = EmailConfiguration.objects.first()
 

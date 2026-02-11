@@ -11,7 +11,7 @@ class DbEmailBackend(EmailBackend):
                     {
                         "host": config.email_host,
                         "port": config.email_port,
-                        "user": config.email_host_user,
+                        "username": config.email_host_user,
                         "password": config.email_host_password,
                         "use_tls": config.email_use_tls,
                         "use_ssl": config.email_use_ssl,
