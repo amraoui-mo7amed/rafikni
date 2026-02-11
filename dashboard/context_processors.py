@@ -1,5 +1,6 @@
 from django.urls import reverse, resolve
 
+
 def sidebar_menu(request):
     current_url_name = None
     try:
@@ -22,6 +23,18 @@ def sidebar_menu(request):
             ],
         },
         {
+            "label": "الإدارة",
+            "items": [
+                {
+                    "name": "المستخدمين",
+                    "url_name": "dashboard:user_list",
+                    "icon": "fa-solid fa-users",
+                }, 
+            ],
+            "mt_auto": False,
+
+        },
+        {
             "label": "النظام",
             "items": [
                 {
@@ -34,9 +47,9 @@ def sidebar_menu(request):
                     "url_name": "user_auth:logout",
                     "icon": "fa-solid fa-right-from-bracket",
                     "class": "text-danger",
-                }
+                },
             ],
-            "mt_auto": True
+            "mt_auto": True,
         },
     ]
 
@@ -50,8 +63,8 @@ def sidebar_menu(request):
                     item["url"] = reverse(item["url_name"])
             except:
                 item["url"] = "#"
-            
+
             # Simple active state check
-            item["active"] = (current_url_name == item.get("url_name"))
+            item["active"] = current_url_name == item.get("url_name")
 
     return {"sidebar_menu": menu_sections}

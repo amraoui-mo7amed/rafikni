@@ -27,20 +27,22 @@
             </div>
             <div class="sidebar-content mt-3 d-flex flex-column h-100">
                 {% for section in sidebar_menu %}
-                    {% if section.label %}
-                        <span class="sidebar-label">{{ section.label }}</span>
-                    {% endif %}
-                    <ul class="nav flex-column p-2 {% if section.mt_auto %}mt-auto{% else %}flex-grow-1{% endif %} {% if not forloop.last %}mb-2{% endif %}">
-                        {% for item in section.items %}
-                            <li class="nav-item {% if not forloop.last %}mb-2{% endif %} {% if section.mt_auto and forloop.first %}border-top pt-2{% endif %}">
-                                <a href="{{ item.url }}"
-                                   class="nav-link {% if item.active %}active{% endif %} d-flex align-items-center rounded-3 p-3 transition {{ item.class }}">
-                                    <i class="{{ item.icon }} me-3"></i>
-                                    <span class="link-text">{{ item.name }}</span>
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                    <div class="sidebar-section {% if section.mt_auto %}mt-auto{% endif %}">
+                        {% if section.label %}
+                            <span class="sidebar-label">{{ section.label }}</span>
+                        {% endif %}
+                        <ul class="nav flex-column p-2 {% if not forloop.last %}mb-2{% endif %}">
+                            {% for item in section.items %}
+                                <li class="nav-item {% if not forloop.last %}mb-2{% endif %} {% if section.mt_auto and forloop.first %}border-top pt-2{% endif %}">
+                                    <a href="{{ item.url }}"
+                                       class="nav-link {% if item.active %}active{% endif %} d-flex align-items-center rounded-3 p-3 transition {{ item.class }}">
+                                        <i class="{{ item.icon }} me-3"></i>
+                                        <span class="link-text">{{ item.name }}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endfor %}
             </div>
         </aside>
