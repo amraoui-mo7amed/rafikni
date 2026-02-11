@@ -1,0 +1,106 @@
+/* User List Custom Styles */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.table-responsive {
+    background: white;
+    border-radius: 12px;
+    overflow: visible;
+    /* Changed to visible for dropdowns/tooltips */
+}
+
+.search-box {
+    max-width: 300px;
+}
+
+/* Action Buttons Styling */
+.action-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-view:hover {
+    background: #e0f2fe;
+    color: #0ea5e9;
+    border-color: #bae6fd;
+}
+
+.btn-status-toggle:hover {
+    background: #fef3c7;
+    color: #d97706;
+    border-color: #fde68a;
+}
+
+.btn-status-toggle.active:hover {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.btn-delete:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+/* Modal Styling */
+.modal-confirm .modal-content {
+    border-radius: 20px;
+    border: none;
+}
+
+.modal-confirm .modal-header {
+    border-bottom: none;
+    padding: 25px 25px 5px;
+}
+
+.modal-confirm .modal-footer {
+    border-top: none;
+    padding: 10px 25px 25px;
+}
+
+.icon-box-danger {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 1.5rem;
+}

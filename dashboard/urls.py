@@ -1,5 +1,5 @@
 from django.urls import path
-from dashboard.views import main, settings
+from dashboard.views import main, settings, users
 
 app_name = "dashboard"
 
@@ -11,4 +11,8 @@ urlpatterns = [
         settings.test_email_connection,
         name="test_email_connection",
     ),
+    path("users/", users.user_list, name="user_list"),
+    path("users/<int:pk>/", users.user_detail, name="user_detail"),
+    path("users/<int:pk>/delete/", users.user_delete, name="user_delete"),
+    path("users/<int:pk>/toggle_status/", users.user_toggle_status, name="user_toggle_status"),
 ]

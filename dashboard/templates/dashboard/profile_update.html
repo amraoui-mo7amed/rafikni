@@ -1,0 +1,145 @@
+{% extends "dashboard/dash_index.html" %}
+
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet"
+          href="{% static 'dashboard/css/profile_update.css' %}?v={% now 'U' %}" />
+{% endblock extra_css %}
+{% block dash_content %}
+    <div class="bento-container">
+        <div class="bento-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="m-0">
+                    حسابي
+                </h2>
+                <p class="text-muted">
+                    نظم معلوماتك الشخصية في مكان واحد.
+                </p>
+            </div>
+        </div>
+        <form method="post"
+              id="ProfileUpdateForm"
+              action="{% url 'dashboard:profile_update' %}"
+              enctype="multipart/form-data"
+              class="form">
+            {% csrf_token %}
+            <div class="bento-grid">
+                <!-- Profile Info Box -->
+                <div class="bento-item bento-profile-card">
+                    <h5 class="fw-bold mb-4">
+                        الصورة الرمزية
+                    </h5>
+                    {% include "partials/ultra_image_upload.html" with name="profile_pic" value=profile.profile_pic %}
+
+                    <p class="small text-muted mt-3">
+                        استخدم صورة واضحة لسهولة التعرف عليك.
+                    </p>
+                    <hr class="my-4 opacity-25" />
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <span class="d-block bento-label">اسم المستخدم</span>
+                            <span class="fw-bold h5">@{{ user.username }}</span>
+                        </div>
+                        <div>
+                            <span class="d-block bento-label">نوع الحساب</span>
+                            <span class="badge bg-soft-primary text-primary px-3">{{ profile.get_role_display }}</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main Fields Box -->
+                <div class="bento-item bento-main-form">
+                    <h5 class="fw-bold mb-4">
+                        البيانات الشخصية
+                    </h5>
+                    {% include "partials/errorList.html" with form_id="ProfileUpdateForm" %}
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label">
+                                    الاسم الأول
+                                </label>
+                                <input type="text"
+                                       name="first_name"
+                                       class="form-control"
+                                       value="{{ user.first_name }}" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label">
+                                    اللقب
+                                </label>
+                                <input type="text"
+                                       name="last_name"
+                                       class="form-control"
+                                       value="{{ user.last_name }}" />
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="bento-input-group">
+                                <label class="bento-label">
+                                    البريد الإلكتروني
+                                </label>
+                                <input type="email"
+                                       name="email"
+                                       class="form-control"
+                                       value="{{ user.email }}"
+                                       required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label">
+                                    رقم الهاتف
+                                </label>
+                                <input type="text"
+                                       name="phone_number"
+                                       class="form-control"
+                                       value="{{ profile.phone_number }}" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label">
+                                    تاريخ الميلاد
+                                </label>
+                                <input type="date"
+                                       name="birthdate"
+                                       class="form-control"
+                                       value="{{ profile.birthdate|date:'Y-m-d' }}" />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-4">
+                        تحديث الملف الشخصي
+                    </button>
+                </div>
+                <!-- Stats Box -->
+                <div class="bento-item bento-stats">
+                    <div class="stat-item">
+                        <span class="val">{{ user.date_joined|date:"d M Y" }}</span>
+                        <span class="lbl">تاريخ الانضمام</span>
+                    </div>
+                    <div class="vr opacity-25">
+                    </div>
+                    <div class="stat-item">
+                        <span class="val">{{ user.last_login|default:"اليوم"|date:"H:i" }}</span>
+                        <span class="lbl">آخر دخول</span>
+                    </div>
+                    <div class="vr opacity-25">
+                    </div>
+                    <div class="stat-item">
+                        <span class="val text-success">نشط</span>
+                        <span class="lbl">حالة الحساب</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock dash_content %}
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock extra_js %}
