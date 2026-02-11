@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.urls import reverse
+from ..models import UserProfile
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -88,10 +89,19 @@ def signup_view(request):
 
         if not errors:
             try:
-                # إنشاء المستخدم غير نشط حتى يتم التفعيل
-                user = User.objects.create_user(
-                    username=username, email=email, password=password, is_active=False
-                )
+                with transaction.atomic():
+                    # إنشاء المستخدم غير نشط حتى يتم التفعيل
+                    user = User.objects.create_user(
+                        username=username,
+                        email=email,
+                        password=password,
+                        is_active=False,
+                    )
+
+                    # إنشاء الملف الشخصي الافتراضي
+                    UserProfile.objects.get_or_create(
+                        user=user, defaults={"role": UserProfile.RoleChoices.PATIENT}
+                    )
 
                 # توليد رابط التفعيل
                 token = default_token_generator.make_token(user)

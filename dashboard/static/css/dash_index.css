@@ -134,6 +134,27 @@ body {
     color: #0d6efd;
 }
 
+.sidebar-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #adb5bd;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 1.5rem;
+    margin-top: 0.5rem;
+    display: block;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-label {
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+    margin: 0;
+}
+
 /* Main Container */
 .main-container {
     margin-right: var(--sidebar-width);
