@@ -19,6 +19,17 @@
                 <div class="col-md-6 col-lg-5">
                     <div class="card glass-card border-0 shadow-lg">
                         <div class="card-body p-4 p-md-5">
+                            {% if success_message %}
+                                <div class="alert alert-success text-center mb-4">
+                                    {{ success_message }}
+                                </div>
+                            {% endif %}
+                            {% if error_message %}
+                                <div class="alert alert-danger text-center mb-4">
+                                    {{ error_message }}
+                                </div>
+                            {% endif %}
+
                             {% if mode == 'login' %}
                                 <div class="text-center mb-4">
                                     <h2 class="fw-bold text-primary mb-2">مرحباً بعودتك!</h2>
@@ -155,6 +166,40 @@
                                         تذكرت كلمة المرور؟ <a href="{% url 'user_auth:login' %}" class="text-primary fw-bold text-decoration-none">تسجيل الدخول</a>
                                     </p>
                                 </div>
+                            {% elif mode == 'reset_password_confirm' %}
+                                <div class="text-center mb-4">
+                                    <h2 class="fw-bold text-primary mb-2">تعيين كلمة المرور</h2>
+                                    <p class="text-muted">أدخل كلمة المرور الجديدة لحسابك</p>
+                                </div>
+                                <form method="post" class="form" action="{% url 'user_auth:password_reset_confirm' uidb64=uid token=token %}" id="ResetPasswordForm">
+                                    {% csrf_token %}
+                                    {% include "partials/errorList.html" with form_id="ResetPasswordForm" %}
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label fw-bold small text-muted">كلمة المرور الجديدة</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-lock text-secondary"></i></span>
+                                            <input type="password"
+                                                   class="form-control border-start-0 border-end-0 ps-0 py-2"
+                                                   id="password"
+                                                   name="password"
+                                                   placeholder="********"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="confirm_password" class="form-label fw-bold small text-muted">تأكيد كلمة المرور</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 py-2"><i class="fa-solid fa-check-double text-secondary"></i></span>
+                                            <input type="password"
+                                                   class="form-control border-start-0 border-end-0 ps-0 py-2"
+                                                   id="confirm_password"
+                                                   name="confirm_password"
+                                                   placeholder="********"
+                                                   required />
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm rounded">تغيير كلمة المرور</button>
+                                </form>
                             {% endif %}
                         </div>
                     </div>

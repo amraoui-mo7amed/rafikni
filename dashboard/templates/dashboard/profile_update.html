@@ -24,6 +24,7 @@
               action="{% url 'dashboard:profile_update' %}"
               enctype="multipart/form-data"
               class="form">
+
             {% csrf_token %}
             <div class="bento-grid">
                 <!-- Profile Info Box -->

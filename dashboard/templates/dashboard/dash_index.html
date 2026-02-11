@@ -6,19 +6,16 @@
     <link rel="stylesheet"
           href="{% static 'css/dash_index.css' %}?v={% now 'U' %}" />
 {% endblock css %}
-
-{% block navbar %}{% endblock navbar %}
-
+{% block navbar %}
+{% endblock navbar %}
 {% block content %}
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    
+    <div class="sidebar-overlay" id="sidebarOverlay">
+    </div>
     <!-- Floating Sidebar Toggle -->
     <button id="sidebarToggle" class="btn btn-primary shadow-lg floating-toggle">
         <i class="fa-solid fa-bars-staggered"></i>
     </button>
-
     <div class="dashboard-wrapper d-flex" dir="rtl">
-
         <!-- Sidebar -->
         <aside id="sidebar" class="sidebar bg-glass shadow-sm">
             <div class="sidebar-header d-flex align-items-center p-3">
@@ -29,52 +26,24 @@
                 </div>
             </div>
             <div class="sidebar-content mt-3 d-flex flex-column h-100">
-                <ul class="nav flex-column p-2 flex-grow-1">
-                    <li class="nav-item mb-2">
-                        <a href="{% url 'dashboard:index' %}"
-                           class="nav-link active d-flex align-items-center rounded-3 p-3 transition">
-                            <i class="fa-solid fa-house-chimney me-3"></i>
-                            <span class="link-text">الرئيسية</span>
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="#"
-                           class="nav-link d-flex align-items-center rounded-3 p-3 transition">
-                            <i class="fa-solid fa-user-group me-3"></i>
-                            <span class="link-text">المرضى</span>
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="#"
-                           class="nav-link d-flex align-items-center rounded-3 p-3 transition">
-                            <i class="fa-solid fa-calendar-check me-3"></i>
-                            <span class="link-text">المواعيد</span>
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="#"
-                           class="nav-link d-flex align-items-center rounded-3 p-3 transition">
-                            <i class="fa-solid fa-file-medical me-3"></i>
-                            <span class="link-text">التقارير</span>
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="{% url 'dashboard:email_settings' %}"
-                           class="nav-link d-flex align-items-center rounded-3 p-3 transition">
-                            <i class="fa-solid fa-envelope-open-text me-3"></i>
-                            <span class="link-text">إعدادات البريد</span>
-                        </a>
-                    </li>
-                </ul>
-                <ul class="nav flex-column p-2 mt-auto mb-2">
-                    <li class="nav-item border-top pt-2">
-                        <a href="{% url 'user_auth:logout' %}"
-                           class="nav-link d-flex align-items-center rounded-3 p-3 transition text-danger">
-                            <i class="fa-solid fa-right-from-bracket me-3"></i>
-                            <span class="link-text">تسجيل الخروج</span>
-                        </a>
-                    </li>
-                </ul>
+                {% for section in sidebar_menu %}
+                    <div class="sidebar-section {% if section.mt_auto %}mt-auto{% endif %}">
+                        {% if section.label %}
+                            <span class="sidebar-label">{{ section.label }}</span>
+                        {% endif %}
+                        <ul class="nav flex-column p-2 {% if not forloop.last %}mb-2{% endif %}">
+                            {% for item in section.items %}
+                                <li class="nav-item {% if not forloop.last %}mb-2{% endif %} {% if section.mt_auto and forloop.first %}border-top pt-2{% endif %}">
+                                    <a href="{{ item.url }}"
+                                       class="nav-link {% if item.active %}active{% endif %} d-flex align-items-center rounded-3 p-3 transition {{ item.class }}">
+                                        <i class="{{ item.icon }} me-3"></i>
+                                        <span class="link-text">{{ item.name }}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
             </div>
         </aside>
         <!-- Main Content -->
@@ -94,59 +63,82 @@
                 <div class="user-actions d-flex align-items-center">
                     <!-- Notifications Dropdown -->
                     <div class="dropdown me-4 position-relative">
-                        <div class="notifications cursor-pointer" id="notificationDropdown" data-bs-toggle="dropdown" data-bs-offset="0,15" aria-expanded="false">
+                        <div class="notifications cursor-pointer"
+                             id="notificationDropdown"
+                             data-bs-toggle="dropdown"
+                             data-bs-offset="0,15"
+                             aria-expanded="false">
                             <i class="fa-solid fa-bell text-muted fa-lg"></i>
                             <span class="badge rounded-pill bg-danger border border-light position-absolute top-0 start-100 translate-middle p-1 pulse-animation">
                                 <span class="visually-hidden">تنبيهات</span>
                             </span>
                         </div>
-                        <div class="dropdown-menu bg-glass dropdown-menu-end border-0 shadow-lg p-0 mt-3 notification-panel" aria-labelledby="notificationDropdown">
+                        <div class="dropdown-menu bg-glass dropdown-menu-end border-0 shadow-lg p-0 mt-3 notification-panel"
+                             aria-labelledby="notificationDropdown">
                             <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
-                                <h6 class="m-0 fw-bold text-dark">التنبيهات</h6>
+                                <h6 class="m-0 fw-bold text-dark">
+                                    التنبيهات
+                                </h6>
                                 <span class="badge bg-soft-primary text-primary small">3 جديدة</span>
                             </div>
-                            <div class="notification-list" style="max-height: 350px; overflow-y: auto;">
+                            <div class="notification-list" style="max-height: 350px; overflow-y: auto">
                                 <!-- Sample Notification 1 -->
-                                <a href="#" class="dropdown-item p-3 border-bottom d-flex align-items-start transition">
+                                <a href="#"
+                                   class="dropdown-item p-3 border-bottom d-flex align-items-start transition">
                                     <div class="icon-box bg-soft-primary p-2 rounded-3 text-primary me-3">
                                         <i class="fa-solid fa-calendar-check small"></i>
                                     </div>
                                     <div class="flex-grow-1 text-wrap">
-                                        <p class="m-0 small fw-bold">موعد جديد</p>
-                                        <p class="m-0 x-small text-muted">لديك موعد جديد مع المريض "أحمد علي" اليوم الساعة 4:00 مساءً.</p>
+                                        <p class="m-0 small fw-bold">
+                                            موعد جديد
+                                        </p>
+                                        <p class="m-0 x-small text-muted">
+                                            لديك موعد جديد مع المريض "أحمد علي" اليوم الساعة 4:00 مساءً.
+                                        </p>
                                         <span class="x-small text-primary mt-1 d-block">منذ 5 دقائق</span>
                                     </div>
                                 </a>
                                 <!-- Sample Notification 2 -->
-                                <a href="#" class="dropdown-item p-3 border-bottom d-flex align-items-start transition">
+                                <a href="#"
+                                   class="dropdown-item p-3 border-bottom d-flex align-items-start transition">
                                     <div class="icon-box bg-soft-success p-2 rounded-3 text-success me-3">
                                         <i class="fa-solid fa-user-plus small"></i>
                                     </div>
                                     <div class="flex-grow-1 text-wrap">
-                                        <p class="m-0 small fw-bold">ملف مريض جديد</p>
-                                        <p class="m-0 x-small text-muted">تمت إضافة ملف طبي جديد للمريضة "سارة خالد".</p>
+                                        <p class="m-0 small fw-bold">
+                                            ملف مريض جديد
+                                        </p>
+                                        <p class="m-0 x-small text-muted">
+                                            تمت إضافة ملف طبي جديد للمريضة "سارة خالد".
+                                        </p>
                                         <span class="x-small text-primary mt-1 d-block">منذ ساعة</span>
                                     </div>
                                 </a>
                                 <!-- Sample Notification 3 -->
-                                <a href="#" class="dropdown-item p-3 d-flex align-items-start transition">
+                                <a href="#"
+                                   class="dropdown-item p-3 d-flex align-items-start transition">
                                     <div class="icon-box bg-soft-warning p-2 rounded-3 text-warning me-3">
                                         <i class="fa-solid fa-triangle-exclamation small"></i>
                                     </div>
                                     <div class="flex-grow-1 text-wrap">
-                                        <p class="m-0 small fw-bold">تحديث النظام</p>
-                                        <p class="m-0 x-small text-muted">توجد تحديثات جديدة متوفرة لمنصة رافقني.</p>
+                                        <p class="m-0 small fw-bold">
+                                            تحديث النظام
+                                        </p>
+                                        <p class="m-0 x-small text-muted">
+                                            توجد تحديثات جديدة متوفرة لمنصة رافقني.
+                                        </p>
                                         <span class="x-small text-primary mt-1 d-block">منذ يوم</span>
                                     </div>
                                 </a>
                             </div>
                             <div class="p-2 border-top text-center">
-                                <a href="#" class="btn btn-link btn-sm text-primary text-decoration-none fw-bold">مشاهدة الكل</a>
+                                <a href="#"
+                                   class="btn btn-link btn-sm text-primary text-decoration-none fw-bold">مشاهدة الكل</a>
                             </div>
                         </div>
                     </div>
-                    <div class="user-profile d-flex gap-2 align-items-center cursor-pointer">
-                        <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=0D6EFD&color=fff"
+                    <div class="user-profile d-flex gap-2 align-items-center cursor-pointer" onclick="window.location.href='{% url 'dashboard:profile_update' %}'">
+                        <img src="{% if user.profile.profile_pic %}{{ user.profile.profile_pic.url }}{% else %}https://ui-avatars.com/api/?name={{ user.username }}&background=0D6EFD&color=fff{% endif %}"
                              alt="Profile"
                              id="userAvatar"
                              class="rounded"
@@ -159,7 +151,6 @@
                             </h6>
                             <small class="text-muted"> مسؤول</small>
                         </div>
-
                     </div>
                 </div>
             </nav>
@@ -214,8 +205,8 @@
         </main>
     </div>
 {% endblock content %}
-
-{% block footer %}{% endblock footer %}
+{% block footer %}
+{% endblock footer %}
 {% block js %}
     <script src="{% static 'js/dash_index.js' %}?v={% now 'U' %}"></script>
 {% endblock js %}

@@ -1,0 +1,132 @@
+<div class="ultra-upload-container" id="upload-{{ name }}">
+    <div class="ultra-upload-card" onclick="document.getElementById('input-file-{{ name }}').click()">
+        <div class="ultra-upload-preview" id="preview-{{ name }}">
+            {% if value %}
+                <img src="{{ value.url }}" alt="Preview">
+            {% else %}
+                <div class="ultra-upload-placeholder">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>اضغط لاختيار صورة</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="ultra-upload-overlay">
+            <i class="fa-solid fa-camera"></i>
+            <span>تغيير الصورة</span>
+        </div>
+    </div>
+    <input type="file" name="{{ name }}" id="input-file-{{ name }}" hidden accept="image/*" onchange="previewUltraImage(this, '{{ name }}')">
+</div>
+
+<style>
+    .ultra-upload-container {
+        --upload-size: 150px;
+        --upload-radius: 24px;
+        --upload-bg: rgba(255, 255, 255, 0.7);
+        --upload-border: rgba(13, 110, 253, 0.2);
+        --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .ultra-upload-card {
+        width: var(--upload-size);
+        height: var(--upload-size);
+        border-radius: var(--upload-radius);
+        background: var(--upload-bg);
+        backdrop-filter: blur(10px);
+        border: 2px dashed var(--upload-border);
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .ultra-upload-card:hover {
+        border-color: #0d6efd;
+        transform: scale(1.05) rotate(2deg);
+        box-shadow: 0 15px 30px rgba(13, 110, 253, 0.1);
+    }
+
+    .ultra-upload-preview {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ultra-upload-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .ultra-upload-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        color: #64748b;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .ultra-upload-placeholder i {
+        font-size: 2rem;
+        background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .ultra-upload-placeholder span {
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .ultra-upload-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(13, 110, 253, 0.8);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: var(--transition);
+    }
+
+    .ultra-upload-card:hover .ultra-upload-overlay {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .ultra-upload-overlay i {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+
+    .ultra-upload-overlay span {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    if (typeof previewUltraImage !== 'function') {
+        window.previewUltraImage = function(input, name) {
+            const preview = document.getElementById('preview-' + name);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+    }
+</script>

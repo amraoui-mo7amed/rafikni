@@ -1,0 +1,38 @@
+<div class="ultra-select-container" id="custom-select-{{ name }}">
+    <div class="ultra-select-wrapper" onclick="toggleUltraDropdown('{{ name }}')">
+        {% if icon %}
+            <div class="ultra-icon-box">
+                <i class="{{ icon }}"></i>
+            </div>
+        {% endif %}
+        
+        <div class="ultra-selected-value">
+            {% if selected %}
+                {% for val, label in options %}
+                    {% if selected == val %}{{ label }}{% endif %}
+                {% endfor %}
+            {% else %}
+                {{ placeholder }}
+            {% endif %}
+        </div>
+
+        <input type="hidden" name="{{ name }}" value="{{ selected|default:'' }}" id="input-{{ name }}">
+        
+        <div class="ultra-arrow">
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+    </div>
+
+    <div class="ultra-dropdown" id="dropdown-{{ name }}">
+        {% if placeholder %}
+            <div class="ultra-option {% if not selected %}active{% endif %}" onclick="selectUltraOption('{{ name }}', '', '{{ placeholder }}')">
+                {{ placeholder }}
+            </div>
+        {% endif %}
+        {% for val, label in options %}
+            <div class="ultra-option {% if selected == val %}active{% endif %}" onclick="selectUltraOption('{{ name }}', '{{ val }}', '{{ label }}')">
+                {{ label }}
+            </div>
+        {% endfor %}
+    </div>
+</div>

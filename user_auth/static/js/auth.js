@@ -1,6 +1,6 @@
 /**
  * Rafikni Authentication Script
- * Handles form interactions, password visibility, and loading states.
+ * Handles form interactions, password visibility, and AJAX submissions.
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -8,23 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInputs = document.querySelectorAll('input[type="password"]');
     
     passwordInputs.forEach(input => {
-        // Create the toggle button
         const toggleBtn = document.createElement('span');
         toggleBtn.className = 'input-group-text bg-white border-start-0 py-2 cursor-pointer';
         toggleBtn.innerHTML = '<i class="fa-solid fa-eye text-muted"></i>';
         toggleBtn.style.cursor = 'pointer';
         
-        // Find the input group and append the toggle
         const inputGroup = input.parentElement;
         if (inputGroup && inputGroup.classList.contains('input-group')) {
             inputGroup.appendChild(toggleBtn);
             
-            // Toggle logic
             toggleBtn.addEventListener('click', function() {
                 const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
                 input.setAttribute('type', type);
                 
-                // Toggle icon
                 const icon = toggleBtn.querySelector('i');
                 if (type === 'text') {
                     icon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -37,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 4. Subtle Page Load Animation
+
+    // 2. Subtle Page Load Animation
     const cards = document.querySelectorAll('.glass-card');
     cards.forEach((card, index) => {
         card.style.opacity = '0';
