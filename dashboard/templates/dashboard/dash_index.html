@@ -149,7 +149,7 @@
                             <h6 class="m-0 fw-bold">
                                 {{ user.get_full_name|default:user.username }}
                             </h6>
-                            <small class="text-muted"> مسؤول</small>
+                            <small class="text-muted"> {{ user.profile.get_role_display|default:"مستخدم" }} </small>
                         </div>
                     </div>
                 </div>
@@ -165,38 +165,105 @@
                             هذا ملخص لما يحدث اليوم في عيادتك.
                         </p>
                     </div>
-                    <div class="row g-4">
-                        <!-- Placeholder Cards -->
+                    <div class="row g-4 mb-4">
+                        <!-- Total Users -->
                         <div class="col-md-3">
                             <div class="card stat-card bg-glass border-0 shadow-sm transition p-4">
                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                     <div class="icon-box bg-soft-primary p-3 rounded-circle text-primary">
-                                        <i class="fa-solid fa-user-plus fa-lg"></i>
+                                        <i class="fa-solid fa-users fa-lg"></i>
                                     </div>
-                                    <span class="badge bg-soft-success text-success">+12%</span>
+                                    <span class="badge bg-soft-{% if users_growth >= 0 %}success{% else %}danger{% endif %} text-{% if users_growth >= 0 %}success{% else %}danger{% endif %}">
+                                        {% if users_growth >= 0 %}+{% endif %}{{ users_growth }}%
+                                    </span>
                                 </div>
                                 <h3 class="fw-bold m-0">
-                                    124
+                                    {{ total_users }}
                                 </h3>
                                 <p class="text-muted m-0 small">
-                                    إجمالي المرضى
+                                    إجمالي المستخدمين
                                 </p>
                             </div>
                         </div>
+                        <!-- Active Users -->
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-glass border-0 shadow-sm transition p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="icon-box bg-soft-success p-3 rounded-circle text-success">
+                                        <i class="fa-solid fa-user-check fa-lg"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold m-0">
+                                    {{ active_users }}
+                                </h3>
+                                <p class="text-muted m-0 small">
+                                    مستخدمين نشطين
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Inactive Users -->
                         <div class="col-md-3">
                             <div class="card stat-card bg-glass border-0 shadow-sm transition p-4">
                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                     <div class="icon-box bg-soft-warning p-3 rounded-circle text-warning">
-                                        <i class="fa-solid fa-clock fa-lg"></i>
+                                        <i class="fa-solid fa-user-slash fa-lg"></i>
                                     </div>
-                                    <span class="badge bg-soft-danger text-danger">-5%</span>
                                 </div>
                                 <h3 class="fw-bold m-0">
-                                    18
+                                    {{ inactive_users }}
                                 </h3>
                                 <p class="text-muted m-0 small">
-                                    مواعيد اليوم
+                                    مستخدمين غير نشطين
                                 </p>
+                            </div>
+                        </div>
+                        <!-- New Users This Month -->
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-glass border-0 shadow-sm transition p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="icon-box bg-soft-info p-3 rounded-circle text-info">
+                                        <i class="fa-solid fa-user-plus fa-lg"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold m-0">
+                                    {{ users_this_month }}
+                                </h3>
+                                <p class="text-muted m-0 small">
+                                    مستخدمين جدد هذا الشهر
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Users by Role -->
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="card bg-glass border-0 shadow-sm p-4">
+                                <h5 class="fw-bold mb-4">
+                                    المستخدمين حسب الدور
+                                </h5>
+                                <div class="row g-3">
+                                    {% for role_data in users_by_role %}
+                                        <div class="col-md-4">
+                                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                                <div class="icon-box bg-white p-2 rounded-circle me-3">
+                                                    <i class="fa-solid fa-user-tag text-primary"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold">
+                                                        {% for choice in role_choices %}
+                                                            {% if choice.0 == role_data.role %}
+                                                                {{ choice.1 }}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="text-muted small">
+                                                        {{ role_data.count }} مستخدم
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     </div>

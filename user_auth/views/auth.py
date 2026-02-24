@@ -135,7 +135,7 @@ def signup_view(request):
                 send_styled_email(
                     request,
                     user,
-                    "تفعيل حسابك في رفيقني",
+                    "تفعيل حسابك في رافقني",
                     "emails/email_verification.html",
                     {"activation_url": activation_url},
                 )
@@ -168,14 +168,7 @@ def activate_view(request, uidb64, token):
         user.is_active = True
         user.save()
         login(request, user)
-        return render(
-            request,
-            "auth.html",
-            {
-                "mode": "login",
-                "success_message": "تم تفعيل حسابك بنجاح! يمكنك الآن استخدام المنصة.",
-            },
-        )
+        return render(request, "activation_success.html")
     else:
         return render(
             request,
@@ -211,7 +204,7 @@ def lost_password_view(request):
                 send_styled_email(
                     request,
                     user,
-                    "إعادة تعيين كلمة المرور - رفيقني",
+                    "إعادة تعيين كلمة المرور - رافقني",
                     "emails/password_reset.html",
                     {"reset_url": reset_url},
                 )
@@ -255,7 +248,7 @@ def password_reset_confirm_view(request, uidb64, token):
                 user.set_password(password)
                 user.save()
                 return JsonResponse(
-                    {"success": True, "message": "تم تغيير كلمة المرور بنجاح"}
+                    {"success": True, "message": "تم تغيير كلمة المرور بنجاح", 'redirect_url': reverse('user_auth:login')}
                 )
             return JsonResponse({"success": False, "errors": errors})
 

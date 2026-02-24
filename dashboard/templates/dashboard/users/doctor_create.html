@@ -1,0 +1,144 @@
+{% extends "dashboard/dash_index.html" %}
+
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/doctor_create.css' %}?v={% now 'U' %}" />
+{% endblock extra_css %}
+
+{% block dash_content %}
+    <div class="bento-container">
+        <div class="bento-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold text-dark">
+                    إنشاء حساب طبيب
+                </h2>
+                <p class="text-muted">
+                    إضافة حساب جديد للطبيب إلى المنصة.
+                </p>
+            </div>
+            <a href="{% url 'dashboard:user_list' %}" class="bento-btn-secondary text-decoration-none">
+                <i class="fa-solid fa-arrow-right me-2"></i>
+                العودة للقائمة
+            </a>
+        </div>
+
+        <form id="doctorCreateForm" 
+              method="post" 
+              enctype="multipart/form-data" 
+              action="{% url 'dashboard:doctor_create' %}" 
+              class="form">
+            {% csrf_token %}
+            
+            <div class="bento-grid">
+                <!-- Main Info Section -->
+                <div class="bento-item bento-main-info">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fa-solid fa-user-doctor me-2 text-primary"></i>
+                        البيانات الأساسية
+                    </h5>
+
+                    {% include "partials/errorList.html" with form_id="doctorCreateForm" %}
+
+                    <div class="bento-alert">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <div>
+                            <span class="d-block fw-bold">توليد تلقائي لكلمة المرور</span>
+                            <small class="text-muted">سيقوم النظام بإنشاء كلمة مرور آمنة وإرسالها لبريد الطبيب تلقائياً.</small>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label"><i class="fa-solid fa-at"></i> اسم المستخدم *</label>
+                                <input type="text" name="username" class="form-control" placeholder="ex: dr_ahmed" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label"><i class="fa-solid fa-envelope"></i> البريد الإلكتروني *</label>
+                                <input type="email" name="email" class="form-control" placeholder="doctor@example.com" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label">الاسم الأول</label>
+                                <input type="text" name="first_name" class="form-control" placeholder="الاسم الأول" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label">اللقب (العائلة)</label>
+                                <input type="text" name="last_name" class="form-control" placeholder="اسم العائلة" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label"><i class="fa-solid fa-phone"></i> رقم الهاتف</label>
+                                <input type="tel" name="phone_number" class="form-control" placeholder="+966 XXX XXX XXX" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bento-input-group">
+                                <label class="bento-label"><i class="fa-solid fa-calendar"></i> تاريخ الميلاد</label>
+                                <input type="date" name="birthdate" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Section (Profile Pic & Info) -->
+                <div class="bento-side-info d-flex flex-column gap-4">
+                    <div class="bento-item h-100">
+                        <h5 class="fw-bold mb-4 text-center">
+                            الصورة الشخصية
+                        </h5>
+                        <div class="text-center">
+                            {% include "partials/ultra_image_upload.html" with name="profile_pic" value=None %}
+                            <p class="small text-muted mt-3 mb-0">
+                                <i class="fa-solid fa-circle-info me-1"></i>
+                                JPG/PNG - بحد أقصى 2MB
+                            </p>
+                        </div>
+                        
+                        <hr class="my-4 opacity-25" />
+                        
+                        <div class="info-snippet">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="icon-circle bg-soft-primary text-primary p-2 rounded-circle">
+                                    <i class="fa-solid fa-shield-check"></i>
+                                </div>
+                                <div>
+                                    <span class="d-block fw-bold small">تفعيل فوري</span>
+                                    <small class="text-muted">سيتم تنشيط الحساب مباشرة بعد الحفظ.</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-circle bg-soft-warning text-warning p-2 rounded-circle">
+                                    <i class="fa-solid fa-lightbulb"></i>
+                                </div>
+                                <div>
+                                    <span class="d-block fw-bold small">نصيحة أمان</span>
+                                    <small class="text-muted">يُنصح بتغيير كلمة المرور فور الدخول.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="bento-footer-actions">
+                    <a href="{% url 'dashboard:user_list' %}" class="bento-btn-secondary text-decoration-none">
+                        إلغاء العملية
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-user-plus me-2"></i>
+                        تأكيد وإنشاء الحساب
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock dash_content %}

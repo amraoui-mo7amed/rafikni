@@ -5,13 +5,13 @@
 {% block extra_css %}
     {{ block.super }}
     <link rel="stylesheet"
-          href="{% static 'dashboard/css/profile_update.css' %}?v={% now 'U' %}" />
+          href="{% static 'css/profile_update.css' %}?v={% now 'U' %}" />
 {% endblock extra_css %}
 {% block dash_content %}
     <div class="bento-container">
         <div class="bento-header d-flex justify-content-between align-items-center">
             <div>
-                <h2 class="m-0">
+                <h2 class="fw-bold text-dark">
                     حسابي
                 </h2>
                 <p class="text-muted">

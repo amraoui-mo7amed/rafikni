@@ -4,8 +4,31 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Q
 from django.db import transaction
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
 from user_auth.models import UserProfile
 from ..decorators import admin_required
+import logging
+import secrets
+import string
+
+logger = logging.getLogger(__name__)
+
+
+def generate_secure_password(length=12):
+    """Generate a secure random password"""
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    password = "".join(secrets.choice(alphabet) for i in range(length))
+    # Ensure password has at least one of each type
+    if (
+        any(c.islower() for c in password)
+        and any(c.isupper() for c in password)
+        and any(c.isdigit() for c in password)
+    ):
+        return password
+    return generate_secure_password(length)  # Regenerate if criteria not met
 
 
 @login_required
@@ -14,6 +37,7 @@ def user_list(request):
     query = request.GET.get("q", "")
     role = request.GET.get("role", "")
     status = request.GET.get("status", "")  # active, inactive, banned (is_active=False)
+    page = request.GET.get("page", 1)
 
     users = User.objects.select_related("profile").all()
 
@@ -34,13 +58,23 @@ def user_list(request):
         elif status == "inactive":
             users = users.filter(is_active=False)
 
+    # Pagination
+    paginator = Paginator(users, 10)  # 10 items per page
+    try:
+        users_page = paginator.page(page)
+    except PageNotAnInteger:
+        users_page = paginator.page(1)
+    except EmptyPage:
+        users_page = paginator.page(paginator.num_pages)
+
     context = {
-        "users": users,
+        "users": users_page,
         "query": query,
         "role": role,
         "status": status,
         "role_choices": UserProfile.RoleChoices.choices,
         "status_choices": [("active", "نشط"), ("inactive", "محظور / غير نشط")],
+        "paginator": paginator,
     }
     return render(request, "dashboard/users/user_list.html", context)
 
@@ -126,7 +160,6 @@ def profile_update(request):
             errors.append("البريد الإلكتروني مطلوب")
         elif User.objects.filter(email=email).exclude(pk=user.pk).exists():
             errors.append("هذا البريد الإلكتروني مستخدم بالفعل")
-        
 
         if not errors:
             try:
@@ -155,3 +188,127 @@ def profile_update(request):
         "profile": profile,
     }
     return render(request, "dashboard/profile_update.html", context)
+
+
+@login_required
+@admin_required
+def doctor_create(request):
+    """
+    View to create a new doctor account with auto-generated password
+    """
+    if request.method == "POST":
+        # Get form data
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        phone_number = request.POST.get("phone_number")
+        birthdate = request.POST.get("birthdate")
+        profile_pic = request.FILES.get("profile_pic")
+
+        errors = []
+
+        # Validation
+        if not all([username, email]):
+            errors.append("يرجى ملء جميع الحقول المطلوبة")
+
+        if User.objects.filter(username=username).exists():
+            errors.append("اسم المستخدم موجود بالفعل")
+
+        if User.objects.filter(email=email).exists():
+            errors.append("البريد الإلكتروني مستخدم بالفعل")
+
+        if not errors:
+            try:
+                # Generate secure password
+                password = generate_secure_password()
+
+                with transaction.atomic():
+                    # Create user with is_active=True (doctors are active by default)
+                    user = User.objects.create_user(
+                        username=username,
+                        email=email,
+                        password=password,
+                        first_name=first_name or "",
+                        last_name=last_name or "",
+                        is_active=True,
+                    )
+
+                    # Update doctor profile (signal might have already created it)
+                    profile, created = UserProfile.objects.get_or_create(user=user)
+                    profile.role = UserProfile.RoleChoices.DOC
+                    profile.phone_number = phone_number or ""
+                    if birthdate:
+                        profile.birthdate = birthdate
+                    profile.save()
+
+                    # Handle profile picture if uploaded
+                    if profile_pic:
+                        profile.profile_pic = profile_pic
+                        profile.save()
+
+                # Send credentials email
+                try:
+                    send_doctor_credentials_email(request, user, password)
+                    logger.info(
+                        f"Doctor account created and email sent: {username} by {request.user.username}"
+                    )
+                except Exception as email_error:
+                    logger.error(
+                        f"Failed to send credentials email: {str(email_error)}"
+                    )
+                    # Don't fail the whole operation if email fails
+
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "message": f"تم إنشاء حساب الطبيب {username} بنجاح. تم إرسال بيانات الدخول إلى {email}",
+                    }
+                )
+            except Exception as e:
+                logger.error(f"Error creating doctor account: {str(e)}")
+                errors.append("حدث خطأ أثناء إنشاء الحساب")
+
+        return JsonResponse({"success": False, "errors": errors})
+
+    # GET request - render the form
+    return render(request, "dashboard/users/doctor_create.html")
+
+
+def send_doctor_credentials_email(request, user, password):
+    """
+    Send an email to the doctor with their login credentials
+    """
+    current_site = get_current_site(request)
+    login_url = request.build_absolute_uri("/auth/login/")
+
+    context = {
+        "user": user,
+        "username": user.username,
+        "password": password,
+        "login_url": login_url,
+        "domain": current_site.domain,
+        "protocol": "https" if request.is_secure() else "http",
+    }
+
+    message = render_to_string("emails/doctor_credentials.html", context)
+
+    # Get configured sender email
+    from_email = None
+    try:
+        from dashboard.models import EmailConfiguration
+
+        email_config = EmailConfiguration.objects.filter(is_active=True).first()
+        if email_config:
+            from_email = email_config.default_from_email
+    except Exception:
+        pass
+
+    email = EmailMessage(
+        subject="بيانات الدخول إلى منصة رافقني",
+        body=message,
+        from_email=from_email,
+        to=[user.email],
+    )
+    email.content_subtype = "html"
+    email.send(fail_silently=False)

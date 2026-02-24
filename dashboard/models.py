@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class EmailConfiguration(models.Model):
@@ -30,3 +31,56 @@ class EmailConfiguration(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class MedicalCase(models.Model):
+    class CategoryChoices(models.TextChoices):
+        CHILD = "child", "طفل"
+        ADULT = "adult", "بالغ"
+        ELDERY = "eldery", "مسن"
+
+    class IntellectualDisabilityChoices(models.TextChoices):
+        WEAK = "weak", "ضعيف"
+        MIDDLE = "middle", "متوسط"
+        HARD = "hard", "شديد"
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="medical_cases",
+        verbose_name="المستخدم",
+    )
+    category = models.CharField(
+        max_length=10,
+        choices=CategoryChoices.choices,
+        verbose_name="الفئة",
+    )
+
+    # Child fields
+    disorders = models.TextField(
+        blank=True, null=True, verbose_name="الاضطرابات (مفصولة بفاصلة)"
+    )
+    syndromes = models.TextField(
+        blank=True, null=True, verbose_name="المتلازمات (مفصولة بفاصلة)"
+    )
+    intellectual_disability = models.CharField(
+        max_length=10,
+        choices=IntellectualDisabilityChoices.choices,
+        blank=True,
+        null=True,
+        verbose_name="الإعاقة الذهنية",
+    )
+
+    # Common/Category specific fields
+    aphasie = models.BooleanField(default=False, verbose_name="الحبسة الكلامية")
+
+    # Eldery fields
+    alzheimer = models.BooleanField(default=False, verbose_name="ألزهايمر")
+    parkinson = models.BooleanField(default=False, verbose_name="باركنسون")
+
+    class Meta:
+        verbose_name = "حالة طبية"
+        verbose_name_plural = "الحالات الطبية"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_category_display()}"
