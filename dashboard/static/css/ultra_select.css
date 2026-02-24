@@ -64,6 +64,11 @@
     transition: var(--select-transition);
 }
 
+[dir="rtl"] .ultra-arrow {
+    padding-left: 20px;
+    padding-right: 10px;
+}
+
 .ultra-select-wrapper.open .ultra-arrow {
     transform: rotate(180deg);
 }

@@ -1,0 +1,227 @@
+{% extends "dashboard/dash_index.html" %}
+
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet"
+          href="{% static 'css/ultra_select.css' %}?v={% now 'U' %}" />
+    <link rel="stylesheet"
+          href="{% static 'css/medical_case_create.css' %}?v={% now 'U' %}" />
+{% endblock extra_css %}
+{% block dash_content %}
+    <div class="welcome-section mb-4">
+        <h2 class="fw-bold text-dark">
+            إضافة حالة طبية جديدة
+        </h2>
+        <p class="text-muted">
+            أدخل تفاصيل الحالة الطبية أدناه لتنظيم ملفك الطبي.
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card bg-glass border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form id="MedicalCaseForm" method="post" class="form">
+                        {% csrf_token %}
+                        {% include "partials/errorList.html" with form_id="MedicalCaseForm" %}
+
+                        <div class="row g-4">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <i class="fa-solid fa-circle-info me-2"></i>
+                                البيانات الأساسية
+                            </h5>
+                            
+                            <!-- Category -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">الفئة</label>
+                                {% include "partials/styled_select.html" with name="category" options=category_choices selected="" placeholder="اختر الفئة..." icon="fa-solid fa-layer-group" auto_submit="false" %}
+                            </div>
+
+                            <!-- Full Name -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">الاسم الكامل</label>
+                                <div class="ultra-input-group">
+                                    <div class="input-icon-box">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <input type="text"
+                                           name="full_name"
+                                           id="full_name"
+                                           class="form-control"
+                                           placeholder="أدخل الاسم الكامل"
+                                           required />
+                                </div>
+                            </div>
+
+                            <!-- Age -->
+                            <div class="col-md-4">
+                                <label class="ultra-field-label">العمر</label>
+                                <div class="ultra-input-group">
+                                    <div class="input-icon-box">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                    </div>
+                                    <input type="number"
+                                           name="age"
+                                           id="age"
+                                           class="form-control"
+                                           placeholder="العمر"
+                                           required />
+                                </div>
+                            </div>
+
+                            <!-- Aphasie Switch -->
+                            <div class="col-md-4">
+                                <label class="ultra-field-label">الحبسة الكلامية</label>
+                                <div class="ultra-switch-container">
+                                    <div class="form-check form-switch">
+                                        <label class="form-check-label" for="aphasieCheck">مصاب</label>
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="aphasie"
+                                               id="aphasieCheck" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gender -->
+                            <div class="col-md-4">
+                                <label class="ultra-field-label">الجنس</label>
+                                {% include "partials/styled_select.html" with name="gender" options=gender_choices selected="male" placeholder="الجنس" icon="fa-solid fa-venus-mars" auto_submit="false" %}
+                            </div>
+
+                            <!-- Child Specific Fields -->
+                            <div id="childFields" style="display: none" class="col-12 mt-4 pt-4 border-top">
+                                <h5 class="fw-bold mb-4 text-primary">
+                                    <i class="fa-solid fa-child me-2"></i>
+                                    بيانات الطفل
+                                </h5>
+                                <div class="row g-4">
+                                    <div class="col-md-12">
+                                        <label class="ultra-field-label">الاضطرابات</label>
+                                        <div class="ultra-input-group">
+                                            <textarea name="disorders"
+                                                      id="disorders"
+                                                      class="form-control"
+                                                      rows="2"
+                                                      placeholder="أدخل الاضطرابات (مثال: توحد، تشتت انتباه...)"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="ultra-field-label">المتلازمات</label>
+                                        <div class="ultra-input-group">
+                                            <textarea name="syndromes"
+                                                      id="syndromes"
+                                                      class="form-control"
+                                                      rows="2"
+                                                      placeholder="أدخل المتلازمات (مثال: داون...)"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="ultra-field-label">الإعاقة الذهنية</label>
+                                        {% include "partials/styled_select.html" with name="intellectual_disability" options=disability_choices selected="" placeholder="لا يوجد" icon="fa-solid fa-hand-holding-medical" auto_submit="false" %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Elderly Specific Fields -->
+                            <div id="elderlyFields" style="display: none" class="col-12 mt-4 pt-4 border-top">
+                                <h5 class="fw-bold mb-4 text-primary">
+                                    <i class="fa-solid fa-person-cane me-2"></i>
+                                    بيانات المسن
+                                </h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="ultra-switch-container">
+                                            <div class="form-check form-switch">
+                                                <label class="form-check-label" for="alzheimerCheck">ألزهايمر</label>
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       name="alzheimer"
+                                                       id="alzheimerCheck" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="ultra-switch-container">
+                                            <div class="form-check form-switch">
+                                                <label class="form-check-label" for="parkinsonCheck">باركنسون</label>
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       name="parkinson"
+                                                       id="parkinsonCheck" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-5">
+                                <button type="submit"
+                                        class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded-3 transition w-100 w-md-auto">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>
+                                    حفظ الحالة الطبية
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <!-- Info Card -->
+            <div class="card border-0 shadow-sm bg-primary text-white mb-4 rounded-4">
+                <div class="card-header border-0 bg-transparent pt-4 px-4">
+                    <h4 class="fw-bold mb-0">لماذا هذه البيانات؟</h4>
+                </div>
+                <div class="card-body p-4 pt-2">
+                    <p class="small opacity-75 mb-0 leading-relaxed">
+                        تساعدنا هذه المعلومات في تقديم رعاية مخصصة وتوجيهك إلى أفضل الأخصائيين المناسبين لحالتك أو حالة طفلك. نحن نهتم بخصوصيتك ودقة بياناتك.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Categories Help -->
+            <div class="card border-0 shadow-sm bg-white rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">دليل الفئات</h5>
+                    <div class="d-flex flex-column gap-4 categories-help-box">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-box bg-soft-primary text-primary">
+                                <i class="fa-solid fa-child"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">الأطفال</h6>
+                                <p class="small text-muted mb-0">تحت سن 18 عاماً.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-box bg-soft-success text-success">
+                                <i class="fa-solid fa-person"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">البالغين</h6>
+                                <p class="small text-muted mb-0">الحالات الطبية العامة.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-box bg-soft-warning text-warning">
+                                <i class="fa-solid fa-person-cane"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">المسنين</h6>
+                                <p class="small text-muted mb-0">أمراض الشيخوخة.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock dash_content %}
+{% block extra_js %}
+    <script src="{% static 'js/ultra_select.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/medical_case_create.js' %}?v={% now 'U' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock extra_js %}

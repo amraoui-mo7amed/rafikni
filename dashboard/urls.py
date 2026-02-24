@@ -1,5 +1,5 @@
 from django.urls import path
-from dashboard.views import main, settings, users
+from dashboard.views import main, settings, users, medical_cases
 
 app_name = "dashboard"
 
@@ -16,6 +16,22 @@ urlpatterns = [
         name="user_toggle_status",
     ),
     path("profile/update/", users.profile_update, name="profile_update"),
+    # Medical Cases
+    path(
+        "medical-cases/",
+        medical_cases.medical_case_list,
+        name="medical_case_list",
+    ),
+    path(
+        "medical-cases/create/",
+        medical_cases.medical_case_create,
+        name="medical_case_create",
+    ),
+    path(
+        "medical-cases/<str:case_type>/<int:case_id>/delete/",
+        medical_cases.medical_case_delete,
+        name="medical_case_delete",
+    ),
     # Settings
     path("settings/email/", settings.email_settings, name="email_settings"),
     path(

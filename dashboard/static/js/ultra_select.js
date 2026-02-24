@@ -16,6 +16,7 @@ const UltraSelect = {
     toggle(name) {
         const dropdown = document.getElementById('dropdown-' + name);
         const wrapper = dropdown.previousElementSibling;
+        const container = document.getElementById('custom-select-' + name);
         
         // Close other dropdowns
         document.querySelectorAll('.ultra-dropdown').forEach(d => {
@@ -24,10 +25,14 @@ const UltraSelect = {
         document.querySelectorAll('.ultra-select-wrapper').forEach(w => {
             if (w !== wrapper) w.classList.remove('open');
         });
+        document.querySelectorAll('.ultra-select-container').forEach(c => {
+            if (c !== container) c.classList.remove('ultra-select-open');
+        });
 
         // Toggle current
         dropdown.classList.toggle('show');
         wrapper.classList.toggle('open');
+        container.classList.toggle('ultra-select-open');
     },
 
     select(name, val, label) {
@@ -38,6 +43,9 @@ const UltraSelect = {
         // Update values
         input.value = val;
         display.textContent = label;
+        
+        // Trigger change event so other scripts can listen
+        input.dispatchEvent(new Event('change', { bubbles: true }));
         
         // Update active state in UI
         const dropdown = document.getElementById('dropdown-' + name);
@@ -50,14 +58,17 @@ const UltraSelect = {
         
         this.closeAll();
 
-        // Trigger form submission
+        // Trigger form submission unless disabled
+        const autoSubmit = container ? container.getAttribute('data-auto-submit') !== 'false' : true;
+        
         const form = input.closest('form');
-        if (form) form.submit();
+        if (form && autoSubmit) form.submit();
     },
 
     closeAll() {
         document.querySelectorAll('.ultra-dropdown').forEach(d => d.classList.remove('show'));
         document.querySelectorAll('.ultra-select-wrapper').forEach(w => w.classList.remove('open'));
+        document.querySelectorAll('.ultra-select-container').forEach(c => c.classList.remove('ultra-select-open'));
     }
 };
 

@@ -1,0 +1,140 @@
+.ultra-field-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-align: right;
+    padding-right: 5px;
+}
+
+.ultra-input-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid rgba(13, 110, 253, 0.15);
+    border-radius: 16px;
+    padding: 2px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    min-height: 56px;
+}
+
+/* Specific height for inputs vs textarea */
+.ultra-input-group:not(:has(textarea)) {
+    height: 56px;
+}
+
+.ultra-input-group:has(textarea) {
+    height: auto;
+    align-items: flex-start;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.ultra-input-group:focus-within {
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -10px rgba(13, 110, 253, 0.25);
+    background: #fff;
+}
+
+.ultra-input-group .input-icon-box {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+    color: white;
+    border-radius: 13px;
+    margin: 2px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.ultra-input-group .form-control {
+    flex-grow: 1;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 15px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    height: 100% !important;
+    box-shadow: none !important;
+    text-align: right;
+}
+
+.ultra-input-group textarea.form-control {
+    padding-top: 10px !important;
+    min-height: 80px;
+}
+
+.ultra-switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(13, 110, 253, 0.15);
+    border-radius: 16px;
+    padding: 0 15px;
+    height: 56px;
+    width: 100%;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ultra-switch-container:hover {
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -10px rgba(13, 110, 253, 0.25);
+}
+
+.form-check.form-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.form-check-input {
+    cursor: pointer;
+    width: 2.8em !important;
+    height: 1.4em !important;
+    margin: 0 !important;
+    float: none !important;
+}
+
+.form-check-label {
+    cursor: pointer;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.9rem;
+    margin: 0 !important;
+}
+
+/* Fix for dropdown stacking issues */
+.ultra-select-container:has(.ultra-select-wrapper.open),
+.ultra-select-container.ultra-select-open {
+    z-index: 1100 !important;
+}
+
+/* Sidebar Helpers */
+.categories-help-box .icon-box {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+}
+
+.bg-glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}

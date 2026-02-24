@@ -132,3 +132,28 @@ In templates, we often use `{% now "U" %}` to bust cache for CSS/JS during devel
 - **RTL Compliance:** When adding new UI components, verify they work correctly in a Right-to-Left layout. Use Bootstrap's RTL classes (e.g., `ms-*` instead of `mr-*`).
 - **Function over Class:** Favor Function-Based Views unless Class-Based Views are explicitly requested or provide significant complexity reduction.
 - **Atomic Commits:** Keep changes modular. One migration set per feature.
+
+
+## 8. Development Guidelines
+
+### 8.1. Error Handling
+- **Always** use `{% include "partials/errorList.html" with form_id="<form_id>" %}` to display form errors.
+- **Never** use `{% if form.errors %}` directly in templates.
+- never use a custom form handeling except if i told you
+
+### 8.2. Brand Consistency 
+- always use the same color palette and typography as the existing project.
+- **Never** use colors or fonts that are not already used in the project.
+- always use ```templates/partials/styled_select.html``` instead of every select tag 
+- always use ```templates/partials/ultra_image_upload.html``` instead of every image upload input
+
+## 8.3. Project Stucture 
+
+- always separate the js and css from the template 
+- always use ```{% block extra_css %}{% endblock extra_css %}``` and ```{% block extra_js %}{% endblock extra_js %}``` for the extra css and js
+
+- the reusable components files must exist in ```templates/partials/```, ```static/css/```, ```static/js/```  
+
+- never ever do something i didnt tell you, always stick to my orders 
+- always use ``notify-send`` to alert me for the finished tasks 
+- all delete buttons must use sweet alert as a confirmation 
