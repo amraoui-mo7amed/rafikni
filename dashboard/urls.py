@@ -1,5 +1,5 @@
 from django.urls import path
-from dashboard.views import main, settings, users, medical_cases
+from dashboard.views import main, settings, users, medical_cases, courses
 
 app_name = "dashboard"
 
@@ -39,4 +39,40 @@ urlpatterns = [
         settings.test_email_connection,
         name="test_email_connection",
     ),
+    # Courses
+    path("courses/", courses.course_list, name="course_list"),
+    path("courses/create/", courses.course_create, name="course_create"),
+    path("courses/<int:course_id>/", courses.course_detail, name="course_detail"),
+    path(
+        "courses/<int:course_id>/edit/",
+        courses.course_edit,
+        name="course_edit",
+    ),
+    path(
+        "courses/<int:course_id>/delete/",
+        courses.course_delete,
+        name="course_delete",
+    ),
+    path(
+        "courses/<int:course_id>/videos/upload/",
+        courses.video_upload,
+        name="video_upload",
+    ),
+    path(
+        "courses/<int:course_id>/enroll/",
+        courses.course_enroll,
+        name="course_enroll",
+    ),
+    path(
+        "courses/payment/<int:enrollment_id>/submit/",
+        courses.payment_submit,
+        name="payment_submit",
+    ),
+    path(
+        "courses/payment/<int:payment_id>/review/",
+        courses.payment_review,
+        name="payment_review",
+    ),
+    path("courses/payments/", courses.payment_list, name="payment_list"),
+    path("courses/my-courses/", courses.my_courses, name="my_courses"),
 ]

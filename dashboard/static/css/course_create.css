@@ -1,0 +1,425 @@
+/* Course Create Styles */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.step-item:not(:last-child) {
+    margin-left: 40px;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.step-item.active .step-circle {
+    background: #0d6efd;
+    color: white;
+}
+
+.step-item.completed .step-circle {
+    background: #198754;
+    color: white;
+}
+
+.step-label {
+    position: absolute;
+    top: 45px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.step-item.active .step-label {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.step-line {
+    width: 30px;
+    height: 2px;
+    background: #e9ecef;
+    margin: 0 10px;
+}
+
+/* Video Upload Widget */
+.video-upload-item {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.video-upload-item:hover {
+    border-color: #0d6efd;
+}
+
+.video-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    position: relative;
+    user-select: none;
+}
+
+.upload-area:hover {
+    border-color: #0d6efd;
+    background: rgba(13, 110, 253, 0.05);
+}
+
+.upload-area.has-file {
+    border-color: #198754;
+    background: rgba(25, 135, 84, 0.05);
+}
+
+.upload-content {
+    transition: opacity 0.3s ease;
+}
+
+.upload-progress {
+    padding: 20px;
+}
+
+.upload-progress .progress {
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.upload-progress .progress-bar {
+    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.upload-success {
+    padding: 20px;
+    text-align: center;
+}
+
+.file-name {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.85rem;
+}
+
+/* Video List Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.video-upload-item {
+    animation: slideIn 0.3s ease;
+}
+
+/* Remove Button */
+.btn-remove-video {
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 10;
+}
+
+.btn-remove-video:hover {
+    opacity: 1;
+}
+
+/* Form Enhancements */
+.ultra-field-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Price Field Specific Styles */
+.price-input-wrapper .input-group {
+    direction: rtl;
+}
+
+.price-input-wrapper .input-group .form-control {
+    text-align: center;
+}
+
+.price-input-wrapper .input-group-text {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    font-weight: 600;
+}
+
+/* General ultra-input-group styles */
+.ultra-input-group {
+    position: relative;
+}
+
+.ultra-input-group .input-icon-box {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 10;
+}
+
+.ultra-input-group .form-control {
+    padding-right: 45px;
+}
+
+.ultra-input-group textarea.form-control {
+    padding-right: 12px;
+}
+
+/* Alert Styling */
+.alert-info {
+    background: rgba(13, 202, 240, 0.1);
+    border: 1px solid rgba(13, 202, 240, 0.3);
+    color: #055160;
+}
+
+/* Isolate ultra_image_upload to prevent conflicts */
+#upload-thumbnail-wrapper {
+    position: relative;
+    z-index: 1;
+    display: block;
+    clear: both;
+    margin-top: 8px;
+}
+
+#upload-thumbnail {
+    position: relative;
+    z-index: 1;
+}
+
+#upload-thumbnail .ultra-upload-container {
+    position: relative;
+    display: inline-block;
+}
+
+#upload-thumbnail .ultra-upload-card {
+    overflow: hidden;
+    position: relative;
+}
+
+#upload-thumbnail .ultra-upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+}
+
+/* Ensure price input is clean */
+#price {
+    background-image: none !important;
+}
+
+/* Fix for price field layout */
+.price-input-wrapper {
+    position: relative;
+    z-index: 5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .upload-area {
+        padding: 20px;
+    }
+    
+    .video-upload-item .card-body {
+        padding: 1rem;
+    }
+}
+
+/* ============================================================
+   COURSE FORM LAYOUT STYLES (from course_create_form.css)
+   ============================================================ */
+
+/* Side by Side Layout */
+.course-form-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 991px) {
+    .course-form-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Custom Image Upload */
+.custom-image-upload {
+    position: relative;
+    width: 100%;
+}
+
+.image-upload-area {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.image-upload-area:hover {
+    border-color: #0d6efd;
+    background: #f0f7ff;
+}
+
+.image-upload-area.has-image {
+    border-style: solid;
+    border-color: #0d6efd;
+}
+
+.image-upload-placeholder {
+    text-align: center;
+    color: #64748b;
+    padding: 20px;
+}
+
+.image-upload-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    color: #94a3b8;
+}
+
+.image-upload-placeholder span {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.image-upload-placeholder small {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+.image-preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+.image-preview.active {
+    display: block;
+}
+
+.image-upload-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(13, 110, 253, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-image-upload:hover .image-upload-overlay {
+    opacity: 1;
+}
+
+.image-upload-overlay i {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #dc2626;
+    color: white;
+    border: none;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.remove-image-btn:hover {
+    background: #b91c1c;
+    transform: scale(1.1);
+}
+
+.remove-image-btn.active {
+    display: flex;
+}
+
+/* Tips Card Sticky */
+.tips-card-wrapper {
+    position: sticky;
+    top: 20px;
+}
+
+.tips-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Current Image Label (for edit page) */
+.current-image-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 8px;
+}

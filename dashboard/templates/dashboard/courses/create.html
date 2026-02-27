@@ -1,0 +1,209 @@
+{% extends "dashboard/dash_index.html" %}
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet"
+          href="{% static 'css/course_create.css' %}?v={% now 'U' %}">
+{% endblock extra_css %}
+
+{% block dash_content %}
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="fw-bold text-dark mb-0">
+                    <i class="fa-solid fa-graduation-cap me-2 text-primary"></i>
+                    إضافة دورة تعليمية جديدة
+                </h2>
+                <p class="text-muted">أدخل تفاصيل الدورة التعليمية.</p>
+            </div>
+        </div>
+        
+        <div class="course-form-section">
+            <!-- Form Card -->
+            <div class="card bg-glass border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form id="CourseForm"
+                          method="post"
+                          enctype="multipart/form-data"
+                          class="form">
+                        {% csrf_token %}
+                        {% include "partials/errorList.html" with form_id="CourseForm" %}
+
+                        <div class="row g-4">
+                            <!-- Thumbnail Upload -->
+                            <div class="col-md-12">
+                                <label class="ultra-field-label mb-3">
+                                    <i class="fa-solid fa-image me-2 text-primary"></i>
+                                    صورة الغلاف
+                                </label>
+                                <div class="custom-image-upload">
+                                    <div class="image-upload-area" onclick="document.getElementById('thumbnail-input').click()">
+                                        <div class="image-upload-placeholder">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                            <span>اضغط لاختيار صورة</span>
+                                            <small>أو اسحب الصورة هنا</small>
+                                        </div>
+                                        <img id="thumbnail-preview" class="image-preview" alt="Preview">
+                                        <div class="image-upload-overlay">
+                                            <i class="fa-solid fa-camera"></i>
+                                            <span>تغيير الصورة</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="remove-image-btn" id="remove-thumbnail" onclick="removeThumbnail(event)">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                    <input type="file" 
+                                           name="thumbnail" 
+                                           id="thumbnail-input" 
+                                           hidden 
+                                           accept="image/*"
+                                           onchange="previewThumbnail(this)">
+                                </div>
+                            </div>
+
+                            <!-- Title -->
+                            <div class="col-md-12">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-heading me-2 text-primary"></i>
+                                    عنوان الدورة
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="text"
+                                           name="title"
+                                           id="title"
+                                           class="form-control"
+                                           placeholder="أدخل عنوان الدورة"
+                                           required />
+                                </div>
+                            </div>
+
+                            <!-- Teacher Name -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-chalkboard-user me-2 text-primary"></i>
+                                    اسم المعلم
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="text"
+                                           name="teacher_name"
+                                           id="teacher_name"
+                                           class="form-control"
+                                           placeholder="اسم المعلم"
+                                           required />
+                                </div>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="col-md-6 price-input-wrapper">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-money-bill-wave me-2 text-primary"></i>
+                                    السعر (د.ج)
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-money-bill-wave text-muted"></i></span>
+                                    <input type="number"
+                                           name="price"
+                                           id="price"
+                                           class="form-control"
+                                           placeholder="0 = مجاني"
+                                           min="0"
+                                           step="0.01"
+                                           value="0" />
+                                    <span class="input-group-text">د.ج</span>
+                                </div>
+                                <small class="text-muted">اترك 0 للدورات المجانية</small>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-md-12">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-align-right me-2 text-primary"></i>
+                                    وصف الدورة
+                                </label>
+                                <div class="ultra-input-group">
+                                    <textarea name="description"
+                                              id="description"
+                                              class="form-control"
+                                              rows="4"
+                                              placeholder="أدخل وصفاً تفصيلياً للدورة..."
+                                              required></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="col-md-12">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-tags me-2 text-primary"></i>
+                                    الوسوم
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="text"
+                                           name="tags"
+                                           id="tags"
+                                           class="form-control"
+                                           placeholder="أدخل الوسوم مفصولة بفاصلة (مثال: توحد, تربية, علاج)" />
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'dashboard:course_list' %}"
+                                       class="btn btn-light px-5 py-3 fw-bold shadow-sm rounded-3 transition flex-grow-1">
+                                        <i class="fa-solid fa-arrow-right me-2"></i>
+                                        إلغاء
+                                    </a>
+                                    <button type="submit"
+                                            class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded-3 transition flex-grow-1">
+                                        <i class="fa-solid fa-floppy-disk me-2"></i>
+                                        إنشاء الدورة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="tips-card-wrapper">
+                <div class="card border-0 shadow-sm tips-card text-white rounded-4">
+                    <div class="card-header border-0 bg-transparent pt-4 px-4">
+                        <h4 class="fw-bold mb-0">
+                            <i class="fa-solid fa-lightbulb me-2"></i>
+                            نصائح لنجاح الدورة
+                        </h4>
+                    </div>
+                    <div class="card-body p-4 pt-2">
+                        <ul class="list-unstyled mb-0 small opacity-75">
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="fa-solid fa-check-circle me-2 mt-1"></i>
+                                <span>استخدم عنواناً واضحاً يعبر عن محتوى الدورة</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="fa-solid fa-check-circle me-2 mt-1"></i>
+                                <span>أضف وصفاً تفصيلياً يشرح ما سيتعلمه الطلاب</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="fa-solid fa-check-circle me-2 mt-1"></i>
+                                <span>يمكنك رفع الفيديوهات لاحقاً من صفحة تفاصيل الدورة</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="fa-solid fa-check-circle me-2 mt-1"></i>
+                                <span>استخدم وسوماً دقيقة لتسهيل البحث</span>
+                            </li>
+                            <li class="mb-0 d-flex align-items-start">
+                                <i class="fa-solid fa-check-circle me-2 mt-1"></i>
+                                <span>الصورة المصغرة تساعد في جذب المزيد من الطلاب</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock dash_content %}
+
+{% block extra_js %}
+    <script src="{% static 'js/course_form.js' %}?v={% now 'U' %}"></script>
+{% endblock extra_js %}

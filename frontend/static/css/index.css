@@ -182,6 +182,17 @@ body::before {
     overflow: hidden;
     color: white !important;
 }
+.btn-primary-origin
+{
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+    border: none !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3) !important;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    color: white !important;
+}
 
 .btn-primary::before {
     content: '';

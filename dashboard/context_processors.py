@@ -1,6 +1,7 @@
 from django.urls import reverse, resolve
 from user_auth.models import UserProfile
 
+
 def sidebar_menu(request):
     current_url_name = None
     try:
@@ -47,6 +48,11 @@ def sidebar_menu(request):
                         "url_name": "dashboard:medical_case_list",
                         "icon": "fa-solid fa-notes-medical",
                     },
+                    {
+                        "name": "الدورات التعليمية",
+                        "url_name": "dashboard:course_list",
+                        "icon": "fa-solid fa-graduation-cap",
+                    },
                 ],
             }
         )
@@ -59,6 +65,37 @@ def sidebar_menu(request):
                         "name": "حالاتي الطبية",
                         "url_name": "dashboard:medical_case_list",
                         "icon": "fa-solid fa-notes-medical",
+                    },
+                ],
+            }
+        )
+        menu_sections.append(
+            {
+                "label": "التعليم",
+                "items": [
+                    {
+                        "name": "الدورات التعليمية",
+                        "url_name": "dashboard:course_list",
+                        "icon": "fa-solid fa-graduation-cap",
+                    },
+                    {
+                        "name": "دوراتي",
+                        "url_name": "dashboard:my_courses",
+                        "icon": "fa-solid fa-book-open",
+                    },
+                ],
+            }
+        )
+    else:
+        # Other roles (doctors, etc.) can also access courses
+        menu_sections.append(
+            {
+                "label": "التعليم",
+                "items": [
+                    {
+                        "name": "الدورات التعليمية",
+                        "url_name": "dashboard:course_list",
+                        "icon": "fa-solid fa-graduation-cap",
                     },
                 ],
             }

@@ -1,0 +1,166 @@
+/* Course Detail Styles */
+.course-thumbnail {
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.thumbnail-placeholder {
+    height: 100%;
+    background: rgba(13, 110, 253, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.course-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.course-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-content {
+    flex: 1;
+}
+
+/* Video List */
+.video-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.video-item {
+    transition: all 0.2s ease;
+}
+
+.video-item:hover {
+    background: #f8f9fa;
+}
+
+.video-item.bg-soft-success {
+    background: rgba(25, 135, 84, 0.1) !important;
+}
+
+.thumbnail-wrapper {
+    width: 80px;
+    height: 60px;
+    background: #212529;
+}
+
+.video-info {
+    min-width: 0;
+}
+
+/* Status Icon */
+.status-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Video Upload Widget */
+.upload-widget {
+    position: relative;
+}
+
+.upload-dropzone {
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.upload-dropzone:hover {
+    border-color: #0d6efd;
+    background: rgba(13, 110, 253, 0.05);
+}
+
+.upload-dropzone.drag-over {
+    border-color: #0d6efd;
+    background: rgba(13, 110, 253, 0.1);
+}
+
+.upload-dropzone .cursor-pointer {
+    cursor: pointer;
+}
+
+.upload-icon {
+    color: #0d6efd;
+    opacity: 0.7;
+}
+
+.file-info {
+    transition: all 0.3s ease;
+}
+
+.upload-progress {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.upload-progress .progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.progress-percentage {
+    color: #0d6efd;
+}
+
+.upload-status {
+    font-size: 0.85rem;
+}
+
+.btn-remove-file {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .course-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .course-thumbnail {
+        height: 150px;
+        margin-bottom: 1rem;
+    }
+    
+    .thumbnail-wrapper {
+        width: 60px;
+        height: 45px;
+    }
+}

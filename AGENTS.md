@@ -157,3 +157,4 @@ In templates, we often use `{% now "U" %}` to bust cache for CSS/JS during devel
 - never ever do something i didnt tell you, always stick to my orders 
 - always use ``notify-send`` to alert me for the finished tasks 
 - all delete buttons must use sweet alert as a confirmation 
+- always use data attributes instead of using hardcoded urls 
