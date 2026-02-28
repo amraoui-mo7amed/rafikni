@@ -1,4 +1,5 @@
 {% extends "dashboard/dash_index.html" %}
+
 {% load static %}
 
 {% block extra_css %}
@@ -6,7 +7,6 @@
     <link rel="stylesheet"
           href="{% static 'css/course_detail.css' %}?v={% now 'U' %}" />
 {% endblock extra_css %}
-
 {% block dash_content %}
     <div class="welcome-section mb-4 d-flex justify-content-between align-items-center">
         <div>
@@ -15,11 +15,13 @@
                 <i class="fa-solid fa-arrow-right me-1"></i>
                 العودة للدورات
             </a>
-            <h2 class="fw-bold text-dark mt-2">{{ course.title }}</h2>
+            <h2 class="fw-bold text-dark mt-2">
+                {{ course.title }}
+            </h2>
         </div>
         {% if is_admin %}
             <div class="d-flex align-items-center gap-2">
-                <a href="{% url 'dashboard:course_edit' course.id %}" 
+                <a href="{% url 'dashboard:course_edit' course.id %}"
                    class="btn btn-dark text-light btn-sm">
                     <i class="fa-solid fa-pen-to-square me-1"></i>
                     تعديل
@@ -38,7 +40,6 @@
             </div>
         {% endif %}
     </div>
-
     <div class="row">
         <div class="col-lg-8">
             <!-- Course Info Card -->
@@ -64,8 +65,12 @@
                                     <span class="badge bg-soft-primary text-primary me-1">{{ tag }}</span>
                                 {% endfor %}
                             </div>
-                            <h4 class="fw-bold mb-3">{{ course.title }}</h4>
-                            <p class="text-muted mb-4">{{ course.description }}</p>
+                            <h4 class="fw-bold mb-3">
+                                {{ course.title }}
+                            </h4>
+                            <p class="text-muted mb-4">
+                                {{ course.description }}
+                            </p>
                             <div class="course-info-grid">
                                 <div class="info-item">
                                     <div class="info-icon bg-soft-primary text-primary">
@@ -114,14 +119,116 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Tabs Section -->
+        </div>
+        <!-- Sidebar -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            {% if not is_admin %}
+                <!-- Enrollment Status Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        {% if enrollment %}
+                            {% if enrollment.status == 'approved' %}
+                                <div class="text-center">
+                                    <div class="status-icon bg-soft-success text-success rounded-circle mx-auto mb-3">
+                                        <i class="fa-solid fa-check fa-2x"></i>
+                                    </div>
+                                    <h5 class="fw-bold text-success">
+                                        مسجل في الدورة
+                                    </h5>
+                                    <p class="text-muted small">
+                                        يمكنك مشاهدة جميع الفيديوهات الآن
+                                    </p>
+                                </div>
+                            {% elif enrollment.status == 'pending' %}
+                                <div class="text-center">
+                                    <div class="status-icon bg-soft-warning text-warning rounded-circle mx-auto mb-3">
+                                        <i class="fa-solid fa-clock fa-2x"></i>
+                                    </div>
+                                    <h5 class="fw-bold text-warning">
+                                        قيد المراجعة
+                                    </h5>
+                                    <p class="text-muted small">
+                                        سيتم إعلامك عند الموافقة على طلبك
+                                    </p>
+                                </div>
+                            {% else %}
+                                <div class="text-center">
+                                    <div class="status-icon bg-soft-danger text-danger rounded-circle mx-auto mb-3">
+                                        <i class="fa-solid fa-ban fa-2x"></i>
+                                    </div>
+                                    <h5 class="fw-bold text-danger">
+                                        تم الرفض
+                                    </h5>
+                                    <p class="text-muted small">
+                                        تم رفض طلبك. يرجى التواصل مع الإدارة
+                                    </p>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center">
+                                <div class="status-icon bg-soft-primary text-primary rounded-circle mx-auto mb-3">
+                                    <i class="fa-solid fa-user-plus fa-2x"></i>
+                                </div>
+                                <h5 class="fw-bold">
+                                    غير مسجل
+                                </h5>
+                                <p class="text-muted small mb-3">
+                                    {% if course.price == 0 %}
+                                        هذه الدورة مجانية. سجل الآن للوصول للمحتوى.
+                                    {% else %}
+                                        سعر الدورة: {{ course.price }} د.ج
+                                    {% endif %}
+                                </p>
+                                <button class="btn btn-primary w-100 btn-enroll"
+                                        data-course-id="{{ course.id }}"
+                                        data-course-price="{{ course.price }}">
+                                    <i class="fa-solid fa-user-plus me-2"></i>
+                                    {% if course.price == 0 %}
+                                        تسجيل مجاني
+                                    {% else %}
+                                        التسجيل في الدورة
+                                    {% endif %}
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            <!-- Course Stats -->
             <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 p-4">
+                    <h6 class="fw-bold mb-0">
+                        إحصائيات الدورة
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">المسجلين:</span>
+                        <span class="fw-bold">{{ course.enrollments.count }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">المقبولين:</span>
+                        <span class="fw-bold text-success">{{ approved_count }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">قيد المراجعة:</span>
+                        <span class="fw-bold text-warning">{{ pending_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <!-- Tabs Section -->
+            <div class="card border-0 shadow-sm rounded-4 mb-5 mt-5">
                 <div class="card-header bg-white border-0 p-0">
                     <ul class="nav nav-tabs" id="courseTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active fw-bold" id="videos-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#videos" type="button" role="tab">
+                            <button class="nav-link active fw-bold"
+                                    id="videos-tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#videos"
+                                    type="button"
+                                    role="tab">
                                 <i class="fa-solid fa-play-circle me-2 text-primary"></i>
                                 محتوى الدورة
                                 <span class="badge bg-soft-info text-info ms-2">{{ videos|length }}</span>
@@ -129,8 +236,24 @@
                         </li>
                         {% if is_admin %}
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-bold" id="payments-tab" data-bs-toggle="tab" 
-                                        data-bs-target="#payments" type="button" role="tab">
+                                <button class="nav-link fw-bold"
+                                        id="enrollments-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#enrollments"
+                                        type="button"
+                                        role="tab">
+                                    <i class="fa-solid fa-users me-2 text-primary"></i>
+                                    المسجلين
+                                    <span class="badge bg-soft-info text-info ms-2">{{ course.enrollments.count }}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold"
+                                        id="payments-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#payments"
+                                        type="button"
+                                        role="tab">
                                     <i class="fa-solid fa-credit-card me-2 text-primary"></i>
                                     المدفوعات
                                     {% if payments %}
@@ -158,8 +281,12 @@
                                                 </div>
                                             </div>
                                             <div class="video-info flex-grow-1">
-                                                <h6 class="fw-bold mb-1">{{ video.title }}</h6>
-                                                <p class="text-muted small mb-0">{{ video.description|truncatechars:80 }}</p>
+                                                <h6 class="fw-bold mb-1">
+                                                    {{ video.title }}
+                                                </h6>
+                                                <p class="text-muted small mb-0">
+                                                    {{ video.description|truncatechars:80 }}
+                                                </p>
                                                 {% if forloop.first %}
                                                     <span class="badge bg-success mt-2">
                                                         <i class="fa-solid fa-unlock me-1"></i>
@@ -196,9 +323,13 @@
                             {% else %}
                                 <div class="text-center p-5">
                                     <i class="fa-solid fa-video-slash fa-3x text-muted mb-3 opacity-25"></i>
-                                    <p class="text-muted">لا توجد فيديوهات متاحة في هذه الدورة</p>
+                                    <p class="text-muted">
+                                        لا توجد فيديوهات متاحة في هذه الدورة
+                                    </p>
                                     {% if is_admin %}
-                                        <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#uploadVideoModal">
+                                        <button class="btn btn-primary mt-2"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#uploadVideoModal">
                                             <i class="fa-solid fa-plus me-2"></i>
                                             إضافة أول فيديو
                                         </button>
@@ -206,7 +337,6 @@
                                 </div>
                             {% endif %}
                         </div>
-
                         <!-- Payments Tab (Admin Only) -->
                         {% if is_admin %}
                             <div class="tab-pane fade" id="payments" role="tabpanel">
@@ -233,12 +363,24 @@
                                         <table class="table table-hover align-middle mb-0">
                                             <thead class="bg-light">
                                                 <tr>
-                                                    <th class="ps-4">#</th>
-                                                    <th>المستخدم</th>
-                                                    <th>المبلغ</th>
-                                                    <th>الحالة</th>
-                                                    <th>التاريخ</th>
-                                                    <th class="text-end pe-4">الإجراءات</th>
+                                                    <th class="ps-4">
+                                                        #
+                                                    </th>
+                                                    <th>
+                                                        المستخدم
+                                                    </th>
+                                                    <th>
+                                                        المبلغ
+                                                    </th>
+                                                    <th>
+                                                        الحالة
+                                                    </th>
+                                                    <th>
+                                                        التاريخ
+                                                    </th>
+                                                    <th class="text-end pe-4">
+                                                        الإجراءات
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -250,7 +392,8 @@
                                                         <td>
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <img src="{% if payment.enrollment.user.profile.profile_pic %}{{ payment.enrollment.user.profile.profile_pic.url }}{% else %}https://ui-avatars.com/api/?name={{ payment.enrollment.user.username }}&background=0D6EFD&color=fff{% endif %}"
-                                                                     class="user-avatar me-2" alt="" />
+                                                                     class="user-avatar me-2"
+                                                                     alt="" />
                                                                 <div>
                                                                     <span class="fw-bold d-block">{{ payment.enrollment.user.get_full_name|default:payment.enrollment.user.username }}</span>
                                                                     <small class="text-muted">{{ payment.enrollment.user.email }}</small>
@@ -316,7 +459,157 @@
                                 {% else %}
                                     <div class="text-center p-5">
                                         <i class="fa-solid fa-file-invoice-dollar fa-3x text-muted mb-3 opacity-25"></i>
-                                        <p class="text-muted">لا توجد مدفوعات لهذه الدورة</p>
+                                        <p class="text-muted">
+                                            لا توجد مدفوعات لهذه الدورة
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <!-- Enrollments Tab (Admin Only) -->
+                            <div class="tab-pane fade" id="enrollments" role="tabpanel">
+                                {% if course.enrollments.all %}
+                                    <!-- Enrollment Stats -->
+                                    <div class="p-3 border-bottom bg-light">
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <div class="stats-badge bg-soft-warning text-warning">
+                                                <i class="fa-solid fa-clock me-1"></i>
+                                                قيد المراجعة: {{ pending_count }}
+                                            </div>
+                                            <div class="stats-badge bg-soft-success text-success">
+                                                <i class="fa-solid fa-check me-1"></i>
+                                                مقبول: {{ approved_count }}
+                                            </div>
+                                            <div class="stats-badge bg-soft-danger text-danger">
+                                                <i class="fa-solid fa-xmark me-1"></i>
+                                                مرفوض: {{ course.enrollments.count|add:"-approved_count"|add:"-pending_count" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Enrollments Table -->
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th class="ps-4">
+                                                        #
+                                                    </th>
+                                                    <th>
+                                                        المستخدم
+                                                    </th>
+                                                    <th>
+                                                        الحالة
+                                                    </th>
+                                                    <th>
+                                                        تاريخ التسجيل
+                                                    </th>
+                                                    <th>
+                                                        آخر تحديث
+                                                    </th>
+                                                    <th class="text-end pe-4">
+                                                        الإجراءات
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for enrollment in course.enrollments.all %}
+                                                    <tr>
+                                                        <td class="ps-4">
+                                                            <span class="fw-bold text-muted">{{ forloop.counter }}</span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <img src="{% if enrollment.user.profile.profile_pic %}{{ enrollment.user.profile.profile_pic.url }}{% else %}https://ui-avatars.com/api/?name={{ enrollment.user.username }}&background=0D6EFD&color=fff{% endif %}"
+                                                                     class="user-avatar me-2"
+                                                                     alt="" />
+                                                                <div>
+                                                                    <span class="fw-bold d-block">{{ enrollment.user.get_full_name|default:enrollment.user.username }}</span>
+                                                                    <small class="text-muted">{{ enrollment.user.email }}</small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            {% if enrollment.status == 'pending' %}
+                                                                <span class="status-badge status-pending">
+                                                                    <i class="fa-solid fa-clock me-1"></i>
+                                                                    قيد المراجعة
+                                                                </span>
+                                                            {% elif enrollment.status == 'approved' %}
+                                                                <span class="status-badge status-active">
+                                                                    <i class="fa-solid fa-check me-1"></i>
+                                                                    مقبول
+                                                                </span>
+                                                            {% else %}
+                                                                <span class="status-badge status-inactive">
+                                                                    <i class="fa-solid fa-xmark me-1"></i>
+                                                                    مرفوض
+                                                                </span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            <span class="text-muted">{{ enrollment.created_at|date:"Y-m-d" }}</span>
+                                                            <small class="text-muted d-block">{{ enrollment.created_at|time:"H:i" }}</small>
+                                                        </td>
+                                                        <td>
+                                                            <span class="text-muted">{{ enrollment.updated_at|date:"Y-m-d" }}</span>
+                                                            <small class="text-muted d-block">{{ enrollment.updated_at|time:"H:i" }}</small>
+                                                        </td>
+                                                        <td class="text-end pe-4">
+                                                            <div class="d-flex justify-content-end gap-2">
+                                                                <!-- View Receipt Button -->
+                                                                {% if enrollment.payment_receipt %}
+                                                                    <button class="action-btn btn-view btn-view-enrollment-receipt"
+                                                                            data-receipt-url="{{ enrollment.payment_receipt.url }}"
+                                                                            data-user-name="{{ enrollment.user.get_full_name|default:enrollment.user.username }}"
+                                                                            data-course-name="{{ course.title }}"
+                                                                            data-enrollment-id="{{ enrollment.id }}"
+                                                                            title="عرض الإيصال">
+                                                                        <i class="fa-solid fa-receipt"></i>
+                                                                    </button>
+                                                                {% endif %}
+                                                                <!-- Status Actions -->
+                                                                {% if enrollment.status == 'pending' %}
+                                                                    <button class="action-btn btn-approve-enrollment"
+                                                                            data-enrollment-id="{{ enrollment.id }}"
+                                                                            data-user-name="{{ enrollment.user.get_full_name|default:enrollment.user.username }}"
+                                                                            data-receipt-url="{% if enrollment.payment_receipt %}{{ enrollment.payment_receipt.url }}{% else %}{% endif %}"
+                                                                            data-approve-url="{% url 'dashboard:enrollment_approve' enrollment.id %}"
+                                                                            title="قبول التسجيل">
+                                                                        <i class="fa-solid fa-check"></i>
+                                                                    </button>
+                                                                    <button class="action-btn btn-reject-enrollment"
+                                                                            data-enrollment-id="{{ enrollment.id }}"
+                                                                            data-user-name="{{ enrollment.user.get_full_name|default:enrollment.user.username }}"
+                                                                            data-reject-url="{% url 'dashboard:enrollment_reject' enrollment.id %}"
+                                                                            title="رفض التسجيل">
+                                                                        <i class="fa-solid fa-xmark"></i>
+                                                                    </button>
+                                                                {% elif enrollment.status == 'approved' %}
+                                                                    <button class="action-btn btn-edit-enrollment"
+                                                                            data-enrollment-id="{{ enrollment.id }}"
+                                                                            data-user-name="{{ enrollment.user.get_full_name|default:enrollment.user.username }}"
+                                                                            title="تعديل التسجيل">
+                                                                        <i class="fa-solid fa-pen"></i>
+                                                                    </button>
+                                                                    <button class="action-btn btn-revoke-enrollment"
+                                                                            data-enrollment-id="{{ enrollment.id }}"
+                                                                            data-user-name="{{ enrollment.user.get_full_name|default:enrollment.user.username }}"
+                                                                            title="سحب القبول">
+                                                                        <i class="fa-solid fa-rotate-left"></i>
+                                                                    </button>
+                                                                {% endif %}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center p-5">
+                                        <i class="fa-solid fa-users-slash fa-3x text-muted mb-3 opacity-25"></i>
+                                        <p class="text-muted">
+                                            لا يوجد مسجلين في هذه الدورة
+                                        </p>
                                     </div>
                                 {% endif %}
                             </div>
@@ -325,94 +618,13 @@
                 </div>
             </div>
         </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4 mt-4 mt-lg-0">
-            {% if not is_admin %}
-                <!-- Enrollment Status Card -->
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4">
-                        {% if enrollment %}
-                            {% if enrollment.status == 'approved' %}
-                                <div class="text-center">
-                                    <div class="status-icon bg-soft-success text-success rounded-circle mx-auto mb-3">
-                                        <i class="fa-solid fa-check fa-2x"></i>
-                                    </div>
-                                    <h5 class="fw-bold text-success">مسجل في الدورة</h5>
-                                    <p class="text-muted small">يمكنك مشاهدة جميع الفيديوهات الآن</p>
-                                </div>
-                            {% elif enrollment.status == 'pending' %}
-                                <div class="text-center">
-                                    <div class="status-icon bg-soft-warning text-warning rounded-circle mx-auto mb-3">
-                                        <i class="fa-solid fa-clock fa-2x"></i>
-                                    </div>
-                                    <h5 class="fw-bold text-warning">قيد المراجعة</h5>
-                                    <p class="text-muted small">سيتم إعلامك عند الموافقة على طلبك</p>
-                                </div>
-                            {% else %}
-                                <div class="text-center">
-                                    <div class="status-icon bg-soft-danger text-danger rounded-circle mx-auto mb-3">
-                                        <i class="fa-solid fa-ban fa-2x"></i>
-                                    </div>
-                                    <h5 class="fw-bold text-danger">تم الرفض</h5>
-                                    <p class="text-muted small">تم رفض طلبك. يرجى التواصل مع الإدارة</p>
-                                </div>
-                            {% endif %}
-                        {% else %}
-                            <div class="text-center">
-                                <div class="status-icon bg-soft-primary text-primary rounded-circle mx-auto mb-3">
-                                    <i class="fa-solid fa-user-plus fa-2x"></i>
-                                </div>
-                                <h5 class="fw-bold">غير مسجل</h5>
-                                <p class="text-muted small mb-3">
-                                    {% if course.price == 0 %}
-                                        هذه الدورة مجانية. سجل الآن للوصول للمحتوى.
-                                    {% else %}
-                                        سعر الدورة: {{ course.price }} د.ج
-                                    {% endif %}
-                                </p>
-                                <button class="btn btn-primary w-100 btn-enroll"
-                                        data-course-id="{{ course.id }}"
-                                        data-course-price="{{ course.price }}">
-                                    <i class="fa-solid fa-user-plus me-2"></i>
-                                    {% if course.price == 0 %}
-                                        تسجيل مجاني
-                                    {% else %}
-                                        التسجيل في الدورة
-                                    {% endif %}
-                                </button>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endif %}
-
-            <!-- Course Stats -->
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white border-0 p-4">
-                    <h6 class="fw-bold mb-0">إحصائيات الدورة</h6>
-                </div>
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-muted">المسجلين:</span>
-                        <span class="fw-bold">{{ course.enrollments.count }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-muted">المقبولين:</span>
-                        <span class="fw-bold text-success">{{ approved_count }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted">قيد المراجعة:</span>
-                        <span class="fw-bold text-warning">{{ pending_count }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
-
     {% if is_admin %}
         <!-- Upload Video Modal with Progress -->
-        <div class="modal fade" id="uploadVideoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal fade"
+             id="uploadVideoModal"
+             tabindex="-1"
+             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -420,7 +632,8 @@
                             <i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>
                             رفع فيديو جديد
                         </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal">
+                        </button>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-info">
@@ -431,22 +644,24 @@
                                 هذا سيكون الفيديو الأول في الدورة وسيكون مجانياً تلقائياً.
                             {% endif %}
                         </div>
-                        
                         <!-- Upload Progress Widget -->
                         <div class="upload-widget mb-4">
                             <div class="upload-dropzone border-2 border-dashed border-secondary rounded-4 p-5 text-center position-relative">
-                                <input type="file" 
-                                       id="videoFileInput" 
+                                <input type="file"
+                                       id="videoFileInput"
                                        class="position-absolute w-100 h-100 opacity-0 cursor-pointer"
-                                       accept="video/*" 
+                                       accept="video/*"
                                        required />
                                 <div class="upload-icon mb-3">
                                     <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary opacity-50"></i>
                                 </div>
-                                <h5 class="fw-bold mb-2">اسحب وأفلت الفيديو هنا</h5>
-                                <p class="text-muted mb-3">أو انقر للاختيار من جهازك</p>
+                                <h5 class="fw-bold mb-2">
+                                    اسحب وأفلت الفيديو هنا
+                                </h5>
+                                <p class="text-muted mb-3">
+                                    أو انقر للاختيار من جهازك
+                                </p>
                                 <small class="text-muted d-block">يدعم: MP4, AVI, MOV, MKV (الحد الأقصى: 500MB)</small>
-                                
                                 <!-- File Info -->
                                 <div class="file-info mt-3 d-none">
                                     <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3">
@@ -461,7 +676,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <!-- Progress Bar -->
                             <div class="upload-progress mt-4 d-none">
                                 <div class="d-flex justify-content-between mb-2">
@@ -469,12 +683,13 @@
                                     <span class="progress-percentage fw-bold">0%</span>
                                 </div>
                                 <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                                         role="progressbar" 
-                                         style="width: 0%" 
-                                         aria-valuenow="0" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100"></div>
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                         role="progressbar"
+                                         style="width: 0%"
+                                         aria-valuenow="0"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
                                 </div>
                                 <div class="upload-status mt-2">
                                     <small class="text-muted">
@@ -484,25 +699,34 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <!-- Video Details Form -->
                         <form id="videoUploadForm" enctype="multipart/form-data">
                             {% csrf_token %}
                             {% include "partials/errorList.html" with form_id="videoUploadForm" %}
+
                             <div class="mb-3">
-                                <label class="ultra-field-label">عنوان الفيديو</label>
+                                <label class="ultra-field-label">
+                                    عنوان الفيديو
+                                </label>
                                 <input type="text" name="title" class="form-control" required />
                             </div>
                             <div class="mb-3">
-                                <label class="ultra-field-label">وصف الفيديو</label>
+                                <label class="ultra-field-label">
+                                    وصف الفيديو
+                                </label>
                                 <textarea name="description" class="form-control" rows="3"></textarea>
                             </div>
                             <input type="hidden" name="video_file" id="videoFileHidden" />
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="button" class="btn btn-primary-origin" id="uploadVideoBtn" disabled>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                            إلغاء
+                        </button>
+                        <button type="button"
+                                class="btn btn-primary-origin"
+                                id="uploadVideoBtn"
+                                disabled>
                             <i class="fa-solid fa-upload me-2"></i>
                             رفع الفيديو
                         </button>
@@ -510,7 +734,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Payment Receipt Modal -->
         <div class="modal fade" id="receiptModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -520,7 +743,10 @@
                             <i class="fa-solid fa-receipt me-2"></i>
                             عرض الإيصال
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
                     </div>
                     <div class="modal-body p-4 text-center">
                         <div class="receipt-info mb-4">
@@ -539,15 +765,19 @@
                                 </div>
                             </div>
                         </div>
-                        <img id="receiptImage" src="" alt="Receipt" class="img-fluid rounded shadow-sm" />
+                        <img id="receiptImage"
+                             src=""
+                             alt="Receipt"
+                             class="img-fluid rounded shadow-sm" />
                     </div>
                     <div class="modal-footer border-0 p-4 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">إغلاق</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                            إغلاق
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- Approval Modal -->
         <div class="modal fade" id="approvalModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -557,31 +787,47 @@
                             <i class="fa-solid fa-check-circle me-2"></i>
                             قبول الدفع
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
                     </div>
                     <div class="modal-body p-4 text-center">
                         <div class="icon-box-success mb-3">
                             <i class="fa-solid fa-check"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">هل أنت متأكد؟</h4>
-                        <p class="text-muted">هل أنت متأكد من قبول هذا الدفع؟</p>
+                        <h4 class="fw-bold mb-3">
+                            هل أنت متأكد؟
+                        </h4>
+                        <p class="text-muted">
+                            هل أنت متأكد من قبول هذا الدفع؟
+                        </p>
                         <form id="approvalForm">
                             <input type="hidden" name="action" value="approve" />
                             <input type="hidden" name="payment_id" id="approvePaymentId" />
                             <div class="mb-3">
-                                <label class="form-label">ملاحظات (اختياري)</label>
+                                <label class="form-label">
+                                    ملاحظات (اختياري)
+                                </label>
                                 <textarea name="notes" class="form-control" rows="3"></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer flex-nowrap p-0 border-top overflow-hidden">
-                        <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end py-3 text-dark fw-bold" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 py-3 text-success fw-bold" id="confirmApproveBtn">تأكيد القبول</button>
+                        <button type="button"
+                                class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end py-3 text-dark fw-bold"
+                                data-bs-dismiss="modal">
+                            إلغاء
+                        </button>
+                        <button type="button"
+                                class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 py-3 text-success fw-bold"
+                                id="confirmApproveBtn">
+                            تأكيد القبول
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- Rejection Modal -->
         <div class="modal fade" id="rejectionModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -591,33 +837,143 @@
                             <i class="fa-solid fa-times-circle me-2"></i>
                             رفض الدفع
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
                     </div>
                     <div class="modal-body p-4 text-center">
                         <div class="icon-box-danger mb-3">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">هل أنت متأكد؟</h4>
-                        <p class="text-muted">هل أنت متأكد من رفض هذا الدفع؟</p>
+                        <h4 class="fw-bold mb-3">
+                            هل أنت متأكد؟
+                        </h4>
+                        <p class="text-muted">
+                            هل أنت متأكد من رفض هذا الدفع؟
+                        </p>
                         <form id="rejectionForm">
                             <input type="hidden" name="action" value="reject" />
                             <input type="hidden" name="payment_id" id="rejectPaymentId" />
                             <div class="mb-3">
-                                <label class="form-label">سبب الرفض <span class="text-danger">*</span></label>
+                                <label class="form-label">
+                                    سبب الرفض <span class="text-danger">*</span>
+                                </label>
                                 <textarea name="notes" class="form-control" rows="3" required></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer flex-nowrap p-0 border-top overflow-hidden">
-                        <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end py-3 text-dark fw-bold" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 py-3 text-danger fw-bold" id="confirmRejectBtn">تأكيد الرفض</button>
+                        <button type="button"
+                                class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end py-3 text-dark fw-bold"
+                                data-bs-dismiss="modal">
+                            إلغاء
+                        </button>
+                        <button type="button"
+                                class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 py-3 text-danger fw-bold"
+                                id="confirmRejectBtn">
+                            تأكيد الرفض
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Enrollment Confirmation Modal -->
+        <div class="modal fade" id="enrollmentConfirmModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-primary text-white py-3">
+                        <h5 class="modal-title fw-bold">
+                            <i class="fa-solid fa-user-check me-2"></i>
+                            تأكيد التسجيل
+                        </h5>
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <!-- User Details -->
+                        <div class="user-details mb-4">
+                            <h6 class="fw-bold mb-3 text-muted">
+                                معلومات المستخدم
+                            </h6>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="user-avatar-placeholder bg-soft-primary text-primary rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 60px;
+                                            height: 60px"
+                                     id="enrollmentUserAvatar">
+                                    <i class="fa-solid fa-user fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" id="enrollmentUserName">
+                                        -
+                                    </h5>
+                                    <p class="text-muted mb-0" id="enrollmentUserEmail">
+                                        -
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Receipt Preview -->
+                        <div class="receipt-section mb-4" id="enrollmentReceiptSection">
+                            <h6 class="fw-bold mb-3 text-muted">
+                                إيصال الدفع
+                            </h6>
+                            <div class="receipt-container border rounded-3 p-3 text-center">
+                                <img id="enrollmentReceiptImage"
+                                     src=""
+                                     alt="Receipt"
+                                     class="img-fluid rounded shadow-sm d-none"
+                                     style="max-height: 400px" />
+                                <div class="no-receipt-placeholder p-4"
+                                     id="enrollmentNoReceiptPlaceholder">
+                                    <i class="fa-solid fa-file-excel fa-3x text-muted opacity-25 mb-2"></i>
+                                    <p class="text-muted mb-0">
+                                        لا يوجد إيصال مرفق
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Action Form -->
+                        <form id="enrollmentActionForm">
+                            <input type="hidden" name="enrollment_id" id="enrollmentConfirmId" />
+                            <input type="hidden" name="action" id="enrollmentConfirmAction" />
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    ملاحظات
+                                </label>
+                                <textarea name="notes"
+                                          class="form-control"
+                                          rows="3"
+                                          placeholder="أي ملاحظات حول هذا التسجيل..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer flex-nowrap p-0 border-top overflow-hidden">
+                        <button type="button"
+                                class="btn btn-lg btn-link fs-6 text-decoration-none col-4 m-0 rounded-0 border-end py-3 text-dark fw-bold"
+                                data-bs-dismiss="modal">
+                            إلغاء
+                        </button>
+                        <button type="button"
+                                class="btn btn-lg btn-link fs-6 text-decoration-none col-4 m-0 rounded-0 border-end py-3 text-danger fw-bold"
+                                id="rejectEnrollmentBtn">
+                            <i class="fa-solid fa-xmark me-1"></i>
+                            رفض
+                        </button>
+                        <button type="button"
+                                class="btn btn-lg btn-link fs-6 text-decoration-none col-4 m-0 rounded-0 py-3 text-success fw-bold"
+                                id="approveEnrollmentBtn">
+                            <i class="fa-solid fa-check me-1"></i>
+                            قبول
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     {% endif %}
 {% endblock dash_content %}
-
 {% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{% static 'js/course_detail.js' %}?v={% now 'U' %}"></script>

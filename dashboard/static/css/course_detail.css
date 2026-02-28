@@ -148,6 +148,124 @@
     font-size: 0.8rem;
 }
 
+/* Action Buttons - Matching Course List Design */
+.action-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-view:hover {
+    background: #e0f2fe;
+    color: #0ea5e9;
+    border-color: #bae6fd;
+}
+
+.btn-approve-enrollment:hover {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.btn-reject-enrollment:hover {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.btn-edit-enrollment:hover {
+    background: #e0e7ff;
+    color: #4f46e5;
+    border-color: #c7d2fe;
+}
+
+.btn-revoke-enrollment:hover {
+    background: #fef3c7;
+    color: #d97706;
+    border-color: #fde68a;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* User Avatar */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Stats Badge */
+.stats-badge {
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Enrollment Confirmation Modal */
+.user-details {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.user-avatar-placeholder {
+    background: rgba(13, 110, 253, 0.1);
+}
+
+.receipt-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.receipt-container {
+    background: white;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-receipt-placeholder {
+    text-align: center;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .course-info-grid {

@@ -74,5 +74,20 @@ urlpatterns = [
         name="payment_review",
     ),
     path("courses/payments/", courses.payment_list, name="payment_list"),
+    path(
+        "courses/enrollment/<int:enrollment_id>/approve/",
+        courses.enrollment_approve,
+        name="enrollment_approve",
+    ),
+    path(
+        "courses/enrollment/<int:enrollment_id>/reject/",
+        courses.enrollment_reject,
+        name="enrollment_reject",
+    ),
+    path(
+        "courses/enrollment/<int:enrollment_id>/revoke/",
+        courses.enrollment_revoke,
+        name="enrollment_revoke",
+    ),
     path("courses/my-courses/", courses.my_courses, name="my_courses"),
 ]

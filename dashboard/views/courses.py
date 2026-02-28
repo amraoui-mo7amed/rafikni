@@ -58,7 +58,6 @@ def course_list(request):
 @login_required
 @admin_required
 def course_create(request):
-
     if request.method == "POST":
         """Create a new course (admin only)"""
         title = request.POST.get("title")
@@ -70,7 +69,7 @@ def course_create(request):
             return JsonResponse(
                 {"success": False, "errors": ["يرجى ملء الحقول المطلوبة"]}
             )
-        
+
         try:
             # Create course
             course = Course.objects.create(
@@ -91,13 +90,21 @@ def course_create(request):
                 {
                     "success": True,
                     "message": "تم إنشاء الدورة بنجاح",
-                    "redirect_url": reverse("dashboard:course_detail", args=[course.id]),
-                })
+                    "redirect_url": reverse(
+                        "dashboard:course_detail", args=[course.id]
+                    ),
+                }
+            )
 
         except Exception as e:
             logger.error(f"Error creating course: {str(e)}")
-            return JsonResponse({"success": False, "errors": ["حدث خطأ أثناء إنشاء الدورة"], 'redirect_url': reverse("dashboard:course_list")})
-
+            return JsonResponse(
+                {
+                    "success": False,
+                    "errors": ["حدث خطأ أثناء إنشاء الدورة"],
+                    "redirect_url": reverse("dashboard:course_list"),
+                }
+            )
 
     return render(request, "dashboard/courses/create.html")
 
@@ -425,6 +432,100 @@ def payment_list(request):
         "rejected_count": rejected_count,
     }
     return render(request, "dashboard/courses/payment_list.html", context)
+
+
+@login_required
+@admin_required
+def enrollment_approve(request, enrollment_id):
+    """Approve enrollment (admin only)"""
+    enrollment = get_object_or_404(CourseEnrollment, id=enrollment_id)
+
+    if request.method == "POST":
+        try:
+            notes = request.POST.get("notes", "")
+
+            enrollment.status = CourseEnrollment.EnrollmentStatus.APPROVED
+            enrollment.approved_by = request.user
+            enrollment.notes = notes
+            enrollment.save()
+
+            # Also approve associated payment if exists
+            if hasattr(enrollment, "payment"):
+                enrollment.payment.status = Payment.PaymentStatus.APPROVED
+                enrollment.payment.reviewed_by = request.user
+                enrollment.payment.save()
+
+            return JsonResponse({"success": True, "message": "تم قبول التسجيل بنجاح"})
+        except Exception as e:
+            logger.error(f"Error approving enrollment: {str(e)}")
+            return JsonResponse(
+                {"success": False, "errors": ["حدث خطأ أثناء قبول التسجيل"]}
+            )
+
+    return JsonResponse({"success": False, "errors": ["طريقة طلب غير صالحة"]})
+
+
+@login_required
+@admin_required
+def enrollment_reject(request, enrollment_id):
+    """Reject enrollment (admin only)"""
+    enrollment = get_object_or_404(CourseEnrollment, id=enrollment_id)
+
+    if request.method == "POST":
+        try:
+            notes = request.POST.get("notes", "")
+
+            if not notes:
+                return JsonResponse(
+                    {"success": False, "errors": ["يرجى إدخال سبب الرفض"]}
+                )
+
+            enrollment.status = CourseEnrollment.EnrollmentStatus.REJECTED
+            enrollment.notes = notes
+            enrollment.save()
+
+            # Also reject associated payment if exists
+            if hasattr(enrollment, "payment"):
+                enrollment.payment.status = Payment.PaymentStatus.REJECTED
+                enrollment.payment.reviewed_by = request.user
+                enrollment.payment.save()
+
+            return JsonResponse({"success": True, "message": "تم رفض التسجيل"})
+        except Exception as e:
+            logger.error(f"Error rejecting enrollment: {str(e)}")
+            return JsonResponse(
+                {"success": False, "errors": ["حدث خطأ أثناء رفض التسجيل"]}
+            )
+
+    return JsonResponse({"success": False, "errors": ["طريقة طلب غير صالحة"]})
+
+
+@login_required
+@admin_required
+def enrollment_revoke(request, enrollment_id):
+    """Revoke approved enrollment (admin only)"""
+    enrollment = get_object_or_404(CourseEnrollment, id=enrollment_id)
+
+    if request.method == "POST":
+        try:
+            enrollment.status = CourseEnrollment.EnrollmentStatus.PENDING
+            enrollment.approved_by = None
+            enrollment.save()
+
+            # Also revoke associated payment if exists
+            if hasattr(enrollment, "payment"):
+                enrollment.payment.status = Payment.PaymentStatus.PENDING
+                enrollment.payment.reviewed_by = None
+                enrollment.payment.save()
+
+            return JsonResponse({"success": True, "message": "تم سحب القبول بنجاح"})
+        except Exception as e:
+            logger.error(f"Error revoking enrollment: {str(e)}")
+            return JsonResponse(
+                {"success": False, "errors": ["حدث خطأ أثناء سحب القبول"]}
+            )
+
+    return JsonResponse({"success": False, "errors": ["طريقة طلب غير صالحة"]})
 
 
 @login_required

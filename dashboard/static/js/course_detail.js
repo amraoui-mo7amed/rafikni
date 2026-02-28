@@ -356,6 +356,239 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Enrollment confirmation modal handlers
+    const enrollmentConfirmModal = document.getElementById('enrollmentConfirmModal');
+    const approveEnrollmentBtn = document.getElementById('approveEnrollmentBtn');
+    const rejectEnrollmentBtn = document.getElementById('rejectEnrollmentBtn');
+    
+    // Use event delegation for dynamically loaded content
+    document.addEventListener('click', function(e) {
+        const approveBtn = e.target.closest('.btn-approve-enrollment');
+        const rejectBtn = e.target.closest('.btn-reject-enrollment');
+        
+        if (approveBtn && enrollmentConfirmModal) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const enrollmentId = approveBtn.dataset.enrollmentId;
+            const userName = approveBtn.dataset.userName;
+            const receiptUrl = approveBtn.dataset.receiptUrl || '';
+            const approveUrl = approveBtn.dataset.approveUrl;
+            
+            console.log('Approve button clicked:', { enrollmentId, userName, approveUrl });
+            
+            document.getElementById('enrollmentConfirmId').value = enrollmentId;
+            document.getElementById('enrollmentConfirmAction').value = 'approve';
+            document.getElementById('enrollmentUserName').textContent = userName;
+            enrollmentConfirmModal.dataset.actionUrl = approveUrl;
+            enrollmentConfirmModal.dataset.action = 'approve';
+            
+            // Show receipt if exists
+            const receiptImage = document.getElementById('enrollmentReceiptImage');
+            const noReceiptPlaceholder = document.getElementById('enrollmentNoReceiptPlaceholder');
+            
+            if (receiptUrl) {
+                receiptImage.src = receiptUrl;
+                receiptImage.classList.remove('d-none');
+                noReceiptPlaceholder.classList.add('d-none');
+            } else {
+                receiptImage.classList.add('d-none');
+                noReceiptPlaceholder.classList.remove('d-none');
+            }
+            
+            const modal = new bootstrap.Modal(enrollmentConfirmModal);
+            modal.show();
+        }
+        
+        if (rejectBtn && enrollmentConfirmModal) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const enrollmentId = rejectBtn.dataset.enrollmentId;
+            const userName = rejectBtn.dataset.userName;
+            const rejectUrl = rejectBtn.dataset.rejectUrl;
+            
+            console.log('Reject button clicked:', { enrollmentId, userName, rejectUrl });
+            
+            document.getElementById('enrollmentConfirmId').value = enrollmentId;
+            document.getElementById('enrollmentConfirmAction').value = 'reject';
+            document.getElementById('enrollmentUserName').textContent = userName;
+            enrollmentConfirmModal.dataset.actionUrl = rejectUrl;
+            enrollmentConfirmModal.dataset.action = 'reject';
+            
+            const modal = new bootstrap.Modal(enrollmentConfirmModal);
+            modal.show();
+        }
+    });
+    
+    // Approve action in modal
+    if (approveEnrollmentBtn) {
+        approveEnrollmentBtn.addEventListener('click', function() {
+            handleEnrollmentAction('approve');
+        });
+    }
+    
+    // Reject action in modal
+    if (rejectEnrollmentBtn) {
+        rejectEnrollmentBtn.addEventListener('click', function() {
+            handleEnrollmentAction('reject');
+        });
+    }
+    
+    // Edit enrollment button click
+    document.addEventListener('click', function(e) {
+        const editBtn = e.target.closest('.btn-edit-enrollment');
+        const revokeBtn = e.target.closest('.btn-revoke-enrollment');
+        
+        if (editBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const enrollmentId = editBtn.dataset.enrollmentId;
+            console.log('Edit enrollment clicked:', enrollmentId);
+            Swal.fire({
+                title: 'قريباً',
+                text: 'ميزة تعديل التسجيل ستكون متاحة قريباً',
+                icon: 'info',
+                confirmButtonText: 'حسناً'
+            });
+        }
+        
+        if (revokeBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const enrollmentId = revokeBtn.dataset.enrollmentId;
+            const userName = revokeBtn.dataset.userName;
+            
+            Swal.fire({
+                title: 'سحب القبول؟',
+                text: `هل أنت متأكد من سحب قبول ${userName}؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'نعم، سحب',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    revokeEnrollment(enrollmentId);
+                }
+            });
+        }
+    });
+    
+    function revokeEnrollment(enrollmentId) {
+        const formData = new FormData();
+        formData.append('enrollment_id', enrollmentId);
+        formData.append('csrfmiddlewaretoken', getCsrfToken());
+        
+        fetch(`/dashboard/courses/enrollment/${enrollmentId}/revoke/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: 'تم!',
+                    text: 'تم سحب القبول بنجاح',
+                    icon: 'success',
+                    confirmButtonText: 'حسناً'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: data.errors ? data.errors[0] : 'حدث خطأ أثناء سحب القبول',
+                    icon: 'error',
+                    confirmButtonText: 'حسناً'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'خطأ',
+                text: 'حدث خطأ في الاتصال بالخادم',
+                icon: 'error',
+                confirmButtonText: 'حسناً'
+            });
+        });
+    }
+    
+    function handleEnrollmentAction(action) {
+        console.log('handleEnrollmentAction called:', action);
+        
+        const form = document.getElementById('enrollmentActionForm');
+        const enrollmentId = document.getElementById('enrollmentConfirmId').value;
+        const notes = form.querySelector('textarea[name="notes"]').value;
+        const actionUrl = enrollmentConfirmModal.dataset.actionUrl;
+        
+        console.log('Action data:', { enrollmentId, action, actionUrl, notes });
+
+        if (!actionUrl) {
+            Swal.fire({
+                title: 'خطأ',
+                text: 'لم يتم تحديد عنوان الإجراء',
+                icon: 'error',
+                confirmButtonText: 'حسناً'
+            });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('enrollment_id', enrollmentId);
+        formData.append('action', action);
+        formData.append('notes', notes);
+        formData.append('csrfmiddlewaretoken', getCsrfToken());
+
+        fetch(actionUrl, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const modal = bootstrap.Modal.getInstance(enrollmentConfirmModal);
+            modal.hide();
+            
+            if (data.success) {
+                Swal.fire({
+                    title: 'تم!',
+                    text: action === 'approve' ? 'تم قبول التسجيل بنجاح' : 'تم رفض التسجيل',
+                    icon: 'success',
+                    confirmButtonText: 'حسناً'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: data.errors ? data.errors[0] : 'حدث خطأ أثناء المعالجة',
+                    icon: 'error',
+                    confirmButtonText: 'حسناً'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const modal = bootstrap.Modal.getInstance(enrollmentConfirmModal);
+            modal.hide();
+            
+            Swal.fire({
+                title: 'خطأ',
+                text: 'حدث خطأ في الاتصال بالخادم',
+                icon: 'error',
+                confirmButtonText: 'حسناً'
+            });
+        });
+    }
+    
     function getCsrfToken() {
         return document.querySelector('[name=csrfmiddlewaretoken]').value;
     }
