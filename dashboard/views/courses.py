@@ -231,6 +231,9 @@ def course_detail(request, course_id):
     pending_count = course.enrollments.filter(
         status=CourseEnrollment.EnrollmentStatus.PENDING
     ).count()
+    rejected_count = course.enrollments.filter(
+        status=CourseEnrollment.EnrollmentStatus.REJECTED
+    ).count()
 
     # Get payments for this course (admin only)
     payments = None
@@ -253,6 +256,7 @@ def course_detail(request, course_id):
         "is_admin": is_admin,
         "approved_count": approved_count,
         "pending_count": pending_count,
+        "rejected_count": rejected_count,
         "payments": payments,
         "payment_stats": payment_stats,
     }

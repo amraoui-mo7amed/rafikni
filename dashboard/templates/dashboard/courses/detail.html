@@ -468,20 +468,22 @@
                             <!-- Enrollments Tab (Admin Only) -->
                             <div class="tab-pane fade" id="enrollments" role="tabpanel">
                                 {% if course.enrollments.all %}
-                                    <!-- Enrollment Stats -->
+                                    <!-- Enrollment Filter -->
                                     <div class="p-3 border-bottom bg-light">
-                                        <div class="d-flex gap-2 justify-content-center">
-                                            <div class="stats-badge bg-soft-warning text-warning">
-                                                <i class="fa-solid fa-clock me-1"></i>
-                                                قيد المراجعة: {{ pending_count }}
-                                            </div>
-                                            <div class="stats-badge bg-soft-success text-success">
-                                                <i class="fa-solid fa-check me-1"></i>
-                                                مقبول: {{ approved_count }}
-                                            </div>
-                                            <div class="stats-badge bg-soft-danger text-danger">
-                                                <i class="fa-solid fa-xmark me-1"></i>
-                                                مرفوض: {{ course.enrollments.count|add:"-approved_count"|add:"-pending_count" }}
+                                        <div class="d-flex gap-2 justify-content-between align-items-center">
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-sm btn-outline-primary enrollment-filter-btn active" data-filter="all">
+                                                    الكل <span class="badge bg-primary ms-1">{{ course.enrollments.count }}</span>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-warning enrollment-filter-btn" data-filter="pending">
+                                                    قيد المراجعة <span class="badge bg-warning text-dark ms-1">{{ pending_count }}</span>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success enrollment-filter-btn" data-filter="approved">
+                                                    مقبول <span class="badge bg-success ms-1">{{ approved_count }}</span>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger enrollment-filter-btn" data-filter="rejected">
+                                                    مرفوض <span class="badge bg-danger ms-1">{{ rejected_count }}</span>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -584,12 +586,6 @@
                                                                         <i class="fa-solid fa-xmark"></i>
                                                                     </button>
                                                                 {% elif enrollment.status == 'approved' %}
-                                                                    <button class="action-btn btn-edit-enrollment"
-                                                                            data-enrollment-id="{{ enrollment.id }}"
-                                                                            data-user-name="{{ enrollment.user.get_full_name|default:enrollment.user.username }}"
-                                                                            title="تعديل التسجيل">
-                                                                        <i class="fa-solid fa-pen"></i>
-                                                                    </button>
                                                                     <button class="action-btn btn-revoke-enrollment"
                                                                             data-enrollment-id="{{ enrollment.id }}"
                                                                             data-user-name="{{ enrollment.user.get_full_name|default:enrollment.user.username }}"

@@ -435,23 +435,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Edit enrollment button click
-    document.addEventListener('click', function(e) {
-        const editBtn = e.target.closest('.btn-edit-enrollment');
-        const revokeBtn = e.target.closest('.btn-revoke-enrollment');
-        
-        if (editBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const enrollmentId = editBtn.dataset.enrollmentId;
-            console.log('Edit enrollment clicked:', enrollmentId);
-            Swal.fire({
-                title: 'قريباً',
-                text: 'ميزة تعديل التسجيل ستكون متاحة قريباً',
-                icon: 'info',
-                confirmButtonText: 'حسناً'
+    // Enrollment filter buttons
+    const enrollmentFilterBtns = document.querySelectorAll('.enrollment-filter-btn');
+    if (enrollmentFilterBtns.length > 0) {
+        enrollmentFilterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.dataset.filter;
+                
+                // Update active state
+                enrollmentFilterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter table rows
+                const rows = document.querySelectorAll('#enrollments tbody tr');
+                rows.forEach(row => {
+                    const statusBadge = row.querySelector('.status-badge');
+                    let show = false;
+                    
+                    if (filter === 'all') {
+                        show = true;
+                    } else if (filter === 'pending' && statusBadge.classList.contains('status-pending')) {
+                        show = true;
+                    } else if (filter === 'approved' && statusBadge.classList.contains('status-active')) {
+                        show = true;
+                    } else if (filter === 'rejected' && statusBadge.classList.contains('status-inactive')) {
+                        show = true;
+                    }
+                    
+                    row.style.display = show ? '' : 'none';
+                });
             });
-        }
+        });
+    }
+    
+    // Enrollment action buttons
+    document.addEventListener('click', function(e) {
+        const revokeBtn = e.target.closest('.btn-revoke-enrollment');
         
         if (revokeBtn) {
             e.preventDefault();
