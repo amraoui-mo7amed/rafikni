@@ -105,16 +105,6 @@ def sidebar_menu(request):
     if user.is_authenticated:
         system_items = []
 
-        # Admin specific system items
-        if role == "admin" or user.is_superuser:
-            system_items.append(
-                {
-                    "name": "إعدادات البريد",
-                    "url_name": "dashboard:email_settings",
-                    "icon": "fa-solid fa-envelope-open-text",
-                }
-            )
-
         # Common system items
         system_items.extend(
             [

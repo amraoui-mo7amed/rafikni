@@ -32,13 +32,7 @@ urlpatterns = [
         medical_cases.medical_case_delete,
         name="medical_case_delete",
     ),
-    # Settings
-    path("settings/email/", settings.email_settings, name="email_settings"),
-    path(
-        "settings/email/test/",
-        settings.test_email_connection,
-        name="test_email_connection",
-    ),
+ 
     # Courses
     path("courses/", courses.course_list, name="course_list"),
     path("courses/create/", courses.course_create, name="course_create"),

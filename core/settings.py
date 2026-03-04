@@ -160,4 +160,15 @@ CSRF_TRUSTED_ORIGINS = (
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-EMAIL_BACKEND = "dashboard.email_backend.DbEmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT") or 587)
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
+
+# Only set auth credentials if they exist, otherwise SMTP auth won't be attempted
+_email_user = os.getenv("EMAIL_HOST_USER")
+_email_password = os.getenv("EMAIL_HOST_PASSWORD")
+if _email_user:
+    EMAIL_HOST_USER = _email_user
+if _email_password:
+    EMAIL_HOST_PASSWORD = _email_password

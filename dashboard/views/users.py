@@ -5,30 +5,19 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
-from django.contrib.sites.shortcuts import get_current_site
 from user_auth.models import UserProfile
+from smtplib import SMTPException
+
 from ..decorators import admin_required
+from ..utils import (
+    EmailConfigurationError,
+    generate_secure_password,
+    send_doctor_credentials_email,
+)
+
 import logging
-import secrets
-import string
 
 logger = logging.getLogger(__name__)
-
-
-def generate_secure_password(length=12):
-    """Generate a secure random password"""
-    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
-    password = "".join(secrets.choice(alphabet) for i in range(length))
-    # Ensure password has at least one of each type
-    if (
-        any(c.islower() for c in password)
-        and any(c.isupper() for c in password)
-        and any(c.isdigit() for c in password)
-    ):
-        return password
-    return generate_secure_password(length)  # Regenerate if criteria not met
 
 
 @login_required
@@ -247,24 +236,26 @@ def doctor_create(request):
                         profile.profile_pic = profile_pic
                         profile.save()
 
-                # Send credentials email
-                try:
+                    # Send credentials email before committing transaction
+                    # If email fails, transaction will rollback
                     send_doctor_credentials_email(request, user, password)
+
                     logger.info(
                         f"Doctor account created and email sent: {username} by {request.user.username}"
                     )
-                except Exception as email_error:
-                    logger.error(
-                        f"Failed to send credentials email: {str(email_error)}"
+                    return JsonResponse(
+                        {
+                            "success": True,
+                            "message": f"تم إنشاء حساب الطبيب {username} بنجاح. تم إرسال بيانات الدخول إلى {email}",
+                        }
                     )
-                    # Don't fail the whole operation if email fails
 
-                return JsonResponse(
-                    {
-                        "success": True,
-                        "message": f"تم إنشاء حساب الطبيب {username} بنجاح. تم إرسال بيانات الدخول إلى {email}",
-                    }
-                )
+            except EmailConfigurationError as e:
+                logger.error(f"Email configuration error: {str(e)}")
+                errors.append(str(e))
+            except SMTPException as e:
+                logger.error(f"SMTP error: {str(e)}")
+                errors.append(f"فشل إرسال البريد الإلكتروني: {str(e)}")
             except Exception as e:
                 logger.error(f"Error creating doctor account: {str(e)}")
                 errors.append("حدث خطأ أثناء إنشاء الحساب")
@@ -273,42 +264,3 @@ def doctor_create(request):
 
     # GET request - render the form
     return render(request, "dashboard/users/doctor_create.html")
-
-
-def send_doctor_credentials_email(request, user, password):
-    """
-    Send an email to the doctor with their login credentials
-    """
-    current_site = get_current_site(request)
-    login_url = request.build_absolute_uri("/auth/login/")
-
-    context = {
-        "user": user,
-        "username": user.username,
-        "password": password,
-        "login_url": login_url,
-        "domain": current_site.domain,
-        "protocol": "https" if request.is_secure() else "http",
-    }
-
-    message = render_to_string("emails/doctor_credentials.html", context)
-
-    # Get configured sender email
-    from_email = None
-    try:
-        from dashboard.models import EmailConfiguration
-
-        email_config = EmailConfiguration.objects.filter(is_active=True).first()
-        if email_config:
-            from_email = email_config.default_from_email
-    except Exception:
-        pass
-
-    email = EmailMessage(
-        subject="بيانات الدخول إلى منصة رافقني",
-        body=message,
-        from_email=from_email,
-        to=[user.email],
-    )
-    email.content_subtype = "html"
-    email.send(fail_silently=False)
