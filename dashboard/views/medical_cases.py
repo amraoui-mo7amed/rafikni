@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.contrib import messages
 from ..decorators import patient_required, patient_or_admin_required
 from ..models import ChildMedicalCase, AdultMedicalCase, ElderlyMedicalCase
+from ..utils import notify_admins
 import logging
 from django.urls import reverse
 
@@ -149,6 +150,18 @@ def medical_case_create(request):
                 )
             else:
                 return JsonResponse({"success": False, "errors": ["فئة غير صالحة"]})
+
+            # Notify admins
+            category_display = {"child": "طفل", "adult": "بالغ", "elderly": "مسن"}.get(
+                category, ""
+            )
+            notify_admins(
+                request,
+                title="حالة طبية جديدة",
+                message=f"قام المستخدم {request.user.username} بإضافة حالة طبية جديدة ({category_display})",
+                notification_type="info",
+                link=reverse("dashboard:medical_case_list") + f"?category={category}",
+            )
 
             return JsonResponse(
                 {

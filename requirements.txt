@@ -27,6 +27,7 @@ MarkupSafe==3.0.3
 msgpack==1.1.2
 packaging==25.0
 pathspec==0.12.1
+pillow==12.1.1
 pubcontrol==3.5.0
 py-ubjson==0.16.1
 pyasn1==0.6.1
@@ -36,6 +37,7 @@ PyJWT==2.10.1
 pyOpenSSL==25.3.0
 python-dotenv==1.2.1
 PyYAML==6.0.3
+redis==7.2.1
 regex==2025.11.3
 requests==2.32.5
 service-identity==24.2.0

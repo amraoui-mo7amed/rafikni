@@ -72,3 +72,97 @@ def send_doctor_credentials_email(request, user, password):
         else:
             logger.error(f"SMTP error: {str(e)}")
             raise EmailConfigurationError(f"فشل إرسال البريد الإلكتروني: {str(e)}")
+
+
+def create_notification(user, title, message, notification_type="info", link=""):
+    """
+    Create a notification for a user and send it via eventstream.
+
+    Args:
+        user: The user to notify
+        title: Notification title
+        message: Notification message
+        notification_type: One of 'info', 'success', 'warning', 'error'
+        link: Optional link to navigate to when clicked
+
+    Returns:
+        The created Notification instance
+    """
+    from django_eventstream import send_event
+    from .models import Notification
+
+    try:
+        # Create notification in database
+        notification = Notification.objects.create(
+            user=user,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            link=link,
+        )
+
+        # Send real-time event to user's channel
+        channel = f"user-{user.id}"
+        event_data = {
+            "id": notification.id,
+            "title": notification.title,
+            "message": notification.message,
+            "type": notification.notification_type,
+            "is_read": notification.is_read,
+            "created_at": notification.created_at.isoformat(),
+            "link": notification.link,
+        }
+
+        send_event(channel, "notification", event_data)
+
+        logger.info(f"Notification sent to user {user.username}: {title}")
+        return notification
+
+    except Exception as e:
+        logger.error(
+            f"Failed to create notification for user {user.username}: {str(e)}"
+        )
+        return None
+
+
+def notify_user(user, title, message, notification_type="info", link=""):
+    """
+    Alias for create_notification - sends a notification to a user.
+    """
+    return create_notification(user, title, message, notification_type, link)
+
+
+def notify_users(users, title, message, notification_type="info", link=""):
+    """
+    Send the same notification to multiple users.
+
+    Args:
+        users: QuerySet or list of users
+        title: Notification title
+        message: Notification message
+        notification_type: One of 'info', 'success', 'warning', 'error'
+        link: Optional link
+    """
+    notifications = []
+    for user in users:
+        notification = create_notification(
+            user, title, message, notification_type, link
+        )
+        if notification:
+            notifications.append(notification)
+
+    return notifications
+
+
+def notify_admins(request, title, message, notification_type="info", link=""):
+    """
+    Send notification to all admin users.
+    """
+    from django.contrib.auth.models import User
+    from user_auth.models import UserProfile
+
+    admin_users = User.objects.filter(
+        profile__role=UserProfile.RoleChoices.ADMIN, is_active=True
+    )
+
+    return notify_users(admin_users, title, message, notification_type, link)

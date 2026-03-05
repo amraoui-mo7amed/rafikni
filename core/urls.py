@@ -19,11 +19,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+import django_eventstream
 
 urlpatterns = [
     path("", include("frontend.urls", namespace="frontend")),
     path("dashboard/", include("dashboard.urls", namespace="dashboard")),
     path("auth/", include("user_auth.urls", namespace="user_auth")),
+    # EventStream endpoint - user-specific channels
+    # Client selects channel via query parameter: ?channel=user-{user_id}
+    path("events/", include(django_eventstream.urls)),
 ]
 
 if settings.DEBUG:

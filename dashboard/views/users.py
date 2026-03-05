@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.urls import reverse
 from user_auth.models import UserProfile
 from smtplib import SMTPException
 
@@ -13,6 +14,7 @@ from ..utils import (
     EmailConfigurationError,
     generate_secure_password,
     send_doctor_credentials_email,
+    notify_admins,
 )
 
 import logging
@@ -240,15 +242,24 @@ def doctor_create(request):
                     # If email fails, transaction will rollback
                     send_doctor_credentials_email(request, user, password)
 
-                    logger.info(
-                        f"Doctor account created and email sent: {username} by {request.user.username}"
-                    )
-                    return JsonResponse(
-                        {
-                            "success": True,
-                            "message": f"تم إنشاء حساب الطبيب {username} بنجاح. تم إرسال بيانات الدخول إلى {email}",
-                        }
-                    )
+                # Notify other admins
+                notify_admins(
+                    request,
+                    title="حساب طبيب جديد",
+                    message=f"تم إنشاء حساب جديد للطبيب {username} بواسطة {request.user.username}",
+                    notification_type="success",
+                    link=reverse("dashboard:user_list") + f"?q={username}",
+                )
+
+                logger.info(
+                    f"Doctor account created and email sent: {username} by {request.user.username}"
+                )
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "message": f"تم إنشاء حساب الطبيب {username} بنجاح. تم إرسال بيانات الدخول إلى {email}",
+                    }
+                )
 
             except EmailConfigurationError as e:
                 logger.error(f"Email configuration error: {str(e)}")

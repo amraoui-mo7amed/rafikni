@@ -3,8 +3,10 @@
 {% load static %}
 
 {% block css %}
-    <link rel="stylesheet"
-          href="{% static 'css/dash_index.css' %}?v={% now 'U' %}" />
+<link rel="stylesheet"
+      href="{% static 'css/dash_index.css' %}?v={% now 'U' %}" />
+<link rel="stylesheet"
+      href="{% static 'css/notifications.css' %}?v={% now 'U' %}" />
 {% endblock css %}
 {% block navbar %}
 {% endblock navbar %}
@@ -63,79 +65,42 @@
                 <div class="user-actions d-flex align-items-center">
                     <!-- Notifications Dropdown -->
                     <div class="dropdown me-4 position-relative">
-                        <div class="notifications cursor-pointer"
-                             id="notificationDropdown"
-                             data-bs-toggle="dropdown"
-                             data-bs-offset="0,15"
-                             aria-expanded="false">
-                            <i class="fa-solid fa-bell text-muted fa-lg"></i>
-                            <span class="badge rounded-pill bg-danger border border-light position-absolute top-0 start-100 translate-middle p-1 pulse-animation">
-                                <span class="visually-hidden">تنبيهات</span>
-                            </span>
-                        </div>
-                        <div class="dropdown-menu bg-glass dropdown-menu-end border-0 shadow-lg p-0 mt-3 notification-panel"
-                             aria-labelledby="notificationDropdown">
-                            <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
-                                <h6 class="m-0 fw-bold text-dark">
-                                    التنبيهات
-                                </h6>
-                                <span class="badge bg-soft-primary text-primary small">3 جديدة</span>
-                            </div>
-                            <div class="notification-list" style="max-height: 350px; overflow-y: auto">
-                                <!-- Sample Notification 1 -->
-                                <a href="#"
-                                   class="dropdown-item p-3 border-bottom d-flex align-items-start transition">
-                                    <div class="icon-box bg-soft-primary p-2 rounded-3 text-primary me-3">
-                                        <i class="fa-solid fa-calendar-check small"></i>
-                                    </div>
-                                    <div class="flex-grow-1 text-wrap">
-                                        <p class="m-0 small fw-bold">
-                                            موعد جديد
-                                        </p>
-                                        <p class="m-0 x-small text-muted">
-                                            لديك موعد جديد مع المريض "أحمد علي" اليوم الساعة 4:00 مساءً.
-                                        </p>
-                                        <span class="x-small text-primary mt-1 d-block">منذ 5 دقائق</span>
-                                    </div>
-                                </a>
-                                <!-- Sample Notification 2 -->
-                                <a href="#"
-                                   class="dropdown-item p-3 border-bottom d-flex align-items-start transition">
-                                    <div class="icon-box bg-soft-success p-2 rounded-3 text-success me-3">
-                                        <i class="fa-solid fa-user-plus small"></i>
-                                    </div>
-                                    <div class="flex-grow-1 text-wrap">
-                                        <p class="m-0 small fw-bold">
-                                            ملف مريض جديد
-                                        </p>
-                                        <p class="m-0 x-small text-muted">
-                                            تمت إضافة ملف طبي جديد للمريضة "سارة خالد".
-                                        </p>
-                                        <span class="x-small text-primary mt-1 d-block">منذ ساعة</span>
-                                    </div>
-                                </a>
-                                <!-- Sample Notification 3 -->
-                                <a href="#"
-                                   class="dropdown-item p-3 d-flex align-items-start transition">
-                                    <div class="icon-box bg-soft-warning p-2 rounded-3 text-warning me-3">
-                                        <i class="fa-solid fa-triangle-exclamation small"></i>
-                                    </div>
-                                    <div class="flex-grow-1 text-wrap">
-                                        <p class="m-0 small fw-bold">
-                                            تحديث النظام
-                                        </p>
-                                        <p class="m-0 x-small text-muted">
-                                            توجد تحديثات جديدة متوفرة لمنصة رافقني.
-                                        </p>
-                                        <span class="x-small text-primary mt-1 d-block">منذ يوم</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="p-2 border-top text-center">
-                                <a href="#"
-                                   class="btn btn-link btn-sm text-primary text-decoration-none fw-bold">مشاهدة الكل</a>
-                            </div>
-                        </div>
+              <div class="notifications cursor-pointer position-relative"
+                   id="notificationDropdown"
+                   data-bs-toggle="dropdown"
+                   data-bs-offset="0,15"
+                   aria-expanded="false">
+                <i class="fa-solid fa-bell text-muted fa-lg notifications-icon"></i>
+                <span id="notification-badge" class="badge rounded-pill bg-danger border border-light position-absolute top-0 start-100 translate-middle p-1 d-none">
+                  <span class="visually-hidden">إشعارات جديدة</span>
+                </span>
+              </div>
+                <div class="dropdown-menu bg-glass dropdown-menu-end border-0 shadow-lg p-0 mt-3 notification-panel"
+                     aria-labelledby="notificationDropdown">
+                  <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+                    <h6 class="m-0 fw-bold text-dark">
+                      الإشعارات
+                    </h6>
+                    <div>
+                      <span id="notification-count" class="badge bg-soft-primary text-primary small d-none">0 جديدة</span>
+                    </div>
+                  </div>
+                  <div class="notification-list" style="max-height: 350px; overflow-y: auto">
+                    <!-- Notifications will be loaded here via JavaScript -->
+                    <div class="notification-empty text-center py-4 text-muted">
+                      <i class="far fa-bell fa-2x mb-2"></i>
+                      <div>جاري تحميل الإشعارات...</div>
+                    </div>
+                  </div>
+                  <div class="p-2 border-top d-flex align-items-center justify-content-between">
+                    <button type="button" id="mark-all-read" class="btn btn-link btn-sm text-primary text-decoration-none fw-bold">
+                      <i class="fas fa-check-double me-1"></i>تعيين الكل كمقروء
+                    </button>
+                    <a href="#" class="btn btn-link btn-sm text-secondary text-decoration-none">
+                      <i class="fas fa-history me-1"></i>السجل
+                    </a>
+                  </div>
+                </div>
                     </div>
                     <div class="user-profile d-flex gap-2 align-items-center cursor-pointer" onclick="window.location.href='{% url 'dashboard:profile_update' %}'">
                         <img src="{% if user.profile.profile_pic %}{{ user.profile.profile_pic.url }}{% else %}https://ui-avatars.com/api/?name={{ user.username }}&background=0D6EFD&color=fff{% endif %}"
@@ -275,5 +240,36 @@
 {% block footer %}
 {% endblock footer %}
 {% block js %}
-    <script src="{% static 'js/dash_index.js' %}?v={% now 'U' %}"></script>
+<script src="{% static 'js/dash_index.js' %}?v={% now 'U' %}"></script>
+<script src="{% static 'js/notifications.js' %}?v={% now 'U' %}"></script>
+<script>
+    // Initialize notifications for current user
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if user.is_authenticated %}
+        NotificationHandler.init({{ user.id }});
+        
+        // Handle mark all as read button
+        document.getElementById('mark-all-read')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            NotificationHandler.markAllAsRead();
+        });
+        
+        // Handle notification dropdown open - mark visible notifications as read
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        notificationDropdown?.addEventListener('shown.bs.dropdown', function() {
+            // Optional: Auto-mark as read when dropdown opens
+            // Uncomment if you want this behavior
+            // document.querySelectorAll('.notification-item.bg-light').forEach(function(item) {
+            //     const id = item.dataset.id;
+            //     if (id) {
+            //         NotificationHandler.markAsRead(id).then(() => {
+            //             item.classList.remove('bg-light');
+            //         });
+            //     }
+            // });
+        });
+        {% endif %}
+    });
+</script>
 {% endblock js %}

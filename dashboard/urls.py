@@ -1,10 +1,11 @@
 from django.urls import path
-from dashboard.views import main, settings, users, medical_cases, courses
+from dashboard.views import main, settings, users, medical_cases, courses, notifications
 
 app_name = "dashboard"
 
 urlpatterns = [
     path("", main.index, name="index"),
+    path("test-notification/", main.test_notification, name="test_notification"),
     # User Management
     path("users/", users.user_list, name="user_list"),
     path("users/create-doctor/", users.doctor_create, name="doctor_create"),
@@ -17,11 +18,7 @@ urlpatterns = [
     ),
     path("profile/update/", users.profile_update, name="profile_update"),
     # Medical Cases
-    path(
-        "medical-cases/",
-        medical_cases.medical_case_list,
-        name="medical_case_list",
-    ),
+    path("medical-cases/", medical_cases.medical_case_list, name="medical_case_list"),
     path(
         "medical-cases/create/",
         medical_cases.medical_case_create,
@@ -32,20 +29,13 @@ urlpatterns = [
         medical_cases.medical_case_delete,
         name="medical_case_delete",
     ),
- 
     # Courses
     path("courses/", courses.course_list, name="course_list"),
     path("courses/create/", courses.course_create, name="course_create"),
     path("courses/<int:course_id>/", courses.course_detail, name="course_detail"),
+    path("courses/<int:course_id>/edit/", courses.course_edit, name="course_edit"),
     path(
-        "courses/<int:course_id>/edit/",
-        courses.course_edit,
-        name="course_edit",
-    ),
-    path(
-        "courses/<int:course_id>/delete/",
-        courses.course_delete,
-        name="course_delete",
+        "courses/<int:course_id>/delete/", courses.course_delete, name="course_delete"
     ),
     path(
         "courses/<int:course_id>/videos/upload/",
@@ -53,9 +43,7 @@ urlpatterns = [
         name="video_upload",
     ),
     path(
-        "courses/<int:course_id>/enroll/",
-        courses.course_enroll,
-        name="course_enroll",
+        "courses/<int:course_id>/enroll/", courses.course_enroll, name="course_enroll"
     ),
     path(
         "courses/payment/<int:enrollment_id>/submit/",
@@ -84,4 +72,35 @@ urlpatterns = [
         name="enrollment_revoke",
     ),
     path("courses/my-courses/", courses.my_courses, name="my_courses"),
+    # Notifications
+    path(
+        "notifications/stream/",
+        notifications.notifications_stream,
+        name="notifications_stream",
+    ),
+    path(
+        "notifications/unread-count/",
+        notifications.get_unread_count,
+        name="notifications_unread_count",
+    ),
+    path(
+        "notifications/list/",
+        notifications.get_notifications,
+        name="notifications_list",
+    ),
+    path(
+        "notifications/<int:notification_id>/read/",
+        notifications.mark_as_read,
+        name="notification_mark_read",
+    ),
+    path(
+        "notifications/mark-all-read/",
+        notifications.mark_all_as_read,
+        name="notifications_mark_all_read",
+    ),
+    path(
+        "notifications/<int:notification_id>/delete/",
+        notifications.delete_notification,
+        name="notification_delete",
+    ),
 ]

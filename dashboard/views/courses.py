@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from ..decorators import admin_required
 from ..models import Course, Video, CourseEnrollment, Payment
+from ..utils import notify_user, notify_admins
 import logging
 import json
 
@@ -335,11 +336,20 @@ def payment_submit(request, enrollment_id):
                 )
 
             # Create payment
-            Payment.objects.create(
+            payment = Payment.objects.create(
                 enrollment=enrollment,
                 receipt_image=receipt_image,
                 amount=amount or enrollment.course.price,
                 notes=notes,
+            )
+
+            # Notify admins
+            notify_admins(
+                request,
+                title="إيصال دفع جديد",
+                message=f"قام المستخدم {request.user.username} برفع إيصال دفع لدورة {enrollment.course.title}",
+                notification_type="info",
+                link=reverse("dashboard:payment_review", args=[payment.id]),
             )
 
             return JsonResponse(
@@ -388,6 +398,19 @@ def payment_review(request, payment_id):
             payment.reviewed_by = request.user
             payment.save()
             payment.enrollment.save()
+
+            # Notify user
+            status_text = "مقبول" if action == "approve" else "مرفوض"
+            notify_type = "success" if action == "approve" else "error"
+            notify_user(
+                payment.enrollment.user,
+                title=f"تم مراجعة الدفع - {status_text}",
+                message=f"تم {status_text} إيصال الدفع الخاص بك لدورة {payment.enrollment.course.title}",
+                notification_type=notify_type,
+                link=reverse(
+                    "dashboard:course_detail", args=[payment.enrollment.course.id]
+                ),
+            )
 
             return JsonResponse({"success": True, "message": "تمت مراجعة الدفع بنجاح"})
 
@@ -459,6 +482,15 @@ def enrollment_approve(request, enrollment_id):
                 enrollment.payment.reviewed_by = request.user
                 enrollment.payment.save()
 
+            # Notify user
+            notify_user(
+                enrollment.user,
+                title="تم قبول التسجيل",
+                message=f"تم قبول تسجيلك في دورة {enrollment.course.title}. يمكنك الآن الوصول إلى المحتوى.",
+                notification_type="success",
+                link=reverse("dashboard:course_detail", args=[enrollment.course.id]),
+            )
+
             return JsonResponse({"success": True, "message": "تم قبول التسجيل بنجاح"})
         except Exception as e:
             logger.error(f"Error approving enrollment: {str(e)}")
@@ -493,6 +525,15 @@ def enrollment_reject(request, enrollment_id):
                 enrollment.payment.status = Payment.PaymentStatus.REJECTED
                 enrollment.payment.reviewed_by = request.user
                 enrollment.payment.save()
+
+            # Notify user
+            notify_user(
+                enrollment.user,
+                title="تم رفض التسجيل",
+                message=f"تم رفض تسجيلك في دورة {enrollment.course.title}. السبب: {notes}",
+                notification_type="error",
+                link=reverse("dashboard:course_detail", args=[enrollment.course.id]),
+            )
 
             return JsonResponse({"success": True, "message": "تم رفض التسجيل"})
         except Exception as e:

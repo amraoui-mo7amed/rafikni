@@ -257,3 +257,45 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"دفع {self.amount} د.ج - {self.enrollment.course.title}"
+
+
+class Notification(models.Model):
+    """Notification model for user notifications"""
+
+    class NotificationType(models.TextChoices):
+        INFO = "info", "معلومة"
+        SUCCESS = "success", "نجاح"
+        WARNING = "warning", "تحذير"
+        ERROR = "error", "خطأ"
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        verbose_name="المستخدم",
+    )
+    title = models.CharField(max_length=255, verbose_name="العنوان")
+    message = models.TextField(verbose_name="الرسالة")
+    notification_type = models.CharField(
+        max_length=20,
+        choices=NotificationType.choices,
+        default=NotificationType.INFO,
+        verbose_name="نوع الإشعار",
+    )
+    is_read = models.BooleanField(default=False, verbose_name="مقروء")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الإنشاء")
+    read_at = models.DateTimeField(blank=True, null=True, verbose_name="تاريخ القراءة")
+    link = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name="الرابط",
+        help_text="رابط اختياري للتنقل",
+    )
+
+    class Meta:
+        verbose_name = "إشعار"
+        verbose_name_plural = "الإشعارات"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"

@@ -8,6 +8,21 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 
+from ..utils import notify_user
+
+
+@login_required
+def test_notification(request):
+    """View to trigger a test notification for the current user"""
+    notify_user(
+        request.user,
+        title="تنبيه تجريبي من المتصفح 🌐",
+        message="هذا التنبيه تم إرساله عبر استدعاء View في الخادم، وهو يعمل بدون الحاجة لـ Redis.",
+        notification_type="success",
+    )
+    return JsonResponse({"success": True, "message": "تم إرسال التنبيه"})
+
+
 # @login_required
 def index(request):
     # Get user statistics
