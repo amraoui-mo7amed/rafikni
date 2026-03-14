@@ -1,56 +1,98 @@
+"""
+Dashboard Medical Cases Views
+
+This module contains views for managing medical cases in the Rafikni platform.
+It handles listing, creating, and deleting medical cases for patients.
+
+Views:
+    - medical_case_list: List all medical cases with filtering and pagination
+    - medical_case_create: Create a new medical case with optional payment
+    - medical_case_delete: Delete a medical case with permission checks
+
+Decorator Types:
+    - @login_required: Ensures user is authenticated
+    - @patient_required: Ensures user has patient role
+    - @patient_or_admin_required: Allows patients (own cases) or admins (all cases)
+
+Helper Functions (in utils.py):
+    - get_all_medical_cases(): Get all cases from all models with type info
+    - filter_cases_by_user(): Filter cases based on user permissions
+
+Flow:
+    1. Patient views list -> medical_case_list()
+    2. Patient creates case -> medical_case_create()
+    3. Patient/Admin deletes -> medical_case_delete()
+"""
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
 from django.db import transaction
 from django.contrib import messages
 from ..decorators import patient_required, patient_or_admin_required
 from ..models import ChildMedicalCase, AdultMedicalCase, ElderlyMedicalCase
-from ..utils import notify_admins, create_payment
+from ..utils import (
+    notify_admins,
+    create_payment,
+    get_all_medical_cases,
+    filter_cases_by_user,
+)
 import logging
 from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
 
-def get_all_medical_cases():
-    """Helper to get all medical cases with type info"""
-    all_cases = []
-
-    for c in ChildMedicalCase.objects.all():
-        c.case_type = "child"
-        c.case_type_display = "طفل"
-        c.case_model = "ChildMedicalCase"
-        all_cases.append(c)
-
-    for c in AdultMedicalCase.objects.all():
-        c.case_type = "adult"
-        c.case_type_display = "بالغ"
-        c.case_model = "AdultMedicalCase"
-        all_cases.append(c)
-
-    for c in ElderlyMedicalCase.objects.all():
-        c.case_type = "elderly"
-        c.case_type_display = "مسن"
-        c.case_model = "ElderlyMedicalCase"
-        all_cases.append(c)
-
-    # Sort by ID descending (newer first)
-    all_cases.sort(key=lambda x: x.id, reverse=True)
-    return all_cases
-
-
-def filter_cases_by_user(cases, user):
-    """Filter cases to show only user's cases, unless user is admin"""
-    if user.is_staff or user.is_superuser:
-        return cases
-    return [c for c in cases if c.user == user]
-
-
 @login_required
 @patient_or_admin_required
 def medical_case_list(request):
+    """
+    List all medical cases with filtering and pagination.
+
+    This view displays a paginated list of medical cases. The behavior differs
+    based on user role:
+    - Admins (is_staff or is_superuser): See all cases from all users
+    - Regular users (patients): See only their own cases
+
+    Decorators:
+        @login_required: User must be logged in
+        @patient_or_admin_required: Patient (own cases) or Admin (all cases)
+
+    Args:
+        request: HTTP request object
+
+    Query Parameters:
+        q (str): Search query for case full_name or child disorders/syndromes
+        category (str): Filter by case type ('child', 'adult', 'elderly')
+        page (int): Page number for pagination
+
+    GET Behavior:
+        1. Fetches all medical cases from all three models
+        2. Filters by user permissions (admin sees all, patient sees own)
+        3. Applies category filter if provided
+        4. Applies search query if provided
+        5. Paginates results (10 per page)
+        6. Renders the list template
+
+    Returns:
+        HtmlResponse: Rendered template with cases list
+
+    Template Context:
+        - cases: Paginated list of medical cases
+        - query: Current search query
+        - category: Current category filter
+        - category_choices: List of (value, label) for dropdown
+        - paginator: Paginator object
+        - is_admin: Boolean indicating if current user is admin
+
+    Search Logic:
+        - Searches in case.full_name (all cases)
+        - Additionally searches in disorders and syndromes (child cases only)
+
+    Example URL:
+        /dashboard/medical-cases/?q=john&category=child&page=2
+    """
     query = request.GET.get("q", "")
     category = request.GET.get("category", "")
     page = request.GET.get("page", 1)
@@ -109,6 +151,73 @@ def medical_case_list(request):
 @login_required
 @patient_required
 def medical_case_create(request):
+    """
+    Create a new medical case with optional payment receipt.
+
+    This view allows patients to create a new medical case. The patient must
+    provide a payment receipt image. The case creation and payment are handled
+    in an atomic transaction to ensure data integrity.
+
+    Decorators:
+        @login_required: User must be logged in
+        @patient_required: User must have patient role
+
+    Args:
+        request: HTTP request object
+
+    POST Data:
+        category (str): Type of case ('child', 'adult', 'elderly')
+        full_name (str): Patient's full name
+        age (int): Patient's age
+        gender (str): 'male' or 'female'
+        aphasie (str): 'true' or 'false'
+        disorders (str, optional): Child-specific - comma-separated disorders
+        syndromes (str, optional): Child-specific - comma-separated syndromes
+        intellectual_disability (str, optional): Child-specific disability level
+        alzheimer (str, optional): Elderly-specific - 'true' or 'false'
+        parkinson (str, optional): Elderly-specific - 'true' or 'false'
+        receipt_image (file): Required - payment receipt image
+        notes (str, optional): Payment notes
+
+    GET Behavior:
+        - Renders the create form with choices for dropdowns
+
+    POST Behavior:
+        1. Validates receipt_image is provided
+        2. Creates medical case based on category (child/adult/elderly)
+        3. Creates Payment linked to the case (within atomic transaction)
+        4. Sends notification to admins
+        5. Returns JSON response with redirect URL
+
+    Returns:
+        GET: HtmlResponse with create form
+        POST: JsonResponse with success/error message
+
+    Template Context:
+        - category_choices: List of (value, label) for category dropdown
+        - gender_choices: List of (value, label) for gender dropdown
+        - disability_choices: List of (value, label) for intellectual disability
+
+    Validation:
+        - receipt_image is required (returns error if missing)
+        - category must be 'child', 'adult', or 'elderly'
+
+    Transaction:
+        Uses transaction.atomic() to ensure:
+        - Medical case is created only if payment can be created
+        - Payment is created only if case is created
+
+    Example POST Request:
+        POST /dashboard/medical-cases/create/
+        Data:
+            category=child
+            full_name=أحمد محمد
+            age=8
+            gender=male
+            aphasie=true
+            disorders=توحد,تشتت انتباه
+            receipt_image=<file>
+    """
     category_choices = [("child", "طفل"), ("adult", "بالغ"), ("elderly", "مسن")]
     gender_choices = [("male", "ذكر"), ("female", "أنثى")]
     disability_choices = [
@@ -209,8 +318,55 @@ def medical_case_create(request):
 @patient_or_admin_required
 def medical_case_delete(request, case_type, case_id):
     """
-    Delete a medical case.
-    Admins can delete any case, regular users can only delete their own.
+    Delete a medical case with permission checks.
+
+    This view handles deletion of medical cases. Permission logic:
+    - Admins can delete any case
+    - Regular users can only delete their own cases
+
+    Decorators:
+        @login_required: User must be logged in
+        @patient_or_admin_required: Patient (own cases) or Admin (all cases)
+
+    Args:
+        request: HTTP request object
+        case_type (str): Type of case ('child', 'adult', 'elderly')
+        case_id (int): ID of the case to delete
+
+    URL Parameters:
+        case_type: Maps to model - 'child'->ChildMedicalCase, etc.
+        case_id: Primary key of the case
+
+    GET Behavior:
+        - Shows confirmation page before deletion
+
+    POST Behavior:
+        1. Validates case_type is valid
+        2. Checks user has permission to delete
+        3. Deletes the case
+        4. Redirects to list with success message
+
+    Returns:
+        GET: HtmlResponse with confirmation template
+        POST: HttpResponseRedirect to list page
+
+    Permission Check:
+        - Admin (is_staff or is_superuser): Can delete any case
+        - Regular user: Can only delete if case.user == request.user
+
+    Error Handling:
+        - Invalid case_type: Redirects with error message
+        - Case not found: Redirects with error message
+        - Permission denied: Redirects with error message
+
+    Template Context:
+        - case: The medical case object
+        - case_type: The case type string
+        - case_type_display: Arabic display name for case type
+
+    Example URLs:
+        GET  /dashboard/medical-cases/delete/child/1/  (show confirmation)
+        POST /dashboard/medical-cases/delete/child/1/  (perform delete)
     """
     # Map case types to models
     model_map = {

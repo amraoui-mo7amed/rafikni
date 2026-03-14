@@ -194,3 +194,68 @@ def create_payment(user, content_object, receipt_image):
 
     logger.info(f"Payment created: {payment.id} for user {user.username}")
     return payment
+
+
+def get_all_medical_cases():
+    """
+    Helper function to get all medical cases from all models with type info.
+
+    This function queries all three medical case models (Child, Adult, Elderly)
+    and adds additional attributes to each case for frontend display purposes.
+
+    Returns:
+        list: List of all medical cases with added attributes:
+            - case_type: 'child', 'adult', or 'elderly'
+            - case_type_display: Arabic display name
+            - case_model: Django model class name
+
+    Note:
+        Results are sorted by ID descending (newer first)
+    """
+    from .models import ChildMedicalCase, AdultMedicalCase, ElderlyMedicalCase
+
+    all_cases = []
+
+    for c in ChildMedicalCase.objects.all():
+        c.case_type = "child"
+        c.case_type_display = "طفل"
+        c.case_model = "ChildMedicalCase"
+        all_cases.append(c)
+
+    for c in AdultMedicalCase.objects.all():
+        c.case_type = "adult"
+        c.case_type_display = "بالغ"
+        c.case_model = "AdultMedicalCase"
+        all_cases.append(c)
+
+    for c in ElderlyMedicalCase.objects.all():
+        c.case_type = "elderly"
+        c.case_type_display = "مسن"
+        c.case_model = "ElderlyMedicalCase"
+        all_cases.append(c)
+
+    all_cases.sort(key=lambda x: x.id, reverse=True)
+    return all_cases
+
+
+def filter_cases_by_user(cases, user):
+    """
+    Filter medical cases based on user permissions.
+
+    Admins (is_staff or is_superuser) can see all cases,
+    while regular users can only see their own cases.
+
+    Args:
+        cases: List of medical case objects
+        user: The User object to filter by
+
+    Returns:
+        list: Filtered list of cases based on user permissions
+
+    Logic:
+        - If user.is_staff or user.is_superuser: return all cases
+        - Otherwise: return only cases where case.user == user
+    """
+    if user.is_staff or user.is_superuser:
+        return cases
+    return [c for c in cases if c.user == user]
