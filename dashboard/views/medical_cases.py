@@ -3,10 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
+from django.db import transaction
 from django.contrib import messages
 from ..decorators import patient_required, patient_or_admin_required
 from ..models import ChildMedicalCase, AdultMedicalCase, ElderlyMedicalCase
-from ..utils import notify_admins
+from ..utils import notify_admins, create_payment
 import logging
 from django.urls import reverse
 
@@ -118,38 +119,60 @@ def medical_case_create(request):
 
     if request.method == "POST":
         category = request.POST.get("category")
+        receipt_image = request.FILES.get("receipt_image")
+        if not receipt_image:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "errors": ["يجب إرفاق إيصال الدفع"],
+                }
+            )
+
         try:
-            if category == "child":
-                ChildMedicalCase.objects.create(
-                    user=request.user,
-                    full_name=request.POST.get("full_name"),
-                    age=request.POST.get("age"),
-                    gender=request.POST.get("gender"),
-                    aphasie=request.POST.get("aphasie") == "true",
-                    disorders=request.POST.get("disorders"),
-                    syndromes=request.POST.get("syndromes"),
-                    intellectual_disability=request.POST.get("intellectual_disability"),
-                )
-            elif category == "adult":
-                AdultMedicalCase.objects.create(
-                    user=request.user,
-                    full_name=request.POST.get("full_name"),
-                    age=request.POST.get("age"),
-                    gender=request.POST.get("gender"),
-                    aphasie=request.POST.get("aphasie") == "true",
-                )
-            elif category == "elderly":
-                ElderlyMedicalCase.objects.create(
-                    user=request.user,
-                    full_name=request.POST.get("full_name"),
-                    age=request.POST.get("age"),
-                    gender=request.POST.get("gender"),
-                    aphasie=request.POST.get("aphasie") == "true",
-                    alzheimer=request.POST.get("alzheimer") == "true",
-                    parkinson=request.POST.get("parkinson") == "true",
-                )
-            else:
-                return JsonResponse({"success": False, "errors": ["فئة غير صالحة"]})
+            with transaction.atomic():
+                medical_case = None
+
+                if category == "child":
+                    medical_case = ChildMedicalCase.objects.create(
+                        user=request.user,
+                        full_name=request.POST.get("full_name"),
+                        age=request.POST.get("age"),
+                        gender=request.POST.get("gender"),
+                        aphasie=request.POST.get("aphasie") == "true",
+                        disorders=request.POST.get("disorders"),
+                        syndromes=request.POST.get("syndromes"),
+                        intellectual_disability=request.POST.get(
+                            "intellectual_disability"
+                        ),
+                    )
+                elif category == "adult":
+                    medical_case = AdultMedicalCase.objects.create(
+                        user=request.user,
+                        full_name=request.POST.get("full_name"),
+                        age=request.POST.get("age"),
+                        gender=request.POST.get("gender"),
+                        aphasie=request.POST.get("aphasie") == "true",
+                    )
+                elif category == "elderly":
+                    medical_case = ElderlyMedicalCase.objects.create(
+                        user=request.user,
+                        full_name=request.POST.get("full_name"),
+                        age=request.POST.get("age"),
+                        gender=request.POST.get("gender"),
+                        aphasie=request.POST.get("aphasie") == "true",
+                        alzheimer=request.POST.get("alzheimer") == "true",
+                        parkinson=request.POST.get("parkinson") == "true",
+                    )
+                else:
+                    return JsonResponse({"success": False, "errors": ["فئة غير صالحة"]})
+
+                # Create payment if receipt image provided
+                if receipt_image:
+                    create_payment(
+                        user=request.user,
+                        content_object=medical_case,
+                        receipt_image=receipt_image,
+                    )
 
             # Notify admins
             category_display = {"child": "طفل", "adult": "بالغ", "elderly": "مسن"}.get(

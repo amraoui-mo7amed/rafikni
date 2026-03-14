@@ -30,6 +30,7 @@ class BaseMedicalCase(models.Model):
         null=True,
     )
     aphasie = models.BooleanField(default=False, verbose_name="الحبسة الكلامية")
+    is_approved = models.BooleanField(default=False, verbose_name="مقبول")
 
     class Meta:
         abstract = True
@@ -239,16 +240,13 @@ class Payment(models.Model):
     receipt_image = models.ImageField(
         upload_to="payments/receipts/%Y/%m/", verbose_name="صورة الإيصال"
     )
-    amount = models.DecimalField(
-        max_digits=10, decimal_places=2, verbose_name="المبلغ المدفوع"
-    )
+
     status = models.CharField(
         max_length=20,
         choices=PaymentStatus.choices,
         default=PaymentStatus.PENDING,
         verbose_name="حالة الدفع",
     )
-    notes = models.TextField(verbose_name="ملاحظات", blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الدفع")
     reviewed_at = models.DateTimeField(
         blank=True, null=True, verbose_name="تاريخ المراجعة"
@@ -266,8 +264,6 @@ class Payment(models.Model):
         verbose_name = "دفع"
         verbose_name_plural = "المدفوعات"
 
-    def __str__(self):
-        return f"دفع {self.amount} د.ج - {self.user.username}"
 
 
 class Notification(models.Model):

@@ -4,41 +4,7 @@
 {% block extra_css %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'css/ultra_select.css' %}?v={% now 'U' %}" />
-    <style>
-        .payment-receipt-thumb {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .payment-receipt-thumb:hover {
-            transform: scale(1.1);
-        }
-        .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        .status-pending { background-color: #fff3cd; color: #856404; }
-        .status-approved { background-color: #d4edda; color: #155724; }
-        .status-rejected { background-color: #f8d7da; color: #721c24; }
-        
-        .action-btn {
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            border: none;
-            background: #f8f9fa;
-        }
-        .btn-view:hover { background: #e9ecef; color: #0d6efd; }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/payment_list.css' %}?v={% now 'U' %}" />
 {% endblock extra_css %}
 
 {% block dash_content %}
@@ -56,7 +22,7 @@
                 <div class="col-md-4">
                     <div class="input-group search-box">
                         <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                        <input type="text" name="q" class="form-control border-start-0" placeholder="بحث باسم المستخدم أو المبلغ..." value="{{ query }}" />
+                        <input type="text" name="q" class="form-control border-start-0" placeholder="بحث باسم المستخدم..." value="{{ query }}" />
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -78,8 +44,7 @@
             <thead class="bg-light">
                 <tr>
                     <th class="ps-4">المستخدم</th>
-                    <th>المبلغ</th>
-                    <th>الإيصال</th>
+                    <th>نوع الطلب</th>
                     <th>الحالة</th>
                     <th>تاريخ الدفع</th>
                     <th class="text-end pe-4">الإجراءات</th>
@@ -98,12 +63,17 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="fw-bold text-primary">{{ payment.amount }} د.ج</span></td>
                         <td>
-                            {% if payment.receipt_image %}
-                                <img src="{{ payment.receipt_image.url }}" class="payment-receipt-thumb" onclick="window.open('{{ payment.receipt_image.url }}', '_blank')" alt="الإيصال" />
+                            {% if payment.content_type.model == 'courseenrollment' %}
+                                <span class="badge bg-info">دورة تعليمية</span>
+                            {% elif payment.content_type.model == 'childmedicalcase' %}
+                                <span class="badge bg-primary">حالة طبية (طفل)</span>
+                            {% elif payment.content_type.model == 'adultmedicalcase' %}
+                                <span class="badge bg-secondary">حالة طبية (بالغ)</span>
+                            {% elif payment.content_type.model == 'elderlymedicalcase' %}
+                                <span class="badge bg-dark">حالة طبية (مسن)</span>
                             {% else %}
-                                <span class="text-muted small">لا يوجد</span>
+                                <span class="badge bg-secondary">{{ payment.content_type.model }}</span>
                             {% endif %}
                         </td>
                         <td>
@@ -118,7 +88,11 @@
                         <td class="small text-muted">{{ payment.created_at|date:"Y-m-d H:i" }}</td>
                         <td class="text-end pe-4">
                             <div class="d-flex justify-content-end gap-2">
-                                <button class="action-btn btn-view" title="مراجعة الدفع" onclick="reviewPayment({{ payment.id }})">
+                                <button class="action-btn btn-view"
+                                        title="مراجعة الدفع"
+                                        data-payment-id="{{ payment.id }}"
+                                        data-detail-url="{% url 'dashboard:payment_detail_ajax' payment.id %}"
+                                        data-review-url="{% url 'dashboard:payment_review_ajax' payment.id %}">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -127,7 +101,7 @@
                 {% empty %}
                     <tr>
                         <td colspan="6" class="text-center py-5">
-                            <div class="text-muted">لا توجد مدفوعات تطابق البحث.</div>
+                            <div class="text-muted">لا توجد مدفوعات.</div>
                         </td>
                     </tr>
                 {% endfor %}
@@ -163,15 +137,16 @@
         </div>
     {% endif %}
 
+    {% csrf_token %}
+
     <!-- Review Modal -->
-    <div class="modal fade" id="paymentReviewModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-primary text-white py-3">
-                    <h5 class="modal-title fw-bold">تفاصيل ومراجعة الدفع</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <div class="modal fade" id="paymentReviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                <div class="modal-header border-0 pb-0" style="background: transparent;">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-0" id="paymentModalContent">
+                <div class="modal-body p-4 p-md-5" id="paymentModalContent">
                     <div class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">جاري التحميل...</span>
@@ -185,70 +160,6 @@
 
 {% block extra_js %}
     <script src="{% static 'js/ultra_select.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/payment_list.js' %}?v={% now 'U' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function reviewPayment(paymentId) {
-            const modal = new bootstrap.Modal(document.getElementById('paymentReviewModal'));
-            const content = document.getElementById('paymentModalContent');
-            
-            content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
-            modal.show();
-            
-            fetch(`/dashboard/payments/${paymentId}/ajax/`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        content.innerHTML = data.html;
-                    } else {
-                        content.innerHTML = '<div class="alert alert-danger m-3">' + (data.errors ? data.errors[0] : 'حدث خطأ ما') + '</div>';
-                    }
-                });
-        }
-
-        function submitReview(paymentId, action) {
-            const notes = document.getElementById('reviewNotes').value;
-            
-            if (action === 'reject' && !notes) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'تنبيه',
-                    text: 'يرجى إدخال سبب الرفض في الملاحظات',
-                    confirmButtonText: 'حسناً'
-                });
-                return;
-            }
-
-            Swal.fire({
-                title: 'هل أنت متأكد؟',
-                text: action === 'approve' ? 'هل تريد قبول هذا الدفع؟' : 'هل تريد رفض هذا الدفع؟',
-                icon: 'question',
-                showCancelButton: True,
-                confirmButtonText: 'تأكيد',
-                cancelButtonText: 'إلغاء',
-                confirmButtonColor: action === 'approve' ? '#28a745' : '#dc3545',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const formData = new FormData();
-                    formData.append('action', action);
-                    formData.append('notes', notes);
-                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-
-                    fetch(`/dashboard/payments/${paymentId}/review-ajax/`, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('نجاح', data.message, 'success').then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire('خطأ', data.errors[0], 'error');
-                        }
-                    });
-                }
-            });
-        }
-    </script>
 {% endblock extra_js %}

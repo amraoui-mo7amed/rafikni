@@ -1,39 +1,18 @@
 <div class="p-4">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <div class="icon-badge mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; background: linear-gradient(135deg, #0d6efd, #0dcaf0); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white;">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+        </div>
+        <h4 class="fw-bold">تفاصيل ومراجعة الدفع</h4>
+        <p class="text-muted mb-0">قم بمراجعة إيصال الدفع والموافقة عليه أو رفضه</p>
+    </div>
+
     <div class="row g-4">
-        <!-- Payment Info -->
-        <div class="col-md-6">
-            <h6 class="text-muted mb-3"><i class="fa-solid fa-file-invoice-dollar me-2"></i>معلومات الدفع</h6>
-            <div class="card bg-light border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">المبلغ:</span>
-                        <span class="fw-bold text-primary">{{ payment.amount }} د.ج</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">التاريخ:</span>
-                        <span>{{ payment.created_at|date:"Y-m-d H:i" }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">الحالة:</span>
-                        {% if payment.status == 'pending' %}
-                            <span class="badge bg-warning">قيد المراجعة</span>
-                        {% elif payment.status == 'approved' %}
-                            <span class="badge bg-success">مقبول</span>
-                        {% else %}
-                            <span class="badge bg-danger">مرفوض</span>
-                        {% endif %}
-                    </div>
-                    {% if payment.reviewed_by %}
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">تمت المراجعة بواسطة:</span>
-                        <span>{{ payment.reviewed_by.username }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <h6 class="text-muted mt-4 mb-3"><i class="fa-solid fa-user me-2"></i>المستخدم</h6>
-            <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm">
+        <!-- User Info -->
+        <div class="col-12">
+            <h6 class="text-muted mb-3 fw-bold"><i class="fa-solid fa-user me-2"></i>المستخدم</h6>
+            <div class="d-flex align-items-center p-3" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid rgba(13,110,253,0.15);">
                 <img src="{% if payment.user.profile.profile_pic %}{{ payment.user.profile.profile_pic.url }}{% else %}https://ui-avatars.com/api/?name={{ payment.user.username }}&background=0D6EFD&color=fff{% endif %}"
                      class="rounded-circle me-3" width="50" height="50" alt="" />
                 <div>
@@ -43,34 +22,38 @@
             </div>
         </div>
 
-        <!-- Receipt Image -->
-        <div class="col-md-6">
-            <h6 class="text-muted mb-3"><i class="fa-solid fa-receipt me-2"></i>إيصال الدفع</h6>
-            {% if payment.receipt_image %}
-                <a href="{{ payment.receipt_image.url }}" target="_blank">
-                    <img src="{{ payment.receipt_image.url }}" class="img-fluid rounded shadow-sm border" alt="الإيصال" />
-                </a>
-            {% else %}
-                <div class="alert alert-secondary text-center py-5">
-                    <i class="fa-solid fa-image-slash fa-2xl mb-3 d-block"></i>
-                    لا يوجد صورة إيصال
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Content Object Info (Generic) -->
+        <!-- Content Object Info -->
         <div class="col-12">
-            <h6 class="text-muted mb-3"><i class="fa-solid fa-box-open me-2"></i>تفاصيل الطلب</h6>
-            <div class="p-3 border rounded bg-light">
+            <h6 class="text-muted mb-3 fw-bold"><i class="fa-solid fa-box-open me-2"></i>تفاصيل الطلب</h6>
+            <div class="p-3" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid rgba(13,110,253,0.15);">
                 {% if content_object %}
                     {% if payment.content_type.model == 'courseenrollment' %}
                         <div class="d-flex align-items-center">
                             {% if content_object.course.thumbnail %}
-                                <img src="{{ content_object.course.thumbnail.url }}" class="rounded me-3" width="60" alt="" />
+                                <img src="{{ content_object.course.thumbnail.url }}" class="rounded me-3" width="60" alt="" style="border-radius: 12px;" />
                             {% endif %}
                             <div>
                                 <div class="fw-bold">دورة: {{ content_object.course.title }}</div>
                                 <div class="small text-muted">المعلم: {{ content_object.course.teacher_name }}</div>
+                            </div>
+                        </div>
+                    {% elif payment.content_type.model == 'childmedicalcase' or payment.content_type.model == 'adultmedicalcase' or payment.content_type.model == 'elderlymedicalcase' %}
+                        <div class="d-flex align-items-center">
+                            <div class="me-3" style="width: 50px; height: 50px; background: linear-gradient(135deg, #0d6efd, #0dcaf0); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fa-solid fa-user-injured fa-lg"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">حالة طبية: {{ content_object.full_name }}</div>
+                                <div class="small text-muted">
+                                    العمر: {{ content_object.age }} | الجنس: {% if content_object.gender == 'male' %}ذكر{% else %}أنثى{% endif %}
+                                </div>
+                                <div class="mt-2">
+                                    {% if content_object.is_approved %}
+                                        <span class="badge bg-success">مقبول</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">قيد المراجعة</span>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     {% else %}
@@ -82,27 +65,55 @@
             </div>
         </div>
 
+        <!-- Receipt Image -->
+        <div class="col-12">
+            <h6 class="text-muted mb-3 fw-bold"><i class="fa-solid fa-receipt me-2"></i>إيصال الدفع</h6>
+            {% if payment.receipt_image %}
+                <a href="{{ payment.receipt_image.url }}" target="_blank">
+                    <img src="{{ payment.receipt_image.url }}" class="img-fluid" alt="الإيصال" style="border-radius: 16px; border: 2px solid rgba(13,110,253,0.15); width: 100%;" />
+                </a>
+            {% else %}
+                <div class="text-center py-4" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid rgba(13,110,253,0.15);">
+                    <i class="fa-solid fa-image-slash fa-2xl mb-3 d-block text-muted"></i>
+                    <span class="text-muted">لا يوجد صورة إيصال</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Payment Info -->
+        <div class="col-12">
+            <div class="d-flex justify-content-between p-3" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid rgba(13,110,253,0.15);">
+                <span class="text-muted">التاريخ:</span>
+                <span class="fw-bold">{{ payment.created_at|date:"Y-m-d H:i" }}</span>
+            </div>
+        </div>
+
         {% if payment.status == 'pending' %}
         <!-- Review Action -->
-        <div class="col-12 mt-2">
-            <hr />
-            <h6 class="text-muted mb-3"><i class="fa-solid fa-comment-dots me-2"></i>ملاحظات المراجعة</h6>
-            <textarea id="reviewNotes" class="form-control mb-3" rows="3" placeholder="أدخل ملاحظاتك هنا (سبب الرفض مثلاً)..."></textarea>
-            
-            <div class="d-flex gap-2 justify-content-end mb-4">
-                <button type="button" class="btn btn-outline-danger px-4" onclick="submitReview({{ payment.id }}, 'reject')">
+        <div class="col-12">
+            <div class="alert mb-3 py-3" style="background: rgba(255,243,205,0.8); border-radius: 16px; border: none;">
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-circle-info me-2 text-warning"></i>
+                    <span class="small">قم بمراجعة إيصال الدفع والموافقة عليه أو رفضه</span>
+                </div>
+            </div>
+            <div class="d-flex gap-3 justify-content-center">
+                <button type="button" class="btn btn-outline-danger px-4 py-3 fw-bold flex-fill" style="border-radius: 16px;" onclick="submitReview(null, 'reject')">
                     <i class="fa-solid fa-xmark me-2"></i>رفض الدفع
                 </button>
-                <button type="button" class="btn btn-success px-4" onclick="submitReview({{ payment.id }}, 'approve')">
+                <button type="button" class="btn btn-success px-4 py-3 fw-bold flex-fill shadow-sm" style="border-radius: 16px;" onclick="submitReview(null, 'approve')">
                     <i class="fa-solid fa-check me-2"></i>قبول الدفع
                 </button>
             </div>
         </div>
-        {% elif payment.notes %}
-        <div class="col-12 mt-2">
-            <hr />
-            <h6 class="text-muted mb-2">ملاحظات سابقة:</h6>
-            <p class="p-3 bg-light rounded border small">{{ payment.notes }}</p>
+        {% elif payment.reviewed_by %}
+        <div class="col-12">
+            <div class="p-3" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid rgba(13,110,253,0.15);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">تمت المراجعة بواسطة:</span>
+                    <span class="fw-bold">{{ payment.reviewed_by.username }}</span>
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>

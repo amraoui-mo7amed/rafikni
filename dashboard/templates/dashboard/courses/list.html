@@ -352,32 +352,6 @@
                             <label class="ultra-field-label">صورة الإيصال</label>
                             {% include "partials/ultra_image_upload.html" with name="receipt_image" value="" %}
                         </div>
-                        <!-- Amount Confirmation -->
-                        <div class="mb-3">
-                            <label class="ultra-field-label">المبلغ المحول</label>
-                            <div class="ultra-input-group">
-                                <div class="input-icon-box">
-                                    <i class="fa-solid fa-money-bill-wave"></i>
-                                </div>
-                                <input type="number"
-                                       name="amount"
-                                       id="paymentAmountInput"
-                                       class="form-control"
-                                       placeholder="أدخل المبلغ المحول"
-                                       required />
-                                <span class="input-group-text">د.ج</span>
-                            </div>
-                        </div>
-                        <!-- Notes -->
-                        <div class="mb-3">
-                            <label class="ultra-field-label">ملاحظات (اختياري)</label>
-                            <div class="ultra-input-group">
-                                <textarea name="notes"
-                                          class="form-control"
-                                          rows="2"
-                                          placeholder="أي ملاحظات إضافية..."></textarea>
-                            </div>
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">

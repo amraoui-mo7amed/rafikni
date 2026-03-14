@@ -158,3 +158,6 @@ In templates, we often use `{% now "U" %}` to bust cache for CSS/JS during devel
 - always use ``notify-send`` to alert me for the finished tasks 
 - all delete buttons must use sweet alert as a confirmation 
 - always use data attributes instead of using hardcoded urls 
+- always use the 'create_payment' function in `dashboard.utils` to create a payment 
+- the `create_payment` function must be always used with `atomic()`
+- always use data attributes instead of hardcoded urls or data or when viewing details using modals 

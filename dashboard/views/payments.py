@@ -7,7 +7,14 @@ from django.utils import timezone
 from django.template.loader import render_to_string
 from django.contrib.contenttypes.models import ContentType
 from ..decorators import admin_required
-from ..models import Payment, CourseEnrollment, Course
+from ..models import (
+    Payment,
+    CourseEnrollment,
+    Course,
+    ChildMedicalCase,
+    AdultMedicalCase,
+    ElderlyMedicalCase,
+)
 from ..utils import notify_user, notify_admins
 from django.urls import reverse
 import logging
@@ -28,8 +35,6 @@ def payment_submit(request, enrollment_id):
     if request.method == "POST":
         try:
             receipt_image = request.FILES.get("receipt_image")
-            amount = request.POST.get("amount")
-            notes = request.POST.get("notes", "")
 
             if not receipt_image:
                 return JsonResponse(
@@ -41,8 +46,6 @@ def payment_submit(request, enrollment_id):
                 user=request.user,
                 content_object=enrollment,
                 receipt_image=receipt_image,
-                amount=amount or enrollment.course.price,
-                notes=notes,
             )
 
             # Notify admins
@@ -95,7 +98,6 @@ def payment_list(request):
             Q(user__username__icontains=query)
             | Q(user__first_name__icontains=query)
             | Q(user__last_name__icontains=query)
-            | Q(amount__icontains=query)
         )
 
     if status:
@@ -148,7 +150,7 @@ def payment_detail_ajax(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
 
     html = render_to_string(
-        "dashboard/payments/partials/payment_detail_modal.html",
+        "partials/payment_details_modal.html",
         {
             "payment": payment,
             "content_object": payment.content_object,
@@ -168,11 +170,11 @@ def payment_review_ajax(request, payment_id):
     if request.method == "POST":
         try:
             action = request.POST.get("action")
-            notes = request.POST.get("notes", "")
 
             if action == "approve":
                 payment.status = Payment.PaymentStatus.APPROVED
-                # Handle specific content objects
+
+                # Handle CourseEnrollment
                 if isinstance(payment.content_object, CourseEnrollment):
                     payment.content_object.status = (
                         CourseEnrollment.EnrollmentStatus.APPROVED
@@ -181,14 +183,32 @@ def payment_review_ajax(request, payment_id):
                     payment.content_object.approved_at = timezone.now()
                     payment.content_object.save()
 
+                # Handle Medical Cases
+                elif isinstance(
+                    payment.content_object,
+                    (ChildMedicalCase, AdultMedicalCase, ElderlyMedicalCase),
+                ):
+                    payment.content_object.is_approved = True
+                    payment.content_object.save()
+
                 status_msg = "مقبول"
                 notify_type = "success"
             elif action == "reject":
                 payment.status = Payment.PaymentStatus.REJECTED
+
+                # Handle CourseEnrollment
                 if isinstance(payment.content_object, CourseEnrollment):
                     payment.content_object.status = (
                         CourseEnrollment.EnrollmentStatus.REJECTED
                     )
+                    payment.content_object.save()
+
+                # Handle Medical Cases - set is_approved to False (already default)
+                elif isinstance(
+                    payment.content_object,
+                    (ChildMedicalCase, AdultMedicalCase, ElderlyMedicalCase),
+                ):
+                    payment.content_object.is_approved = False
                     payment.content_object.save()
 
                 status_msg = "مرفوض"
@@ -196,18 +216,24 @@ def payment_review_ajax(request, payment_id):
             else:
                 return JsonResponse({"success": False, "errors": ["إجراء غير صالح"]})
 
-            payment.notes = notes
             payment.reviewed_by = request.user
             payment.reviewed_at = timezone.now()
             payment.save()
 
             # Notify user
             title = f"تم مراجعة الدفع - {status_msg}"
-            message = f"تم {status_msg} إيصال الدفع الخاص بك بمبلغ {payment.amount} د.ج"
+            message = f"تم {status_msg} إيصال الدفع الخاص بك"
 
             # Add specific details if it's a course
             if isinstance(payment.content_object, CourseEnrollment):
                 message += f" لدورة {payment.content_object.course.title}"
+            # Add specific details if it's a medical case
+            elif isinstance(
+                payment.content_object,
+                (ChildMedicalCase, AdultMedicalCase, ElderlyMedicalCase),
+            ):
+                case = payment.content_object
+                message += f" لحالة {case.full_name or 'طبيية'}"
 
             notify_user(
                 payment.user,

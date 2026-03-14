@@ -4,11 +4,24 @@ import string
 from smtplib import SMTPException
 
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
+from django_eventstream import send_event
+
+from user_auth.models import UserProfile
+from .models import Notification, Payment
+
 logger = logging.getLogger(__name__)
+
+
+class EmailConfigurationError(Exception):
+    """Raised when email configuration is invalid or server doesn't support required features"""
+
+    pass
 
 
 def generate_secure_password(length=12):
@@ -23,12 +36,6 @@ def generate_secure_password(length=12):
     ):
         return password
     return generate_secure_password(length)  # Regenerate if criteria not met
-
-
-class EmailConfigurationError(Exception):
-    """Raised when email configuration is invalid or server doesn't support required features"""
-
-    pass
 
 
 def send_doctor_credentials_email(request, user, password):
@@ -88,9 +95,6 @@ def create_notification(user, title, message, notification_type="info", link="")
     Returns:
         The created Notification instance
     """
-    from django_eventstream import send_event
-    from .models import Notification
-
     try:
         # Create notification in database
         notification = Notification.objects.create(
@@ -158,11 +162,35 @@ def notify_admins(request, title, message, notification_type="info", link=""):
     """
     Send notification to all admin users.
     """
-    from django.contrib.auth.models import User
-    from user_auth.models import UserProfile
-
     admin_users = User.objects.filter(
         profile__role=UserProfile.RoleChoices.ADMIN, is_active=True
     )
 
     return notify_users(admin_users, title, message, notification_type, link)
+
+
+def create_payment(user, content_object, receipt_image):
+    """
+    Create a payment object for a user.
+
+    Args:
+        user: The user making the payment
+        content_object: The object being paid for (e.g., CourseEnrollment, MedicalCase)
+        receipt_image: The receipt image file
+
+    Returns:
+        The created Payment instance
+    """
+    content_type = ContentType.objects.get_for_model(content_object)
+
+    payment = Payment.objects.create(
+        user=user,
+        content_type=content_type,
+        object_id=content_object.id,
+        content_object=content_object,
+        receipt_image=receipt_image,
+        status=Payment.PaymentStatus.PENDING,
+    )
+
+    logger.info(f"Payment created: {payment.id} for user {user.username}")
+    return payment

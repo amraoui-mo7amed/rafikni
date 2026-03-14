@@ -132,26 +132,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function submitPayment() {
         const receiptImage = document.querySelector('input[name="receipt_image"]');
-        const amount = document.getElementById('paymentAmountInput').value;
-        const notes = document.querySelector('textarea[name="notes"]');
         
         const receiptFile = receiptImage && receiptImage.files ? receiptImage.files[0] : null;
-        const notesValue = notes ? notes.value : '';
 
         if (!receiptFile) {
             showPaymentError('يرجى رفع صورة الإيصال');
             return;
         }
 
-        if (!amount || amount <= 0) {
-            showPaymentError('يرجى إدخال المبلغ المحول');
-            return;
-        }
-
         const formData = new FormData();
         formData.append('receipt_image', receiptFile);
-        formData.append('amount', amount);
-        formData.append('notes', notesValue);
         formData.append('csrfmiddlewaretoken', getCsrfToken());
 
         submitPaymentBtn.disabled = true;
