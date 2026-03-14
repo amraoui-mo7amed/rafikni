@@ -66,6 +66,42 @@
     text-align: right;
 }
 
+.ultra-file-input-label {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    cursor: pointer;
+    height: 100%;
+    margin: 0;
+    font-weight: 700;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.ultra-file-input-label span#fileName {
+    white-space: nowrap;
+    overflow: hidden;
+    flex: 1;
+    padding-left: 10px;
+}
+
+.ultra-browse-btn {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    padding: 6px 16px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    transition: all 0.3s ease;
+}
+
+.ultra-input-group:hover .ultra-browse-btn {
+    background: #0d6efd;
+    color: white;
+}
+
 .ultra-input-group textarea.form-control {
     padding-top: 10px !important;
     min-height: 80px;

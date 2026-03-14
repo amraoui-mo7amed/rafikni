@@ -1,0 +1,46 @@
+<div class="card bg-glass border-0 shadow-sm rounded-4">
+    <form id="PaymentForm" method="post" class="form" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% include "partials/errorList.html" with form_id="PaymentForm" %}
+
+    <input type="hidden" name="content_type" id="content_type" value="{{ content_type }}">
+    <input type="hidden" name="object_id" id="object_id" value="{{ object_id }}">
+
+    <div class="row g-4">
+        <h5 class="fw-bold mb-0 text-primary">
+            <i class="fa-solid fa-credit-card me-2"></i>
+            بيانات الدفع
+        </h5>
+
+        <!-- Receipt Image -->
+        <div class="col-md-6">
+            <label class="ultra-field-label">صورة الإيصال</label>
+            {% include "partials/ultra_image_upload.html" with name="receipt_image" %}
+        </div>
+
+        <!-- Notes -->
+        <div class="col-12">
+            <label class="ultra-field-label">ملاحظات (اختياري)</label>
+            <div class="ultra-input-group">
+                <div class="input-icon-box">
+                    <i class="fa-solid fa-note-sticky"></i>
+                </div>
+                <textarea name="notes"
+                          id="notes"
+                          class="form-control"
+                          rows="3"
+                          placeholder="أضف ملاحظات إضافية إن وجدت..."></textarea>
+            </div>
+        </div>
+
+        <div class="col-12 mt-4">
+            <button type="submit"
+                    class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded-3 transition w-100 w-md-auto">
+                <i class="fa-solid fa-floppy-disk me-2"></i>
+                إرسال للدفع
+            </button>
+        </div>
+    </div>
+</form>
+
+</div>

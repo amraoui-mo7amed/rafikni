@@ -18,7 +18,7 @@
             أدخل تفاصيل الحالة الطبية أدناه لتنظيم ملفك الطبي.
         </p>
     </div>
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-8">
             <div class="card bg-glass border-0 shadow-sm rounded-4">
                 <div class="card-body p-4 p-md-5">
@@ -155,7 +155,25 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <!-- Receipt Image -->
+                            <div class="col-md-12">
+                                <label class="ultra-field-label">صورة الإيصال</label>
+                                <div class="ultra-input-group">
+                                    <div class="input-icon-box">
+                                        <i class="fa-solid fa-file-invoice"></i>
+                                    </div>
+                                    <label for="receipt_image" class="ultra-file-input-label">
+                                        <span id="fileName">اختر ملف الإيصال (صور أو PDF)...</span>
+                                        <span class="ultra-browse-btn">تصفح</span>
+                                    </label>
+                                    <input type="file"
+                                           name="receipt_image"
+                                           id="receipt_image"
+                                           class="d-none"
+                                           accept="image/*,.pdf"
+                                           onchange="document.getElementById('fileName').innerText = this.files[0] ? this.files[0].name : 'اختر ملف الإيصال (صور أو PDF)...'" />
+                                </div>
+                            </div>
                             <div class="col-12 mt-5">
                                 <button type="submit"
                                         class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded-3 transition w-100 w-md-auto">
@@ -163,6 +181,7 @@
                                     حفظ الحالة الطبية
                                 </button>
                             </div>
+                            
                         </div>
                     </form>
                 </div>
@@ -218,6 +237,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 {% endblock dash_content %}
 {% block extra_js %}
