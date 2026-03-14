@@ -391,12 +391,12 @@
                                                         </td>
                                                         <td>
                                                             <div class="d-flex align-items-center gap-2">
-                                                                <img src="{% if payment.enrollment.user.profile.profile_pic %}{{ payment.enrollment.user.profile.profile_pic.url }}{% else %}https://ui-avatars.com/api/?name={{ payment.enrollment.user.username }}&background=0D6EFD&color=fff{% endif %}"
+                                                                <img src="{% if payment.user.profile.profile_pic %}{{ payment.user.profile.profile_pic.url }}{% else %}https://ui-avatars.com/api/?name={{ payment.user.username }}&background=0D6EFD&color=fff{% endif %}"
                                                                      class="user-avatar me-2"
                                                                      alt="" />
                                                                 <div>
-                                                                    <span class="fw-bold d-block">{{ payment.enrollment.user.get_full_name|default:payment.enrollment.user.username }}</span>
-                                                                    <small class="text-muted">{{ payment.enrollment.user.email }}</small>
+                                                                    <span class="fw-bold d-block">{{ payment.user.get_full_name|default:payment.user.username }}</span>
+                                                                    <small class="text-muted">{{ payment.user.email }}</small>
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -427,28 +427,11 @@
                                                         </td>
                                                         <td class="text-end pe-4">
                                                             <div class="d-flex justify-content-end gap-2">
-                                                                <button class="action-btn btn-view btn-view-receipt"
-                                                                        data-receipt-url="{{ payment.receipt_image.url }}"
-                                                                        data-user-name="{{ payment.enrollment.user.get_full_name|default:payment.enrollment.user.username }}"
-                                                                        data-course-name="{{ course.title }}"
-                                                                        data-amount="{{ payment.amount }}"
-                                                                        title="عرض الإيصال">
+                                                                <button class="action-btn btn-view" 
+                                                                        onclick="reviewPayment({{ payment.id }})"
+                                                                        title="مراجعة الدفع">
                                                                     <i class="fa-solid fa-eye"></i>
                                                                 </button>
-                                                                {% if payment.status == 'pending' %}
-                                                                    <button class="action-btn btn-approve"
-                                                                            data-payment-id="{{ payment.id }}"
-                                                                            data-enrollment-id="{{ payment.enrollment.id }}"
-                                                                            title="قبول">
-                                                                        <i class="fa-solid fa-check"></i>
-                                                                    </button>
-                                                                    <button class="action-btn btn-delete text-danger btn-reject"
-                                                                            data-payment-id="{{ payment.id }}"
-                                                                            data-enrollment-id="{{ payment.enrollment.id }}"
-                                                                            title="رفض">
-                                                                        <i class="fa-solid fa-xmark"></i>
-                                                                    </button>
-                                                                {% endif %}
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -730,146 +713,20 @@
                 </div>
             </div>
         </div>
-        <!-- Payment Receipt Modal -->
-        <div class="modal fade" id="receiptModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+        <!-- Payment Review Modal -->
+        <div class="modal fade" id="paymentReviewModal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg">
                     <div class="modal-header bg-primary text-white py-3">
-                        <h5 class="modal-title fw-bold">
-                            <i class="fa-solid fa-receipt me-2"></i>
-                            عرض الإيصال
-                        </h5>
-                        <button type="button"
-                                class="btn-close btn-close-white"
-                                data-bs-dismiss="modal">
-                        </button>
+                        <h5 class="modal-title fw-bold">تفاصيل ومراجعة الدفع</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body p-4 text-center">
-                        <div class="receipt-info mb-4">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">المستخدم</small>
-                                    <span class="fw-bold" id="receiptUserName">-</span>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">الدورة</small>
-                                    <span class="fw-bold" id="receiptCourseName">-</span>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">المبلغ</small>
-                                    <span class="fw-bold text-primary" id="receiptAmount">-</span>
-                                </div>
+                    <div class="modal-body p-0" id="paymentModalContent">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">جاري التحميل...</span>
                             </div>
                         </div>
-                        <img id="receiptImage"
-                             src=""
-                             alt="Receipt"
-                             class="img-fluid rounded shadow-sm" />
-                    </div>
-                    <div class="modal-footer border-0 p-4 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                            إغلاق
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Approval Modal -->
-        <div class="modal fade" id="approvalModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-sm">
-                <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-success text-white py-3">
-                        <h5 class="modal-title fw-bold">
-                            <i class="fa-solid fa-check-circle me-2"></i>
-                            قبول الدفع
-                        </h5>
-                        <button type="button"
-                                class="btn-close btn-close-white"
-                                data-bs-dismiss="modal">
-                        </button>
-                    </div>
-                    <div class="modal-body p-4 text-center">
-                        <div class="icon-box-success mb-3">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">
-                            هل أنت متأكد؟
-                        </h4>
-                        <p class="text-muted">
-                            هل أنت متأكد من قبول هذا الدفع؟
-                        </p>
-                        <form id="approvalForm">
-                            <input type="hidden" name="action" value="approve" />
-                            <input type="hidden" name="payment_id" id="approvePaymentId" />
-                            <div class="mb-3">
-                                <label class="form-label">
-                                    ملاحظات (اختياري)
-                                </label>
-                                <textarea name="notes" class="form-control" rows="3"></textarea>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer flex-nowrap p-0 border-top overflow-hidden">
-                        <button type="button"
-                                class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end py-3 text-dark fw-bold"
-                                data-bs-dismiss="modal">
-                            إلغاء
-                        </button>
-                        <button type="button"
-                                class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 py-3 text-success fw-bold"
-                                id="confirmApproveBtn">
-                            تأكيد القبول
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Rejection Modal -->
-        <div class="modal fade" id="rejectionModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-sm">
-                <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-danger text-white py-3">
-                        <h5 class="modal-title fw-bold">
-                            <i class="fa-solid fa-times-circle me-2"></i>
-                            رفض الدفع
-                        </h5>
-                        <button type="button"
-                                class="btn-close btn-close-white"
-                                data-bs-dismiss="modal">
-                        </button>
-                    </div>
-                    <div class="modal-body p-4 text-center">
-                        <div class="icon-box-danger mb-3">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">
-                            هل أنت متأكد؟
-                        </h4>
-                        <p class="text-muted">
-                            هل أنت متأكد من رفض هذا الدفع؟
-                        </p>
-                        <form id="rejectionForm">
-                            <input type="hidden" name="action" value="reject" />
-                            <input type="hidden" name="payment_id" id="rejectPaymentId" />
-                            <div class="mb-3">
-                                <label class="form-label">
-                                    سبب الرفض <span class="text-danger">*</span>
-                                </label>
-                                <textarea name="notes" class="form-control" rows="3" required></textarea>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer flex-nowrap p-0 border-top overflow-hidden">
-                        <button type="button"
-                                class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end py-3 text-dark fw-bold"
-                                data-bs-dismiss="modal">
-                            إلغاء
-                        </button>
-                        <button type="button"
-                                class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 py-3 text-danger fw-bold"
-                                id="confirmRejectBtn">
-                            تأكيد الرفض
-                        </button>
                     </div>
                 </div>
             </div>
@@ -972,5 +829,70 @@
 {% endblock dash_content %}
 {% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function reviewPayment(paymentId) {
+            const modal = new bootstrap.Modal(document.getElementById('paymentReviewModal'));
+            const content = document.getElementById('paymentModalContent');
+            
+            content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            modal.show();
+            
+            fetch(`/dashboard/payments/${paymentId}/ajax/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        content.innerHTML = data.html;
+                    } else {
+                        content.innerHTML = '<div class="alert alert-danger m-3">' + (data.errors ? data.errors[0] : 'حدث خطأ ما') + '</div>';
+                    }
+                });
+        }
+
+        function submitReview(paymentId, action) {
+            const notes = document.getElementById('reviewNotes').value;
+            
+            if (action === 'reject' && !notes) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'تنبيه',
+                    text: 'يرجى إدخال سبب الرفض في الملاحظات',
+                    confirmButtonText: 'حسناً'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: action === 'approve' ? 'هل تريد قبول هذا الدفع؟' : 'هل تريد رفض هذا الدفع؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'تأكيد',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: action === 'approve' ? '#28a745' : '#dc3545',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const formData = new FormData();
+                    formData.append('action', action);
+                    formData.append('notes', notes);
+                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                    fetch(`/dashboard/payments/${paymentId}/review-ajax/`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('نجاح', data.message, 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('خطأ', data.errors[0], 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
     <script src="{% static 'js/course_detail.js' %}?v={% now 'U' %}"></script>
 {% endblock extra_js %}

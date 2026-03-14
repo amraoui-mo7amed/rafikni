@@ -1,5 +1,13 @@
 from django.urls import path
-from dashboard.views import main, settings, users, medical_cases, courses, notifications
+from dashboard.views import (
+    main,
+    settings,
+    users,
+    medical_cases,
+    courses,
+    notifications,
+    payments,
+)
 
 app_name = "dashboard"
 
@@ -47,15 +55,22 @@ urlpatterns = [
     ),
     path(
         "courses/payment/<int:enrollment_id>/submit/",
-        courses.payment_submit,
+        payments.payment_submit,
         name="payment_submit",
     ),
+    # Payments (Generic)
+    path("payments/", payments.payment_list, name="payment_list"),
     path(
-        "courses/payment/<int:payment_id>/review/",
-        courses.payment_review,
-        name="payment_review",
+        "payments/<int:payment_id>/ajax/",
+        payments.payment_detail_ajax,
+        name="payment_detail_ajax",
     ),
-    path("courses/payments/", courses.payment_list, name="payment_list"),
+    path(
+        "payments/<int:payment_id>/review-ajax/",
+        payments.payment_review_ajax,
+        name="payment_review_ajax",
+    ),
+    # Enrollment Management
     path(
         "courses/enrollment/<int:enrollment_id>/approve/",
         courses.enrollment_approve,

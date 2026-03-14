@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from user_auth.models import UserProfile
 
 
@@ -212,19 +214,28 @@ class CourseEnrollment(models.Model):
 
 
 class Payment(models.Model):
-    """Payment model for course enrollment"""
+    """Generic Payment model"""
 
     class PaymentStatus(models.TextChoices):
         PENDING = "pending", "قيد المراجعة"
         APPROVED = "approved", "مقبول"
         REJECTED = "rejected", "مرفوض"
 
-    enrollment = models.OneToOneField(
-        CourseEnrollment,
+    user = models.ForeignKey(
+        User,
         on_delete=models.CASCADE,
-        related_name="payment",
-        verbose_name="التسجيل",
+        related_name="payments",
+        verbose_name="المستخدم",
     )
+    # Generic relation to the payable object (CourseEnrollment, MedicalCase, etc.)
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        verbose_name="نوع المحتوى",
+    )
+    object_id = models.PositiveIntegerField(verbose_name="معرف الكائن")
+    content_object = GenericForeignKey("content_type", "object_id")
+
     receipt_image = models.ImageField(
         upload_to="payments/receipts/%Y/%m/", verbose_name="صورة الإيصال"
     )
@@ -256,7 +267,7 @@ class Payment(models.Model):
         verbose_name_plural = "المدفوعات"
 
     def __str__(self):
-        return f"دفع {self.amount} د.ج - {self.enrollment.course.title}"
+        return f"دفع {self.amount} د.ج - {self.user.username}"
 
 
 class Notification(models.Model):

@@ -77,7 +77,7 @@ def user_detail(request, pk):
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         data = {
             "username": user.username,
-            "email": user.email,
+            "email": user.email[:21],
             "first_name": user.first_name,
             "last_name": user.last_name,
             "date_joined": user.date_joined.strftime("%Y-%m-%d"),

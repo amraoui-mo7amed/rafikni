@@ -53,6 +53,11 @@ def sidebar_menu(request):
                         "url_name": "dashboard:course_list",
                         "icon": "fa-solid fa-graduation-cap",
                     },
+                    {
+                        "name": "المدفوعات",
+                        "url_name": "dashboard:payment_list",
+                        "icon": "fa-solid fa-credit-card",
+                    },
                 ],
             }
         )
@@ -73,11 +78,6 @@ def sidebar_menu(request):
             {
                 "label": "التعليم",
                 "items": [
-                    {
-                        "name": "الدورات التعليمية",
-                        "url_name": "dashboard:course_list",
-                        "icon": "fa-solid fa-graduation-cap",
-                    },
                     {
                         "name": "دوراتي",
                         "url_name": "dashboard:my_courses",

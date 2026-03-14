@@ -6,6 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.contrib.contenttypes.models import ContentType
 from ..decorators import admin_required
 from ..models import Course, Video, CourseEnrollment, Payment
 from ..utils import notify_user, notify_admins
@@ -240,9 +241,12 @@ def course_detail(request, course_id):
     payments = None
     payment_stats = None
     if is_admin:
-        payments = Payment.objects.filter(enrollment__course=course).order_by(
-            "-created_at"
-        )
+        enrollment_type = ContentType.objects.get_for_model(CourseEnrollment)
+        enrollments = CourseEnrollment.objects.filter(course=course)
+        payments = Payment.objects.filter(
+            content_type=enrollment_type,
+            object_id__in=enrollments.values_list("id", flat=True),
+        ).order_by("-created_at")
         payment_stats = {
             "pending": payments.filter(status=Payment.PaymentStatus.PENDING).count(),
             "approved": payments.filter(status=Payment.PaymentStatus.APPROVED).count(),
@@ -315,153 +319,6 @@ def course_enroll(request, course_id):
 
 
 @login_required
-def payment_submit(request, enrollment_id):
-    """Submit payment receipt for course enrollment"""
-    enrollment = get_object_or_404(
-        CourseEnrollment,
-        id=enrollment_id,
-        user=request.user,
-        status=CourseEnrollment.EnrollmentStatus.PENDING,
-    )
-
-    if request.method == "POST":
-        try:
-            receipt_image = request.FILES.get("receipt_image")
-            amount = request.POST.get("amount")
-            notes = request.POST.get("notes", "")
-
-            if not receipt_image:
-                return JsonResponse(
-                    {"success": False, "errors": ["يرجى رفع صورة الإيصال"]}
-                )
-
-            # Create payment
-            payment = Payment.objects.create(
-                enrollment=enrollment,
-                receipt_image=receipt_image,
-                amount=amount or enrollment.course.price,
-                notes=notes,
-            )
-
-            # Notify admins
-            notify_admins(
-                request,
-                title="إيصال دفع جديد",
-                message=f"قام المستخدم {request.user.username} برفع إيصال دفع لدورة {enrollment.course.title}",
-                notification_type="info",
-                link=reverse("dashboard:payment_review", args=[payment.id]),
-            )
-
-            return JsonResponse(
-                {
-                    "success": True,
-                    "message": "تم إرسال إيصال الدفع بنجاح، سيتم مراجعته من قبل الإدارة",
-                    "redirect_url": reverse("dashboard:course_list"),
-                }
-            )
-
-        except Exception as e:
-            logger.error(f"Error submitting payment: {str(e)}")
-            return JsonResponse(
-                {"success": False, "errors": ["حدث خطأ أثناء إرسال الإيصال"]}
-            )
-
-    return render(
-        request,
-        "dashboard/courses/payment.html",
-        {"enrollment": enrollment, "course": enrollment.course},
-    )
-
-
-@login_required
-@admin_required
-def payment_review(request, payment_id):
-    """Review and approve/reject payment (admin only)"""
-    payment = get_object_or_404(Payment, id=payment_id)
-
-    if request.method == "POST":
-        try:
-            action = request.POST.get("action")
-            notes = request.POST.get("notes", "")
-
-            if action == "approve":
-                payment.status = Payment.PaymentStatus.APPROVED
-                payment.enrollment.status = CourseEnrollment.EnrollmentStatus.APPROVED
-                payment.enrollment.approved_by = request.user
-            elif action == "reject":
-                payment.status = Payment.PaymentStatus.REJECTED
-                payment.enrollment.status = CourseEnrollment.EnrollmentStatus.REJECTED
-            else:
-                return JsonResponse({"success": False, "errors": ["إجراء غير صالح"]})
-
-            payment.notes = notes
-            payment.reviewed_by = request.user
-            payment.save()
-            payment.enrollment.save()
-
-            # Notify user
-            status_text = "مقبول" if action == "approve" else "مرفوض"
-            notify_type = "success" if action == "approve" else "error"
-            notify_user(
-                payment.enrollment.user,
-                title=f"تم مراجعة الدفع - {status_text}",
-                message=f"تم {status_text} إيصال الدفع الخاص بك لدورة {payment.enrollment.course.title}",
-                notification_type=notify_type,
-                link=reverse(
-                    "dashboard:course_detail", args=[payment.enrollment.course.id]
-                ),
-            )
-
-            return JsonResponse({"success": True, "message": "تمت مراجعة الدفع بنجاح"})
-
-        except Exception as e:
-            logger.error(f"Error reviewing payment: {str(e)}")
-            return JsonResponse(
-                {"success": False, "errors": ["حدث خطأ أثناء مراجعة الدفع"]}
-            )
-
-    return render(
-        request,
-        "dashboard/courses/payment_review.html",
-        {
-            "payment": payment,
-            "enrollment": payment.enrollment,
-            "course": payment.enrollment.course,
-        },
-    )
-
-
-@login_required
-@admin_required
-def payment_list(request):
-    """List all pending payments for admin review"""
-    status = request.GET.get("status", "pending")
-
-    payments = Payment.objects.filter(status=status).select_related(
-        "enrollment__user", "enrollment__course"
-    )
-
-    # Get counts for each status
-    pending_count = Payment.objects.filter(status="pending").count()
-    approved_count = Payment.objects.filter(status="approved").count()
-    rejected_count = Payment.objects.filter(status="rejected").count()
-
-    context = {
-        "payments": payments,
-        "status": status,
-        "status_choices": [
-            ("pending", "قيد المراجعة"),
-            ("approved", "مقبول"),
-            ("rejected", "مرفوض"),
-        ],
-        "pending_count": pending_count,
-        "approved_count": approved_count,
-        "rejected_count": rejected_count,
-    }
-    return render(request, "dashboard/courses/payment_list.html", context)
-
-
-@login_required
 @admin_required
 def enrollment_approve(request, enrollment_id):
     """Approve enrollment (admin only)"""
@@ -477,10 +334,14 @@ def enrollment_approve(request, enrollment_id):
             enrollment.save()
 
             # Also approve associated payment if exists
-            if hasattr(enrollment, "payment"):
-                enrollment.payment.status = Payment.PaymentStatus.APPROVED
-                enrollment.payment.reviewed_by = request.user
-                enrollment.payment.save()
+            enrollment_type = ContentType.objects.get_for_model(CourseEnrollment)
+            payment = Payment.objects.filter(
+                content_type=enrollment_type, object_id=enrollment.id
+            ).first()
+            if payment:
+                payment.status = Payment.PaymentStatus.APPROVED
+                payment.reviewed_by = request.user
+                payment.save()
 
             # Notify user
             notify_user(
@@ -521,10 +382,14 @@ def enrollment_reject(request, enrollment_id):
             enrollment.save()
 
             # Also reject associated payment if exists
-            if hasattr(enrollment, "payment"):
-                enrollment.payment.status = Payment.PaymentStatus.REJECTED
-                enrollment.payment.reviewed_by = request.user
-                enrollment.payment.save()
+            enrollment_type = ContentType.objects.get_for_model(CourseEnrollment)
+            payment = Payment.objects.filter(
+                content_type=enrollment_type, object_id=enrollment.id
+            ).first()
+            if payment:
+                payment.status = Payment.PaymentStatus.REJECTED
+                payment.reviewed_by = request.user
+                payment.save()
 
             # Notify user
             notify_user(
@@ -558,10 +423,14 @@ def enrollment_revoke(request, enrollment_id):
             enrollment.save()
 
             # Also revoke associated payment if exists
-            if hasattr(enrollment, "payment"):
-                enrollment.payment.status = Payment.PaymentStatus.PENDING
-                enrollment.payment.reviewed_by = None
-                enrollment.payment.save()
+            enrollment_type = ContentType.objects.get_for_model(CourseEnrollment)
+            payment = Payment.objects.filter(
+                content_type=enrollment_type, object_id=enrollment.id
+            ).first()
+            if payment:
+                payment.status = Payment.PaymentStatus.PENDING
+                payment.reviewed_by = None
+                payment.save()
 
             return JsonResponse({"success": True, "message": "تم سحب القبول بنجاح"})
         except Exception as e:

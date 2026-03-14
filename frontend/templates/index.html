@@ -51,6 +51,9 @@
                                 <a class="nav-link" href="#events">الأحداث</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="#courses">الدورات</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="#testimonials">آراء العائلات</a>
                             </li>
                             <li class="nav-item">
@@ -445,6 +448,67 @@
                         <a href="#contact" class="btn btn-primary btn-lg"><i class="fa-solid fa-calendar-check ms-2"></i> احجز
                         استشارة أرطفونية</a>
                     </div>
+                </div>
+            </section>
+            <!-- Courses -->
+            <section id="courses" class="bg-light-section">
+                <div class="container">
+                    <div class="row mb-4">
+                        <div class="col-lg-8 slide-up">
+                            <h2 class="section-title">
+                                الدورات التعليمية
+                            </h2>
+                            <p class="section-subtitle">
+                                دورات متخصصة للأولياء والمربين لتعزيز مهارات التعامل مع الأطفال ذوي الاحتياجات الخاصة.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row g-4">
+                        {% for course in latest_courses %}
+                        <div class="col-md-6 col-lg-4 slide-up">
+                            <div class="course-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                                <div class="position-relative">
+                                    {% if course.thumbnail %}
+                                        <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-soft-primary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <i class="fa-solid fa-graduation-cap fa-3x text-primary opacity-50"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="position-absolute top-0 end-0 m-3">
+                                        <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">
+                                            {% if course.price == 0 %}مجاني{% else %}{{ course.price }} د.ج{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-body p-4">
+                                    <h5 class="card-title fw-bold mb-2">{{ course.title }}</h5>
+                                    <p class="text-muted small mb-3">{{ course.description|truncatechars:100 }}</p>
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="bg-soft-primary text-primary rounded-circle p-2 me-2" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fa-solid fa-chalkboard-user small"></i>
+                                        </div>
+                                        <span class="small text-muted">بواسطة: <strong>{{ course.teacher_name }}</strong></span>
+                                    </div>
+                                    <a href="{% url 'frontend:course_detail' course.id %}" class="btn btn-outline-primary w-100 rounded-3">
+                                        <i class="fa-solid fa-eye ms-2"></i> التفاصيل
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted">لا توجد دورات متاحة حالياً.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if latest_courses|length >= 6 %}
+                    <div class="text-center mt-5 slide-up">
+                        <a href="{% url 'frontend:course_list' %}" class="btn btn-primary btn-lg px-5">
+                            <i class="fa-solid fa-list ms-2"></i> عرض جميع الدورات
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </section>
             <!-- Events -->
@@ -967,6 +1031,9 @@
                                 </li>
                                 <li class="mb-2">
                                     <a href="#events">الأحداث</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#courses">الدورات التعليمية</a>
                                 </li>
                                 <li class="mb-2">
                                     <a href="#testimonials">آراء العائلات</a>
