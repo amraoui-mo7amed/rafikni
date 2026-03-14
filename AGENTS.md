@@ -161,3 +161,6 @@ In templates, we often use `{% now "U" %}` to bust cache for CSS/JS during devel
 - always use the 'create_payment' function in `dashboard.utils` to create a payment 
 - the `create_payment` function must be always used with `atomic()`
 - always use data attributes instead of hardcoded urls or data or when viewing details using modals 
+- all modals must be in the template, not hardcoded in a javascript folder 
+- always write a detailed doc string for each function or view 
+- always store the helper functions is a `utils.py` file 

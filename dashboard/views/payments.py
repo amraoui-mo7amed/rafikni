@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -24,7 +25,48 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def payment_submit(request, enrollment_id):
-    """Submit payment receipt for course enrollment"""
+    """
+    Submit payment receipt for course enrollment.
+
+    This view allows authenticated users to submit a payment receipt image
+    for a pending course enrollment. The payment is created with PENDING
+    status and admins are notified to review it.
+
+    Decorators:
+        @login_required: User must be logged in to access this view
+
+    Args:
+        request: HTTP request object
+        enrollment_id (int): ID of the CourseEnrollment to pay for
+
+    GET Behavior:
+        - Renders the payment form template with enrollment and course info
+
+    POST Behavior:
+        - Validates receipt_image is provided
+        - Creates Payment object with PENDING status linked to enrollment
+        - Sends notification to admins about new payment
+        - Returns JSON response with success/error message
+
+    Returns:
+        GET: HTML template (dashboard/courses/payment.html)
+        POST: JsonResponse with success status and message
+
+    Template Context:
+        - enrollment: The CourseEnrollment object
+        - course: The associated Course object
+
+    Example Request:
+        POST /dashboard/payments/submit/1/
+        POST data: receipt_image=<file>
+
+    Example Response (Success):
+        {
+            "success": True,
+            "message": "تم إرسال إيصال الدفع بنجاح، سيتم مراجعته من قبل الإدارة",
+            "redirect_url": "/dashboard/courses/"
+        }
+    """
     enrollment = get_object_or_404(
         CourseEnrollment,
         id=enrollment_id,
@@ -81,7 +123,56 @@ def payment_submit(request, enrollment_id):
 @login_required
 @admin_required
 def payment_list(request):
-    """List all payments with filters (Admin only)"""
+    """
+    List all payments with filtering and pagination (Admin only).
+
+    This view displays a paginated list of all payments in the system.
+    Administrators can filter by:
+        - Search query (user name)
+        - Payment status (pending, approved, rejected)
+        - Content type (course enrollment or medical case)
+
+    Decorators:
+        @login_required: User must be logged in
+        @admin_required: User must have admin privileges
+
+    Args:
+        request: HTTP request object
+
+    Query Parameters:
+        q (str): Search query for user username/first_name/last_name
+        status (str): Filter by payment status (pending/approved/rejected)
+        content_type (str): Filter by content type (course enrollment ID or "medical")
+        page (int): Page number for pagination
+
+    GET Behavior:
+        - Retrieves all payments with related user and content_type
+        - Applies filters based on query parameters
+        - Paginates results (15 per page)
+        - Renders payment list template
+
+    Returns:
+        HtmlResponse: Rendered template with payments list
+
+    Template Context:
+        - payments: Paginated Payment queryset
+        - query: Current search query
+        - status: Current status filter
+        - content_type: Current content type filter
+        - status_choices: List of (value, label) for status dropdown
+        - type_choices: List of (value, label) for content type dropdown
+        - paginator: Paginator object for pagination controls
+
+    Filtering Logic:
+        1. If 'q' provided: Filter by user name (username, first_name, last_name)
+        2. If 'status' provided: Filter by payment status
+        3. If 'content_type' provided:
+           - "medical": Filter for any medical case content types
+           - Other: Filter for specific content type ID
+
+    Example URL:
+        /dashboard/payments/?q=john&status=pending&content_type=medical&page=2
+    """
     query = request.GET.get("q", "")
     status = request.GET.get("status", "")
     content_type_id = request.GET.get("content_type", "")
@@ -146,7 +237,47 @@ def payment_list(request):
 @login_required
 @admin_required
 def payment_detail_ajax(request, payment_id):
-    """Return payment details for modal content"""
+    """
+    Retrieve payment details for modal display (AJAX).
+
+    This view fetches a single payment by ID and renders it as HTML
+    for display in a modal popup. Used when admin clicks on a payment
+    to view its full details.
+
+    Decorators:
+        @login_required: User must be logged in
+        @admin_required: User must have admin privileges
+
+    Args:
+        request: HTTP request object
+        payment_id (int): ID of the Payment to retrieve
+
+    GET Behavior:
+        - Fetches the Payment object
+        - Renders payment_details_modal.html template
+        - Returns JSON with HTML content
+
+    Returns:
+        JsonResponse:
+            - success: True with HTML in 'html' key
+            - success: False with errors if payment not found
+
+    Template Used:
+        partials/payment_details_modal.html
+
+    Template Context:
+        - payment: The Payment object
+        - content_object: The linked object (CourseEnrollment or MedicalCase)
+
+    Example Request:
+        GET /dashboard/payments/1/ajax/
+
+    Example Response:
+        {
+            "success": True,
+            "html": "<div class='...'>...</div>"
+        }
+    """
     payment = get_object_or_404(Payment, id=payment_id)
 
     html = render_to_string(
@@ -164,7 +295,69 @@ def payment_detail_ajax(request, payment_id):
 @login_required
 @admin_required
 def payment_review_ajax(request, payment_id):
-    """Review and approve/reject payment via AJAX"""
+    """
+    Review and approve/reject a payment (AJAX).
+
+    This view handles the admin decision on a payment. When a payment
+    is approved or rejected, it also updates the status of the linked
+    content object (CourseEnrollment or MedicalCase).
+
+    Decorators:
+        @login_required: User must be logged in
+        @admin_required: User must have admin privileges
+
+    Args:
+        request: HTTP request object
+        payment_id (int): ID of the Payment to review
+
+    POST Behavior:
+        - Validates action is 'approve' or 'reject'
+        - Updates Payment status accordingly
+        - Updates linked content_object status:
+            * CourseEnrollment: Sets status to APPROVED/REJECTED
+            * MedicalCase (any): Sets is_approved to True/False
+        - Records reviewed_by (admin) and reviewed_at (timestamp)
+        - Sends notification to the user about the decision
+
+    Returns:
+        JsonResponse:
+            - success: True with message on success
+            - success: False with errors on failure
+
+    Content Object Handling:
+
+        CourseEnrollment (when approved):
+            - payment.status = APPROVED
+            - enrollment.status = APPROVED
+            - enrollment.approved_by = request.user (admin)
+            - enrollment.approved_at = timezone.now()
+
+        CourseEnrollment (when rejected):
+            - payment.status = REJECTED
+            - enrollment.status = REJECTED
+
+        MedicalCase (any type - when approved):
+            - payment.status = APPROVED
+            - case.is_approved = True
+
+        MedicalCase (any type - when rejected):
+            - payment.status = REJECTED
+            - case.is_approved = False
+
+    Notification Message:
+        - For courses: "تم [مقبول/مرفوض] إيصال الدفع الخاص بك لدورة [course_title]"
+        - For medical cases: "تم [مقبول/مرفوض] إيصال الدفع الخاص بك لحالة [case_name]"
+
+    Example Request:
+        POST /dashboard/payments/1/review-ajax/
+        POST data: action=approve
+
+    Example Response (Success):
+        {"success": True, "message": "تم قبول الدفع بنجاح"}
+
+    Example Response (Error):
+        {"success": False, "errors": ["إجراء غير صالح"]}
+    """
     payment = get_object_or_404(Payment, id=payment_id)
 
     if request.method == "POST":
