@@ -7,6 +7,7 @@ from dashboard.views import (
     courses,
     notifications,
     payments,
+    articles,
 )
 
 app_name = "dashboard"
@@ -118,4 +119,9 @@ urlpatterns = [
         notifications.delete_notification,
         name="notification_delete",
     ),
+    # Articles
+    path("articles/", articles.article_list, name="article_list"),
+    path("articles/create/", articles.article_create, name="article_create"),
+    path("articles/<int:pk>/edit/", articles.article_edit, name="article_edit"),
+    path("articles/<int:pk>/delete/", articles.article_delete, name="article_delete"),
 ]

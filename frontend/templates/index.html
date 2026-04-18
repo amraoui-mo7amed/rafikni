@@ -16,17 +16,17 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
               rel="stylesheet" />
         <link href="{% static 'css/index.css' %}?v={% now "U" %}" rel="stylesheet" />
-        {% block css %}
-        {% endblock css %}
+        <link href="{% static 'frontend/css/articles.css' %}?v={% now "U" %}" rel="stylesheet" />
+        {% block css %}{% endblock css %}
         {% block extra_css %}
         {% endblock extra_css %}
     </head>
     <body>
         {% block navbar %}
             <!-- Navbar -->
-            <nav class="navbar navbar-expand-lg sticky-top">
+            <nav class="navbar navbar-expand-lg sticky-top bg-white shadow-sm">
                 <div class="container">
-                    <a class="navbar-brand brand-logo" href="#">رافقني</a>
+                    <a class="navbar-brand brand-logo" href="{% url 'frontend:index' %}">رافقني</a>
                     <button class="navbar-toggler"
                             type="button"
                             data-bs-toggle="collapse"
@@ -39,439 +39,162 @@
                     <div class="collapse navbar-collapse" id="mainNav">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#home">الرئيسية</a>
+                                <a class="nav-link active" href="{% url 'frontend:index' %}">الرئيسية</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#features">المميزات</a>
+                                <a class="nav-link" href="#doctors">المختصون</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#orthophony">الأرطفونيا</a>
+                                <a class="nav-link" href="{% url 'frontend:course_list' %}">الدورات</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#events">الأحداث</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#courses">الدورات</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#testimonials">آراء العائلات</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#contribute">المساهمة</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#contact">تواصل معنا</a>
+                                <a class="nav-link" href="{% url 'frontend:article_list' %}">المقالات</a>
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
         {% endblock navbar %}
+
         {% block content %}
-            <!-- Hero -->
-            <header id="home" class="hero">
-                <div class="overlay">
-                </div>
-                <div class="container hero-content">
-                    <div class="row align-items-center">
-                        <div class="col-lg-12 slide-right">
-                            <span class="pill mb-3 d-inline-block">منصة طبية ونفسية للأسرة</span>
-                            <h1 class="mb-3">
-                                رعاية متكاملة لأطفالكم.
-                            </h1>
-                            <p class="mb-4">
-                                اكتشفوا شبكة من المتخصصين في الأعصاب، التوحد، ADHD، النطق والنمو. نقدم استشارات،
-                                إدارة حالات، وتقييمات ذكية.
-                            </p>
-                            <div class="d-flex gap-3">
-                                <a href="#features" class="btn btn-primary btn-lg"><i class="fa-solid fa-rocket ms-2"></i> ابدأ
-                                الآن</a>
-                                <a href="#about" class="btn btn-outline-primary btn-lg"><i class="fa-solid fa-circle-info ms-2"></i> اكتشف المزيد</a>
-                            </div>
-                        </div>
+            <!-- Hero Section -->
+            <header class="hero d-flex align-items-center" style="height: 70vh; background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); position: relative;">
+                <div class="container text-center text-white" style="position: relative; z-index: 2;">
+                    <span class="badge bg-white text-primary rounded-pill px-3 py-2 mb-4 fw-bold shadow-sm">منصة رافقني التعليمية والطبية</span>
+                    <h1 class="display-3 fw-bold mb-4">نرافقكم في رحلة النمو</h1>
+                    <p class="lead opacity-75 mx-auto mb-5" style="max-width: 700px;">
+                        اكتشف عالمًا من المعرفة المتخصصة وشبكة من المختصين لدعم طفلك في كل خطوة.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#doctors" class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary">المختصون</a>
+                        <a href="{% url 'frontend:article_list' %}" class="btn btn-outline-light btn-lg rounded-pill px-5">المقالات</a>
                     </div>
                 </div>
             </header>
-            <!-- About -->
-            <section id="about" class="bg-dark-section">
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h2 class="section-title">
-                                مهمتنا
-                            </h2>
-                            <p class="section-subtitle">
-                                نبني جسراً بين الأسرة والمتخصصين لتصبح المتابعة الطبية والنفسية أكثر
-                                إنسانية ووضوحاً. بمنهجية مبسّطة وأدوات ذكية، نمنحكم ثقة وراحة في كل خطوة.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row g-4">
-                        <div class="col-md-6 col-lg-3 fade-in">
-                            <div class="feature-card p-4 h-100">
-                                <div class="icon-badge mb-3">
-                                    <i class="fa-solid fa-stethoscope"></i>
-                                </div>
-                                <h5 class="mb-2">
-                                    تبسيط المتابعة الطبية
-                                </h5>
-                                <p class="muted mb-0">
-                                    مواعيد واضحة، تقارير مختصرة، وإجراءات أسهل لجعل العلاج أكثر قابلية
-                                    للاستمرار.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 fade-in">
-                            <div class="feature-card p-4 h-100">
-                                <div class="icon-badge mb-3">
-                                    <i class="fa-solid fa-people-roof"></i>
-                                </div>
-                                <h5 class="mb-2">
-                                    دعم الأسر
-                                </h5>
-                                <p class="muted mb-0">
-                                    إرشاد عملي وعاطفي للأهل، حتى لا تكون الرحلة مرهقة وحدكم.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 fade-in">
-                            <div class="feature-card p-4 h-100">
-                                <div class="icon-badge mb-3">
-                                    <i class="fa-solid fa-brain"></i>
-                                </div>
-                                <h5 class="mb-2">
-                                    توفير تقييمات ذكية
-                                </h5>
-                                <p class="muted mb-0">
-                                    اختبارات معيارية ونتائج مفهومة تساعد على القرار الصحيح في الوقت المناسب.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 fade-in">
-                            <div class="feature-card p-4 h-100">
-                                <div class="icon-badge mb-3">
-                                    <i class="fa-solid fa-chart-line"></i>
-                                </div>
-                                <h5 class="mb-2">
-                                    تمكين الأطباء بالمعلومات
-                                </h5>
-                                <p class="muted mb-0">
-                                    سجل شامل وملاحظات دقيقة تعزز التعاون بين الفريق الطبي والأسرة.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- Features (User-focused) -->
-            <section id="features" class="bg-light-section">
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h2 class="section-title">
-                                لماذا رافقني يفيد أسرتك؟
-                            </h2>
-                            <p class="section-subtitle">
-                                فوائد ملموسة للأهل تجعل الرعاية أسهل، أوضح، وأكثر طمأنينة.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row g-4">
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex flex-column align-items-start">
-                                    <div class="icon-badge mb-3">
-                                        <i class="fa-solid fa-hand-holding-heart"></i>
-                                    </div>
-                                    <h5 class="mb-2">
-                                        دعم دائم لأطفالك
-                                    </h5>
-                                    <div>
-                                        <p class="muted mb-0">
-                                            متابعة مستمرة مع أطباء متخصصين لضمان رعاية شخصية تناسب احتياجات
-                                            طفلك.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex flex-column align-items-start">
-                                    <div class="icon-badge mb-3">
-                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-2">
-                                            تقييم ذكي وسهل
-                                        </h5>
-                                        <p class="muted mb-0">
-                                            أدوات بسيطة لتتبع نمو وتطور طفلك وفهم النتائج دون تعقيد.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex flex-column align-items-start">
-                                    <div class="icon-badge mb-3">
-                                        <i class="fa-solid fa-shield-heart"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-2">
-                                            راحة البال
-                                        </h5>
-                                        <p class="muted mb-0">
-                                            كل المعلومات والنصائح موثوقة ومركزية في مكان واحد يسهل الرجوع
-                                            إليه.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex flex-column align-items-start">
-                                    <div class="icon-badge mb-3">
-                                        <i class="fa-solid fa-book-open"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-2">
-                                            تعلم مستمر
-                                        </h5>
-                                        <p class="muted mb-0">
-                                            إرشادات لمراحل الحمل والطفولة المبكرة بنبرة مطمئنة ومعلومات
-                                            موثوقة.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex align-items-start flex-column">
-                                    <div class="icon-badge mb-3">
-                                        <i class="fa-solid fa-list-check"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-2">
-                                            إدارة الحالات ببساطة
-                                        </h5>
-                                        <p class="muted mb-0">
-                                            سجّل الملاحظات والفحوصات بأمان، وشاركها مع فريق العلاج بسلاسة.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex align-items-start flex-column">
-                                    <div class="icon-badge mb-3">
-                                        <i class="fa-solid fa-comments"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-2">
-                                            استشارات موثوقة
-                                        </h5>
-                                        <p class="muted mb-0">
-                                            احجز بسهولة مع مختصين في الأعصاب، التوحّد، اضطرابات النطق، وفرط
-                                            الحركة.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-center mt-4 slide-up">
-                        <a href="#contact" class="btn btn-primary btn-lg"><i class="fa-solid fa-calendar-check ms-2"></i> احجز
-                        استشارة</a>
-                    </div>
-                </div>
-            </section>
-            <!-- Orthophony Consulting -->
-            <section id="orthophony" class="bg-dark-section">
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h2 class="section-title">
-                                استشارات الأرطفونيا
-                            </h2>
-                            <p class="section-subtitle">
-                                خدمات متخصصة في علاج اضطرابات النطق واللغة والتواصل لجميع الأعمار
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Services Overview -->
-                    <div class="row g-4 mb-5">
-                        <div class="col-md-6 col-lg-3 fade-in">
-                            <div class="orthophony-card p-4 h-100">
-                                <div class="icon-badge mb-3">
-                                    <i class="fa-solid fa-comments"></i>
-                                </div>
-                                <h5 class="mb-2">
-                                    اضطرابات النطق
-                                </h5>
-                                <p class="muted mb-0">
-                                    علاج مشاكل النطق والتلعثم وصعوبات إخراج الأصوات بطرق علمية حديثة.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 fade-in">
-                            <div class="orthophony-card p-4 h-100">
-                                <div class="icon-badge mb-3">
-                                    <i class="fa-solid fa-language"></i>
-                                </div>
-                                <h5 class="mb-2">
-                                    اضطرابات اللغة
-                                </h5>
-                                <p class="muted mb-0">
-                                    تطوير المهارات اللغوية والفهم والتعبير اللفظي للأطفال والبالغين.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 fade-in">
-                            <div class="orthophony-card p-4 h-100">
-                                <div class="icon-badge mb-3">
-                                    <i class="fa-solid fa-ear-listen"></i>
-                                </div>
-                                <h5 class="mb-2">
-                                    التأهيل السمعي
-                                </h5>
-                                <p class="muted mb-0">
-                                    برامج تأهيل للأطفال ذوي الإعاقة السمعية ومستخدمي السماعات والزرعات.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 fade-in">
-                            <div class="orthophony-card p-4 h-100">
-                                <div class="icon-badge mb-3">
-                                    <i class="fa-solid fa-utensils"></i>
-                                </div>
-                                <h5 class="mb-2">
-                                    اضطرابات البلع
-                                </h5>
-                                <p class="muted mb-0">
-                                    تقييم وعلاج صعوبات البلع والمضغ للأطفال والبالغين.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Specialists -->
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h3 class="section-title" style="font-size: 2rem;">
-                                فريق الأخصائيين
-                            </h3>
-                            <p class="section-subtitle">
-                                أخصائيو أرطفونيا معتمدون بخبرة واسعة في مجالات متعددة
-                            </p>
+
+            <!-- Doctors Section -->
+            <section id="doctors" class="py-5" style="background-color: #f8fafc;">
+                <div class="container py-5">
+                    <div class="row mb-5 text-center">
+                        <div class="col-lg-8 mx-auto">
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1);">نخبة المختصين</span>
+                            <h2 class="display-5 fw-bold text-dark mb-3">فريق الأطباء والأخصائيين</h2>
+                            <p class="text-muted lead">خبرات معتمدة في مجالات الأرطفونيا، التوحد، وADHD.</p>
                         </div>
                     </div>
                     <div class="row g-4">
                         <!-- Specialist 1 -->
-                        <div class="col-sm-6 col-lg-4 zoom-in">
-                            <div class="orthophony-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Orthophonist 1" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        أ. هدى مراد
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        <i class="fa-solid fa-certificate ms-2"></i>أخصائية أرطفونيا معتمدة
-                                    </p>
-                                    <p class="muted mb-3" style="font-size: 0.9rem;">
-                                        متخصصة في اضطرابات النطق واللغة عند الأطفال
-                                    </p>
-                                    <div class="d-flex gap-3">
-                                        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                                        <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
-                                        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
-                                    </div>
-                                </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
+                                <img class="mx-auto mb-4" src="https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Specialist 1" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #f1f5f9;">
+                                <h5 class="fw-bold mb-1">أ. هدى مراد</h5>
+                                <p class="text-primary small fw-bold mb-3">أخصائية أرطفونيا معتمدة</p>
+                                <p class="text-muted small mb-0">متخصصة في اضطرابات النطق واللغة عند الأطفال.</p>
                             </div>
                         </div>
                         <!-- Specialist 2 -->
-                        <div class="col-sm-6 col-lg-4 zoom-in">
-                            <div class="orthophony-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/5327921/pexels-photo-5327921.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Orthophonist 2" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        أ. نجلاء عبّاس
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        <i class="fa-solid fa-certificate ms-2"></i>أخصائية أرطفونيا معتمدة
-                                    </p>
-                                    <p class="muted mb-3" style="font-size: 0.9rem;">
-                                        خبيرة في التأهيل السمعي واضطرابات البلع
-                                    </p>
-                                    <div class="d-flex gap-3">
-                                        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                                        <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
-                                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                                    </div>
-                                </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
+                                <img class="mx-auto mb-4" src="https://images.pexels.com/photos/5327921/pexels-photo-5327921.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Specialist 2" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #f1f5f9;">
+                                <h5 class="fw-bold mb-1">أ. نجلاء عبّاس</h5>
+                                <p class="text-primary small fw-bold mb-3">خبيرة تأهيل سمعي</p>
+                                <p class="text-muted small mb-0">متخصصة في زراعة القوقعة واضطرابات البلع.</p>
                             </div>
                         </div>
                         <!-- Specialist 3 -->
-                        <div class="col-sm-6 col-lg-4 zoom-in">
-                            <div class="orthophony-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Orthophonist 3" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        أ. سارة بن علية
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        <i class="fa-solid fa-certificate ms-2"></i>أخصائية أرطفونيا معتمدة
-                                    </p>
-                                    <p class="muted mb-3" style="font-size: 0.9rem;">
-                                        متخصصة في التلعثم واضطرابات الطلاقة
-                                        الكلامية
-                                    </p>
-                                    <div class="d-flex gap-3">
-                                        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                                        <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
-                                        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
-                                    </div>
-                                </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
+                                <img class="mx-auto mb-4" src="https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Specialist 3" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #f1f5f9;">
+                                <h5 class="fw-bold mb-1">أ. سارة بن علية</h5>
+                                <p class="text-primary small fw-bold mb-3">أخصائية نطق وتواصل</p>
+                                <p class="text-muted small mb-0">متخصصة في التلعثم واضطرابات الطلاقة الكلامية.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="text-center mt-5 slide-up">
-                        <a href="#contact" class="btn btn-primary btn-lg"><i class="fa-solid fa-calendar-check ms-2"></i> احجز
-                        استشارة أرطفونية</a>
+                </div>
+            </section>
+
+            <!-- Articles Section -->
+            <section id="articles" class="py-5 bg-white">
+                <div class="container py-5 text-center">
+                    <div class="row mb-5 justify-content-center">
+                        <div class="col-lg-8">
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1);">مدونة رافقني</span>
+                            <h2 class="display-5 fw-bold text-dark mb-0">أحدث المقالات والنصائح</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-4 mb-5 text-end">
+                        {% for article in latest_articles %}
+                        <div class="col-md-6 col-lg-4">
+                            <a href="{% url 'frontend:article_detail' article.slug %}" class="article-card">
+                                <div class="article-img-wrapper">
+                                    {% if article.thumbnail %}
+                                        <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}">
+                                    {% else %}
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                                            <i class="fa-solid fa-newspaper fa-4x text-primary opacity-20"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="category-pill">
+                                        {{ article.get_category_display }}
+                                    </div>
+                                </div>
+                                
+                                <div class="article-body">
+                                    <div class="article-date">
+                                        <i class="fa-regular fa-calendar-check text-primary"></i>
+                                        {{ article.created_at|date:"d F Y" }}
+                                    </div>
+                                    <h3 class="article-title">{{ article.title }}</h3>
+                                    <p class="article-excerpt">{{ article.content|striptags|truncatechars:100 }}</p>
+                                    <div class="article-footer">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa-solid fa-user-circle me-1"></i>
+                                            <span>{{ article.author.username }}</span>
+                                        </div>
+                                        <span class="read-more-link">
+                                            <span>اقرأ المزيد</span>
+                                            <i class="fa-solid fa-arrow-left"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted">قريباً.. ترقبوا مقالاتنا الجديدة.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-5 pt-3">
+                        <a href="{% url 'frontend:article_list' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow-lg fw-bold">
+                            عرض جميع المقالات <i class="fa-solid fa-arrow-left me-2"></i>
+                        </a>
                     </div>
                 </div>
             </section>
-            <!-- Courses -->
-            <section id="courses" class="bg-light-section">
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h2 class="section-title">
-                                الدورات التعليمية
-                            </h2>
-                            <p class="section-subtitle">
-                                دورات متخصصة للأولياء والمربين لتعزيز مهارات التعامل مع الأطفال ذوي الاحتياجات الخاصة.
-                            </p>
+
+            <!-- Courses Section -->
+            <section id="courses" class="py-5" style="background-color: #f8fafc;">
+                <div class="container py-5 text-center">
+                    <div class="row mb-5 justify-content-center">
+                        <div class="col-lg-8">
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1);">تعلم وتطور</span>
+                            <h2 class="display-5 fw-bold text-dark mb-3">الدورات التدريبية</h2>
+                            <p class="text-muted lead">برامج تعليمية متكاملة للأولياء والمربين.</p>
                         </div>
                     </div>
-                    <div class="row g-4">
+                    <div class="row g-4 mb-5">
                         {% for course in latest_courses %}
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="course-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                                <div class="position-relative">
+                        <div class="col-md-4 text-end">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                                <div class="position-relative" style="height: 200px;">
                                     {% if course.thumbnail %}
-                                        <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                                        <img src="{{ course.thumbnail.url }}" class="card-img-top h-100" alt="{{ course.title }}" style="object-fit: cover;">
                                     {% else %}
-                                        <div class="bg-soft-primary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <div class="bg-soft-primary d-flex align-items-center justify-content-center h-100">
                                             <i class="fa-solid fa-graduation-cap fa-3x text-primary opacity-50"></i>
                                         </div>
                                     {% endif %}
@@ -481,18 +204,13 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="card-body p-4">
-                                    <h5 class="card-title fw-bold mb-2">{{ course.title }}</h5>
-                                    <p class="text-muted small mb-3">{{ course.description|truncatechars:100 }}</p>
-                                    <div class="d-flex align-items-center mb-4">
-                                        <div class="bg-soft-primary text-primary rounded-circle p-2 me-2" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="fa-solid fa-chalkboard-user small"></i>
-                                        </div>
+                                <div class="card-body p-4 text-center">
+                                    <h5 class="fw-bold mb-3">{{ course.title }}</h5>
+                                    <div class="d-flex align-items-center justify-content-center mb-4">
+                                        <i class="fa-solid fa-chalkboard-user text-primary me-2"></i>
                                         <span class="small text-muted">بواسطة: <strong>{{ course.teacher_name }}</strong></span>
                                     </div>
-                                    <a href="{% url 'frontend:course_detail' course.id %}" class="btn btn-outline-primary w-100 rounded-3">
-                                        <i class="fa-solid fa-eye ms-2"></i> التفاصيل
-                                    </a>
+                                    <a href="{% url 'frontend:course_detail' course.id %}" class="btn btn-outline-primary w-100 rounded-pill fw-bold">التفاصيل</a>
                                 </div>
                             </div>
                         </div>
@@ -502,577 +220,33 @@
                         </div>
                         {% endfor %}
                     </div>
-                    {% if latest_courses|length >= 6 %}
-                    <div class="text-center mt-5 slide-up">
-                        <a href="{% url 'frontend:course_list' %}" class="btn btn-primary btn-lg px-5">
-                            <i class="fa-solid fa-list ms-2"></i> عرض جميع الدورات
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </section>
-            <!-- Events -->
-            <section id="events" class="bg-light-section">
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h2 class="section-title">
-                                الأحداث وورش العمل
-                            </h2>
-                            <p class="section-subtitle">
-                                لقاءات عملية لتبادل الخبرات وتعزيز مهارات الأهل والمتخصصين.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row g-4">
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="event-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Event 1" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        أساسيات دعم طفل التوحّد
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        <i class="fa-solid fa-calendar-days ms-2"></i> 12 ديسمبر 2025
-                                    </p>
-                                    <p class="muted">
-                                        ورشة تطبيقية للأهل حول التواصل، الروتين، وفهم الحساسيات الحسية لدى الأطفال.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="event-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/8613268/pexels-photo-8613268.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Event 2" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        إدارة فرط الحركة وتشتت الانتباه
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        <i class="fa-solid fa-calendar-days ms-2"></i> 20 ديسمبر 2025
-                                    </p>
-                                    <p class="muted">
-                                        استراتيجيات منزلية ومدرسية عملية للتركيز، تنظيم الوقت، وتحفيز السلوك
-                                        الإيجابي.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="event-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/3933245/pexels-photo-3933245.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Event 3" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        الإرشاد المبكر للوالدية
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        <i class="fa-solid fa-calendar-days ms-2"></i> 5 يناير 2026
-                                    </p>
-                                    <p class="muted">
-                                        تغذية، نوم، وروتين تربوي للطفولة المبكرة، مع نصائح عملية يومية.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- Testimonials / Feedback -->
-            <section id="testimonials">
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h2 class="section-title">
-                                آراء العائلات
-                            </h2>
-                            <p class="section-subtitle">
-                                تجارب حقيقية من أسر استفادت من خدماتنا ووجدت الدعم الذي تحتاجه
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row g-4">
-                        <!-- Testimonial 1 -->
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100"
-                                         alt="Parent 1"
-                                         style="width: 60px;
-                                                height: 60px;
-                                                border-radius: 50%;
-                                                object-fit: cover;
-                                                margin-left: 15px" />
-                                    <div>
-                                        <h5 class="mb-0">
-                                            أم آدم
-                                        </h5>
-                                        <div class="text-warning">
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="muted mb-0">
-                                    "منصة رافقني غيرت حياتنا تماماً. ابني آدم تحسن نطقه بشكل ملحوظ بفضل جلسات
-                                    الأرطفونيا المنتظمة. الفريق محترف جداً ومتفهم لاحتياجاتنا."
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Testimonial 2 -->
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100"
-                                         alt="Parent 2"
-                                         style="width: 60px;
-                                                height: 60px;
-                                                border-radius: 50%;
-                                                object-fit: cover;
-                                                margin-left: 15px" />
-                                    <div>
-                                        <h5 class="mb-0">
-                                            والد سلمى
-                                        </h5>
-                                        <div class="text-warning">
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="muted mb-0">
-                                    "التقييمات الذكية ساعدتنا على فهم احتياجات ابنتي بشكل أفضل. الأخصائيون
-                                    يقدمون خطط علاج واضحة ومتابعة دقيقة. شكراً لكم من القلب."
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Testimonial 3 -->
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=100"
-                                         alt="Parent 3"
-                                         style="width: 60px;
-                                                height: 60px;
-                                                border-radius: 50%;
-                                                object-fit: cover;
-                                                margin-left: 15px" />
-                                    <div>
-                                        <h5 class="mb-0">
-                                            أم كريم
-                                        </h5>
-                                        <div class="text-warning">
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="muted mb-0">
-                                    "ورش العمل والأحداث التي تنظمونها مفيدة جداً. تعلمنا كيفية التعامل مع فرط
-                                    الحركة عند ابننا وأصبحت حياتنا أسهل بكثير."
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Testimonial 4 -->
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="https://images.pexels.com/photos/1181391/pexels-photo-1181391.jpeg?auto=compress&cs=tinysrgb&w=100"
-                                         alt="Parent 4"
-                                         style="width: 60px;
-                                                height: 60px;
-                                                border-radius: 50%;
-                                                object-fit: cover;
-                                                margin-left: 15px" />
-                                    <div>
-                                        <h5 class="mb-0">
-                                            والد نور
-                                        </h5>
-                                        <div class="text-warning">
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="muted mb-0">
-                                    "المنصة سهلة الاستخدام والتواصل مع الأخصائيين سريع وفعال. ابنتي تحسنت
-                                    مهاراتها الاجتماعية بشكل رائع."
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Testimonial 5 -->
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="https://images.pexels.com/photos/1181605/pexels-photo-1181605.jpeg?auto=compress&cs=tinysrgb&w=100"
-                                         alt="Parent 5"
-                                         style="width: 60px;
-                                                height: 60px;
-                                                border-radius: 50%;
-                                                object-fit: cover;
-                                                margin-left: 15px" />
-                                    <div>
-                                        <h5 class="mb-0">
-                                            أم ليان
-                                        </h5>
-                                        <div class="text-warning">
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="muted mb-0">
-                                    "الدعم النفسي والعاطفي الذي نحصل عليه من الفريق لا يقدر بثمن. نشعر أننا
-                                    لسنا وحدنا في هذه الرحلة."
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Testimonial 6 -->
-                        <div class="col-md-6 col-lg-4 slide-up">
-                            <div class="feature-card p-4 h-100">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="https://images.pexels.com/photos/1181424/pexels-photo-1181424.jpeg?auto=compress&cs=tinysrgb&w=100"
-                                         alt="Parent 6"
-                                         style="width: 60px;
-                                                height: 60px;
-                                                border-radius: 50%;
-                                                object-fit: cover;
-                                                margin-left: 15px" />
-                                    <div>
-                                        <h5 class="mb-0">
-                                            والد مروان
-                                        </h5>
-                                        <div class="text-warning">
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="muted mb-0">
-                                    "التقارير الشاملة والمتابعة المستمرة تجعلنا نطمئن على تقدم ابننا. خدمة
-                                    ممتازة ونتائج ملموسة."
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- Contribution -->
-            <section id="contribute">
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h2 class="section-title">
-                                حالات تحتاج إلى مساهمة
-                            </h2>
-                            <p class="section-subtitle">
-                                ساهم معنا في إتاحة جلسات علاجية وتقييمات لأطفال بحاجة عاجلة للدعم.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row g-4">
-                        <!-- Case 1 -->
-                        <div class="col-md-6 col-lg-4 zoom-in">
-                            <div class="donation-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/1416736/pexels-photo-1416736.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Child 1" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        آدم (6 سنوات)
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        تأخر نطقي يحتاج جلسات مكثفة خلال 3 أشهر.
-                                    </p>
-                                    <div class="progress-wrap mb-3">
-                                        <div class="progress-bar" style="width:55%">
-                                        </div>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100"><i class="fa-solid fa-heart ms-2"></i> تبرع
-                                    الآن</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Case 2 -->
-                        <div class="col-md-6 col-lg-4 zoom-in">
-                            <div class="donation-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/1912868/pexels-photo-1912868.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Child 2" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        سلمى (4 سنوات)
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        تقييم ذكاء ونمو شامل مع خطة تدخل مبكرة.
-                                    </p>
-                                    <div class="progress-wrap mb-3">
-                                        <div class="progress-bar" style="width:35%">
-                                        </div>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100"><i class="fa-solid fa-heart ms-2"></i> تبرع
-                                    الآن</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Case 3 -->
-                        <div class="col-md-6 col-lg-4 zoom-in">
-                            <div class="donation-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/1620653/pexels-photo-1620653.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Child 3" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        كريم (8 سنوات)
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        برنامج تدخل لفرط الحركة وتشتت الانتباه لمدة فصل دراسي.
-                                    </p>
-                                    <div class="progress-wrap mb-3">
-                                        <div class="progress-bar" style="width:68%">
-                                        </div>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100"><i class="fa-solid fa-heart ms-2"></i> تبرع
-                                    الآن</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Case 4 -->
-                        <div class="col-md-6 col-lg-4 zoom-in">
-                            <div class="donation-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/1648375/pexels-photo-1648375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Child 4" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        نور (5 سنوات)
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        جلسات تنمية مهارات التواصل الاجتماعي.
-                                    </p>
-                                    <div class="progress-wrap mb-3">
-                                        <div class="progress-bar" style="width:22%">
-                                        </div>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100"><i class="fa-solid fa-heart ms-2"></i> تبرع
-                                    الآن</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Case 5 -->
-                        <div class="col-md-6 col-lg-4 zoom-in">
-                            <div class="donation-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/1912868/pexels-photo-1912868.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Child 5" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        ليان (7 سنوات)
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        خطة علاج مشتركة بين النطق والنفسي.
-                                    </p>
-                                    <div class="progress-wrap mb-3">
-                                        <div class="progress-bar" style="width:41%">
-                                        </div>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100"><i class="fa-solid fa-heart ms-2"></i> تبرع
-                                    الآن</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Case 6 -->
-                        <div class="col-md-6 col-lg-4 zoom-in">
-                            <div class="donation-card card h-100">
-                                <img class="avatar"
-                                     src="https://images.pexels.com/photos/1416736/pexels-photo-1416736.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Child 6" />
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">
-                                        مروان (9 سنوات)
-                                    </h5>
-                                    <p class="muted mb-2">
-                                        متابعة عصبية ونفسية لتقييم شامل ومسار علاجي.
-                                    </p>
-                                    <div class="progress-wrap mb-3">
-                                        <div class="progress-bar" style="width:74%">
-                                        </div>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100"><i class="fa-solid fa-heart ms-2"></i> تبرع
-                                    الآن</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- Contact -->
-            <section id="contact" class="bg-light-section">
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-lg-8 slide-up">
-                            <h2 class="section-title">
-                                تواصل معنا
-                            </h2>
-                            <p class="section-subtitle">
-                                يسعدنا الاستماع إليكم — احجز استشارة أو اطرح سؤالاً وسيعود إليك فريقنا
-                                قريباً.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row g-4">
-                        <div class="col-lg-6 slide-right">
-                            <div class="contact-card p-4">
-                                <form id="contactForm">
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            الاسم الكامل
-                                        </label>
-                                        <input type="text"
-                                               class="form-control"
-                                               name="name"
-                                               placeholder="اكتب اسمك"
-                                               required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            البريد الإلكتروني
-                                        </label>
-                                        <input type="email"
-                                               class="form-control"
-                                               name="email"
-                                               placeholder="example@mail.com"
-                                               required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            الرسالة
-                                        </label>
-                                        <textarea class="form-control"
-                                                  name="message"
-                                                  rows="5"
-                                                  placeholder="اكتب رسالتك هنا..."
-                                                  required></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fa-solid fa-paper-plane ms-2"></i>
-                                        إرسال
-                                    </button>
-                                    <div id="formAlert" class="alert alert-success mt-3 d-none" role="alert">
-                                        تم إرسال الرسالة بنجاح. سنعاود الاتصال بك قريباً.
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 slide-up">
-                            <iframe class="map-placeholder"
-                                    title="خريطة Placeholder"
-                                    src="https://maps.google.com/maps?q=Constantine,%20Algeria&t=&z=12&ie=UTF8&iwloc=&output=embed"></iframe>
-                        </div>
+                    <div class="mt-5">
+                        <a href="{% url 'frontend:course_list' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg fw-bold">عرض جميع الدورات</a>
                     </div>
                 </div>
             </section>
         {% endblock content %}
+
         {% block footer %}
             <!-- Footer -->
-            <footer class="pt-5 pb-4">
-                <div class="container">
-                    <div class="row g-4">
-                        <div class="col-md-6 col-lg-4">
-                            <h4 class="brand-logo text-white mb-3">
-                                رافقني
-                            </h4>
-                            <p class="mb-3">
-                                منصة طبية ونفسية للأسرة، تربطكم بفريق متخصص يرافق رحلة طفلكم بإنسانية وعلم.
-                            </p>
-                            <div class="d-flex gap-3">
-                                <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook fs-4"></i></a>
-                                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram fs-4"></i></a>
-                                <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter fs-4"></i></a>
-                                <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin fs-4"></i></a>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <h6 class="text-white mb-3">
-                                روابط سريعة
-                            </h6>
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <a href="#home">الرئيسية</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#features">المميزات</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#orthophony">الأرطفونيا</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#events">الأحداث</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#courses">الدورات التعليمية</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#testimonials">آراء العائلات</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#contribute">المساهمة</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#contact">تواصل معنا</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <h6 class="text-white mb-3">
-                                تواصل
-                            </h6>
-                            <p class="mb-1">
-                                <i class="fa-solid fa-envelope ms-2"></i> hello@rafikni.com
-                            </p>
-                            <p class="mb-3">
-                                <i class="fa-solid fa-location-dot ms-2"></i> قسنطينة، الجزائر
-                            </p>
-                            <a href="#contact" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-message ms-2"></i>
-                                أرسل رسالة</a>
-                        </div>
+            <footer class="pt-5 pb-4 bg-dark text-white">
+                <div class="container text-center">
+                    <h4 class="brand-logo text-white mb-3">رافقني</h4>
+                    <p class="mb-4 opacity-50">منصة طبية ونفسية للأسرة، نرافقكم بإنسانية وعلم.</p>
+                    <div class="d-flex justify-content-center gap-4 mb-4">
+                        <a href="#" class="text-white opacity-75 fs-4"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="text-white opacity-75 fs-4"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="text-white opacity-75 fs-4"><i class="fa-brands fa-x-twitter"></i></a>
                     </div>
+                    <hr class="opacity-10 my-4" />
+                    <small class="opacity-50">© 2026 رافقني. جميع الحقوق محفوظة.</small>
                 </div>
-            <hr class="my-4" />
-            <div class="text-center">
-                <small>© 2025 رافقني. جميع الحقوق محفوظة.</small>
-            </div>
-        </footer>
-    {% endblock footer %}
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'js/index.js' %}?v={% now "U" %}"></script>
-    {% block js %}
-    {% endblock js %}
-    {% block extra_js %}
-    {% endblock extra_js %}
-</body>
+            </footer>
+        {% endblock footer %}
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        {% block js %}
+        {% endblock js %}
+        {% block extra_js %}{% endblock extra_js %}
+    </body>
 </html>

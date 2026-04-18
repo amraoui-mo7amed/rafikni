@@ -1,0 +1,98 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'frontend/css/articles.css' %}?v={% now 'U' %}" rel="stylesheet" />
+{% endblock extra_css %}
+
+{% block content %}
+<!-- Immersive Page Header -->
+<header class="articles-header">
+    <div class="container">
+        <span class="badge rounded-pill px-4 py-2 mb-4 fw-bold">مركز المعرفة</span>
+        <h1 class="mb-3">المقالات والنصائح</h1>
+        <p class="lead mx-auto">
+            رحلة معرفية لدعم نمو طفلك وسلامة أسرتك من خلال خبرات المتخصصين في مجالات التوحد، ADHD، والأرطفونيا.
+        </p>
+    </div>
+</header>
+
+<!-- Filter Section -->
+<div class="filter-section container text-center">
+    <div class="filter-container">
+        <a href="{% url 'frontend:article_list' %}" class="category-filter-btn {% if not category %}active{% endif %}">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>الكل</span>
+        </a>
+        {% for val, label in categories %}
+        <a href="?category={{ val }}" class="category-filter-btn {% if category == val %}active{% endif %}">
+            <span>{{ label }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Main Articles Grid -->
+<section class="mb-5 pb-5 mt-5 pt-4">
+    <div class="container">
+        <div class="row g-5 justify-content-center">
+            {% for article in articles %}
+            <div class="col-md-6 col-lg-4">
+                <a href="{% url 'frontend:article_detail' article.slug %}" class="article-card">
+                    <div class="article-img-wrapper">
+                        {% if article.thumbnail %}
+                            <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}">
+                        {% else %}
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                                <i class="fa-solid fa-newspaper fa-4x text-primary opacity-20"></i>
+                            </div>
+                        {% endif %}
+                        <div class="category-pill">
+                            {{ article.get_category_display }}
+                        </div>
+                    </div>
+                    
+                    <div class="article-body">
+                        <div class="article-date">
+                            <i class="fa-regular fa-calendar-check text-primary"></i>
+                            {{ article.created_at|date:"d F Y" }}
+                        </div>
+                        
+                        <h3 class="article-title">{{ article.title }}</h3>
+                        
+                        <p class="article-excerpt">
+                            {{ article.content|striptags|truncatechars:120 }}
+                        </p>
+                        
+                        <div class="article-footer">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fa-solid fa-user-circle me-1"></i>
+                                <span>{{ article.author.username }}</span>
+                            </div>
+                            
+                            <span class="read-more-link">
+                                <span>التفاصيل</span>
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="mb-4">
+                    <i class="fa-solid fa-folder-open fa-5x text-muted opacity-10"></i>
+                </div>
+                <h3 class="text-muted fw-bold">لا يوجد أي محتوى في هذا القسم</h3>
+                <p class="text-muted mb-4">نحن نعمل باستمرار على إضافة مقالات جديدة، ترقبونا!</p>
+                <a href="{% url 'frontend:article_list' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow">عرض جميع المقالات</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'frontend/js/articles.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}

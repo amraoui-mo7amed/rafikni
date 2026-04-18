@@ -1,0 +1,126 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'frontend/css/articles.css' %}?v={% now 'U' %}" rel="stylesheet" />
+{% endblock extra_css %}
+
+{% block content %}
+<main class="article-detail-page bg-light" dir="rtl">
+    <!-- Premium Article Hero -->
+    <header class="article-hero-section">
+        {% if article.thumbnail %}
+            <div class="hero-bg-wrapper">
+                <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" class="hero-bg-img">
+                <div class="hero-overlay-gradient"></div>
+            </div>
+        {% else %}
+            <div class="hero-bg-wrapper bg-primary">
+                <div class="hero-overlay-gradient"></div>
+            </div>
+        {% endif %}
+
+        <div class="container hero-container">
+            <div class="row">
+                <div class="col-lg-10">
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'frontend:index' %}">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'frontend:article_list' %}">المقالات</a></li>
+                            <li class="breadcrumb-item active text-white opacity-75" aria-current="page">{{ article.get_category_display }}</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Article Title -->
+                    <h1 class="article-main-title text-white mb-4">{{ article.title }}</h1>
+
+                    <!-- Article Meta -->
+                    <div class="article-meta-info d-flex align-items-center gap-4 text-white-50">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-regular fa-calendar-days"></i>
+                            <span>{{ article.created_at|date:"d F Y" }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-regular fa-user"></i>
+                            <span>{{ article.author.username }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content & Sidebar Area -->
+    <div class="container content-container-offset">
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <div class="article-main-card shadow-lg">
+                    <div class="article-rich-text">
+                        {{ article.content|linebreaks }}
+                    </div>
+                    
+                    {% if article.get_tags_list %}
+                    <div class="article-tags-footer mt-5 pt-4 border-top">
+                        <h6 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-tags ms-2"></i>الوسوم ذات الصلة:</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for tag in article.get_tags_list %}
+                            <span class="badge tag-badge">#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <aside class="article-sidebar-sticky">
+                    <!-- Related Content -->
+                    <div class="sidebar-card mb-4">
+                        <h5 class="sidebar-title"><i class="fa-solid fa-fire ms-2 text-warning"></i>مقالات مقترحة</h5>
+                        <div class="related-articles-list">
+                            {% for related in related_articles %}
+                            <a href="{% url 'frontend:article_detail' related.slug %}" class="related-item">
+                                <div class="related-img">
+                                    {% if related.thumbnail %}
+                                        <img src="{{ related.thumbnail.url }}" alt="">
+                                    {% else %}
+                                        <div class="related-placeholder">
+                                            <i class="fa-solid fa-newspaper text-primary opacity-50"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="related-info">
+                                    <h6 class="related-item-title">{{ related.title|truncatechars:45 }}</h6>
+                                    <span class="related-item-date">{{ related.created_at|date:"Y-m-d" }}</span>
+                                </div>
+                            </a>
+                            {% empty %}
+                            <p class="text-muted small">لا توجد مقالات مقترحة حالياً.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Dark Newsletter -->
+                    <div class="newsletter-card-dark">
+                        <div class="newsletter-icon">
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">النشرة المعرفية</h5>
+                        <p class="newsletter-desc">اشترك لتصلك أحدث المقالات والتربويات مباشرة عبر البريد.</p>
+                        <form class="mt-4">
+                            <input type="email" class="form-control newsletter-input mb-2" placeholder="بريدك الإلكتروني">
+                            <button class="btn btn-primary w-100 fw-bold py-2 shadow" type="button">اشترك الآن</button>
+                        </form>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'frontend/js/articles.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}

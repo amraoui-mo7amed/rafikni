@@ -265,7 +265,6 @@ class Payment(models.Model):
         verbose_name_plural = "المدفوعات"
 
 
-
 class Notification(models.Model):
     """Notification model for user notifications"""
 
@@ -306,3 +305,58 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"
+
+
+class Article(models.Model):
+    """Article model for blog and educational content"""
+
+    class CategoryChoices(models.TextChoices):
+        BEFORE_BIRTH = "before_birth", "قبل الولادة"
+        DURING_BIRTH = "during_birth", "أثناء الولادة"
+        AFTER_BIRTH = "after_birth", "بعد الولادة"
+
+    title = models.CharField(max_length=255, verbose_name="عنوان المقال")
+    slug = models.SlugField(
+        max_length=255, unique=True, verbose_name="الرابط المختصر", allow_unicode=True
+    )
+    content = models.TextField(verbose_name="المحتوى")
+    category = models.CharField(
+        max_length=20,
+        choices=CategoryChoices.choices,
+        verbose_name="الفئة",
+    )
+    tags = models.CharField(
+        max_length=500,
+        verbose_name="الوسوم (مفصولة بفاصلة)",
+        blank=True,
+        help_text="لأغراض SEO",
+    )
+    thumbnail = models.ImageField(
+        upload_to="articles/thumbnails/",
+        verbose_name="صورة الغلاف",
+        blank=True,
+        null=True,
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="articles",
+        verbose_name="الكاتب",
+    )
+    is_published = models.BooleanField(default=False, verbose_name="تم النشر")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الإنشاء")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="تاريخ التحديث")
+
+    class Meta:
+        verbose_name = "مقال"
+        verbose_name_plural = "المقالات"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title
+
+    def get_tags_list(self):
+        """Return tags as a list for SEO and display"""
+        if self.tags:
+            return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
+        return []

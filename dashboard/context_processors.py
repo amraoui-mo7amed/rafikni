@@ -58,6 +58,11 @@ def sidebar_menu(request):
                         "url_name": "dashboard:payment_list",
                         "icon": "fa-solid fa-credit-card",
                     },
+                    {
+                        "name": "المقالات",
+                        "url_name": "dashboard:article_list",
+                        "icon": "fa-solid fa-newspaper",
+                    },
                 ],
             }
         )

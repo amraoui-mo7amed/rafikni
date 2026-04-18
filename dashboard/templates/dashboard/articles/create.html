@@ -1,0 +1,170 @@
+{% extends "dashboard/dash_index.html" %}
+{% load static %}
+
+{% block title %}إضافة مقال جديد{% endblock title %}
+
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/ultra_select.css' %}?v={% now 'U' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/css/articles.css' %}?v={% now 'U' %}" />
+{% endblock css %}
+
+{% block dash_content %}
+    <div class="welcome-section mb-4">
+        <h2 class="fw-bold text-dark">إضافة مقال جديد</h2>
+        <p class="text-muted">ابدأ برفع صورة غلاف مميزة ثم أكمل بيانات المقال.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card bg-glass border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form id="articleForm" 
+                          action="{% url 'dashboard:article_create' %}" 
+                          method="POST" 
+                          enctype="multipart/form-data"
+                          data-csrf="{{ csrf_token }}"
+                          data-redirect="{% url 'dashboard:article_list' %}"
+                          class="form">
+                        
+                        {% csrf_token %}
+                        {% include "partials/errorList.html" with form_id="articleForm" %}
+
+                        <!-- Custom Top Image Upload -->
+                        <div class="article-hero-upload" id="heroUpload" onclick="document.getElementById('input-file-thumbnail').click()">
+                            <img id="heroPreview" class="hero-preview-img" style="display: none;" src="" alt="Preview">
+                            <div class="hero-upload-content" id="heroContent">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <h5 class="fw-bold">صورة غلاف المقال</h5>
+                                <p class="small">اسحب الصورة هنا أو اضغط للاختيار</p>
+                            </div>
+                            <div class="hero-upload-overlay">
+                                <i class="fa-solid fa-camera me-1"></i> تغيير صورة الغلاف
+                            </div>
+                            <input type="file" name="thumbnail" id="input-file-thumbnail" hidden accept="image/*" onchange="previewHeroImage(this)">
+                        </div>
+
+                        <div class="row g-4">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <i class="fa-solid fa-pen-nib me-2"></i>
+                                تفاصيل المحتوى
+                            </h5>
+
+                            <!-- Title -->
+                            <div class="col-12">
+                                <label class="ultra-field-label">عنوان المقال <span class="text-danger">*</span></label>
+                                <div class="ultra-input-group">
+                                    <div class="input-icon-box">
+                                        <i class="fa-solid fa-heading"></i>
+                                    </div>
+                                    <input type="text" name="title" id="title" class="form-control" placeholder="أدخل عنوان المقال" required />
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">الفئة <span class="text-danger">*</span></label>
+                                {% include "partials/styled_select.html" with name="category" options=categories placeholder="اختر الفئة..." icon="fa-solid fa-layer-group" auto_submit="false" %}
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">الوسوم</label>
+                                <div class="ultra-input-group">
+                                    <div class="input-icon-box">
+                                        <i class="fa-solid fa-tags"></i>
+                                    </div>
+                                    <input type="text" name="tags" id="tags" class="form-control" placeholder="أدخل الوسوم (مفصولة بفاصلة)" />
+                                </div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="col-12">
+                                <label class="ultra-field-label">المحتوى <span class="text-danger">*</span></label>
+                                <textarea name="content" id="content" class="form-control" rows="10" placeholder="اكتب محتوى المقال هنا..." required style="border: 2px solid rgba(13, 110, 253, 0.3); border-radius: 16px; padding: 20px;"></textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="ultra-switch-container w-100">
+                                    <div class="form-check form-switch">
+                                        <label class="form-check-label fw-bold" for="is_published">نشر المقال فوراً</label>
+                                        <input class="form-check-input" type="checkbox" name="is_published" id="is_published" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-5">
+                                <button type="submit" class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded-3 transition w-100 w-md-auto">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>
+                                    حفظ ونشر المقال
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <!-- SEO Info Card -->
+            <div class="card border-0 shadow-sm bg-primary text-white mb-4 rounded-4">
+                <div class="card-header border-0 bg-transparent pt-4 px-4">
+                    <h4 class="fw-bold mb-0">نصائح SEO</h4>
+                </div>
+                <div class="card-body p-4 pt-2">
+                    <p class="small opacity-75 mb-3 leading-relaxed">
+                        استخدم وسوماً دقيقة وعنواناً جذاباً لتحسين ظهور مقالك في نتائج البحث.
+                    </p>
+                    <ul class="list-unstyled mb-0 small opacity-75">
+                        <li class="mb-2"><i class="fas fa-check-circle me-1"></i> اختر عنواناً لا يتجاوز 60 حرفاً.</li>
+                        <li><i class="fas fa-check-circle me-1"></i> أضف كلمات مفتاحية في الوسوم.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Guidelines -->
+            <div class="card border-0 shadow-sm bg-white mb-4 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">دليل النشر</h5>
+                    <div class="d-flex flex-column gap-4 categories-help-box">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="guideline-icon-box bg-soft-primary text-primary">
+                                <i class="fa-solid fa-image"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">الصور</h6>
+                                <p class="small text-muted mb-0">يفضل استخدام صور عالية الجودة بحجم 1200x630.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="guideline-icon-box bg-soft-success text-success">
+                                <i class="fa-solid fa-pen-fancy"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">المحتوى</h6>
+                                <p class="small text-muted mb-0">تأكد من مراجعة الأخطاء الإملائية قبل النشر.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quality Content -->
+            <div class="card border-0 shadow-sm bg-info text-white mb-4 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-lightbulb me-2"></i> جودة المحتوى</h5>
+                    <p class="small opacity-90 mb-0">
+                        المقالات التي تحتوي على أكثر من 500 كلمة وصور توضيحية تحصل على تفاعل أكبر بنسبة 40% من قبل زوار المنصة.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock dash_content %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'js/ultra_select.js' %}?v={% now 'U' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'dashboard/js/articles.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}
