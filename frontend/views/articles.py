@@ -28,7 +28,7 @@ def article_detail(request, slug):
     # Get related articles from same category
     related_articles = Article.objects.filter(
         category=article.category, is_published=True
-    ).exclude(id=article.id)[:3]
+    ).exclude(id=article.id)[:6]
 
     context = {"article": article, "related_articles": related_articles}
     return render(request, "articles/detail.html", context)

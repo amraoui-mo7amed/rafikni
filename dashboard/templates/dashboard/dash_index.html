@@ -31,7 +31,7 @@
                 {% for section in sidebar_menu %}
                     <div class="sidebar-section {% if section.mt_auto %}mt-auto{% endif %}">
                         {% if section.label %}
-                            <span class="sidebar-label">{{ section.label }}</span>
+                            {% comment %} <span class="sidebar-label">{{ section.label }}</span> {% endcomment %}
                         {% endif %}
                         <ul class="nav flex-column p-2 {% if not forloop.last %}mb-2{% endif %}">
                             {% for item in section.items %}

@@ -1,11 +1,23 @@
 {% load static %}
+{% load i18n %}
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>رافقني - منصة دعم الأسر والطفولة</title>
+        <title>
+            {% block title %}
+                رافقني - منصة دعم الأسر والطفولة
+            {% endblock title %}
+        </title>
+        {% block seo %}
+            <meta name="description"
+                  content={% trans "The number one psycho platform in algeria. We provide the best psychological support for children with disabilites and families. Free access to resources and courses." %} />
+            <meta name="keywords"
+                  content={% trans "psychology,  child psychology,  parenting,  special needs,  autism,  ADHD,  down syndrome,  language therapy,  speech therapy,  occupational therapy,  behavioral therapy,  psychological support,  psychological counseling,  psychological assessment,  psychological evaluation,  psychological treatment,  psychological intervention,  psychological care,  psychological services,  psychological center,  psychological clinic,  psychological institute,  psychological association,  psychological organization,  psychological fund,  psychological foundation,  psychological charity,  psychological center,  psychological clinic,  psychological institute,  psychological association,  psychological organization,  psychological fund,  psychological foundation,  psychological charity" %} />
+
+        {% endblock seo %}
         <!-- Tajawal Font -->
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap"
               rel="stylesheet" />
@@ -16,8 +28,10 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
               rel="stylesheet" />
         <link href="{% static 'css/index.css' %}?v={% now "U" %}" rel="stylesheet" />
-        <link href="{% static 'frontend/css/articles.css' %}?v={% now "U" %}" rel="stylesheet" />
-        {% block css %}{% endblock css %}
+        <link href="{% static 'frontend/css/articles.css' %}?v={% now "U" %}"
+              rel="stylesheet" />
+        {% block css %}
+        {% endblock css %}
         {% block extra_css %}
         {% endblock extra_css %}
     </head>
@@ -55,184 +69,262 @@
                 </div>
             </nav>
         {% endblock navbar %}
-
         {% block content %}
             <!-- Hero Section -->
-            <header class="hero d-flex align-items-center" style="height: 70vh; background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); position: relative;">
-                <div class="container text-center text-white" style="position: relative; z-index: 2;">
+            <header class="hero d-flex align-items-center"
+                    style="height: 70vh;
+                           background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+                           position: relative">
+                <div class="container text-center text-white"
+                     style="position: relative;
+                            z-index: 2">
                     <span class="badge bg-white text-primary rounded-pill px-3 py-2 mb-4 fw-bold shadow-sm">منصة رافقني التعليمية والطبية</span>
-                    <h1 class="display-3 fw-bold mb-4">نرافقكم في رحلة النمو</h1>
+                    <h1 class="display-3 fw-bold mb-4">
+                        نرافقكم في رحلة النمو
+                    </h1>
                     <p class="lead opacity-75 mx-auto mb-5" style="max-width: 700px;">
                         اكتشف عالمًا من المعرفة المتخصصة وشبكة من المختصين لدعم طفلك في كل خطوة.
                     </p>
                     <div class="d-flex justify-content-center gap-3">
-                        <a href="#doctors" class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary">المختصون</a>
-                        <a href="{% url 'frontend:article_list' %}" class="btn btn-outline-light btn-lg rounded-pill px-5">المقالات</a>
+                        <a href="#doctors"
+                           class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary">المختصون</a>
+                        <a href="{% url 'frontend:article_list' %}"
+                           class="btn btn-outline-light btn-lg rounded-pill px-5">المقالات</a>
                     </div>
                 </div>
             </header>
-
             <!-- Doctors Section -->
             <section id="doctors" class="py-5" style="background-color: #f8fafc;">
                 <div class="container py-5">
                     <div class="row mb-5 text-center">
                         <div class="col-lg-8 mx-auto">
-                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1);">نخبة المختصين</span>
-                            <h2 class="display-5 fw-bold text-dark mb-3">فريق الأطباء والأخصائيين</h2>
-                            <p class="text-muted lead">خبرات معتمدة في مجالات الأرطفونيا، التوحد، وADHD.</p>
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary"
+                                  style="background: rgba(13, 110, 253, 0.1)">نخبة المختصين</span>
+                            <h2 class="display-5 fw-bold text-dark mb-3">
+                                فريق الأطباء والأخصائيين
+                            </h2>
+                            <p class="text-muted lead">
+                                خبرات معتمدة في مجالات الأرطفونيا، التوحد، وADHD.
+                            </p>
                         </div>
                     </div>
                     <div class="row g-4">
                         <!-- Specialist 1 -->
                         <div class="col-md-4">
                             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
-                                <img class="mx-auto mb-4" src="https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Specialist 1" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #f1f5f9;">
-                                <h5 class="fw-bold mb-1">أ. هدى مراد</h5>
-                                <p class="text-primary small fw-bold mb-3">أخصائية أرطفونيا معتمدة</p>
-                                <p class="text-muted small mb-0">متخصصة في اضطرابات النطق واللغة عند الأطفال.</p>
+                                <img class="mx-auto mb-4"
+                                     src="https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                                     alt="Specialist 1"
+                                     style="width: 120px;
+                                            height: 120px;
+                                            border-radius: 50%;
+                                            object-fit: cover;
+                                            border: 4px solid #f1f5f9" />
+                                <h5 class="fw-bold mb-1">
+                                    أ. هدى مراد
+                                </h5>
+                                <p class="text-primary small fw-bold mb-3">
+                                    أخصائية أرطفونيا معتمدة
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    متخصصة في اضطرابات النطق واللغة عند الأطفال.
+                                </p>
                             </div>
                         </div>
                         <!-- Specialist 2 -->
                         <div class="col-md-4">
                             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
-                                <img class="mx-auto mb-4" src="https://images.pexels.com/photos/5327921/pexels-photo-5327921.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Specialist 2" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #f1f5f9;">
-                                <h5 class="fw-bold mb-1">أ. نجلاء عبّاس</h5>
-                                <p class="text-primary small fw-bold mb-3">خبيرة تأهيل سمعي</p>
-                                <p class="text-muted small mb-0">متخصصة في زراعة القوقعة واضطرابات البلع.</p>
+                                <img class="mx-auto mb-4"
+                                     src="https://images.pexels.com/photos/5327921/pexels-photo-5327921.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                                     alt="Specialist 2"
+                                     style="width: 120px;
+                                            height: 120px;
+                                            border-radius: 50%;
+                                            object-fit: cover;
+                                            border: 4px solid #f1f5f9" />
+                                <h5 class="fw-bold mb-1">
+                                    أ. نجلاء عبّاس
+                                </h5>
+                                <p class="text-primary small fw-bold mb-3">
+                                    خبيرة تأهيل سمعي
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    متخصصة في زراعة القوقعة واضطرابات البلع.
+                                </p>
                             </div>
                         </div>
                         <!-- Specialist 3 -->
                         <div class="col-md-4">
                             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
-                                <img class="mx-auto mb-4" src="https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Specialist 3" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #f1f5f9;">
-                                <h5 class="fw-bold mb-1">أ. سارة بن علية</h5>
-                                <p class="text-primary small fw-bold mb-3">أخصائية نطق وتواصل</p>
-                                <p class="text-muted small mb-0">متخصصة في التلعثم واضطرابات الطلاقة الكلامية.</p>
+                                <img class="mx-auto mb-4"
+                                     src="https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                                     alt="Specialist 3"
+                                     style="width: 120px;
+                                            height: 120px;
+                                            border-radius: 50%;
+                                            object-fit: cover;
+                                            border: 4px solid #f1f5f9" />
+                                <h5 class="fw-bold mb-1">
+                                    أ. سارة بن علية
+                                </h5>
+                                <p class="text-primary small fw-bold mb-3">
+                                    أخصائية نطق وتواصل
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    متخصصة في التلعثم واضطرابات الطلاقة الكلامية.
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-
             <!-- Articles Section -->
             <section id="articles" class="py-5 bg-white">
                 <div class="container py-5 text-center">
                     <div class="row mb-5 justify-content-center">
                         <div class="col-lg-8">
-                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1);">مدونة رافقني</span>
-                            <h2 class="display-5 fw-bold text-dark mb-0">أحدث المقالات والنصائح</h2>
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary"
+                                  style="background: rgba(13, 110, 253, 0.1)">مدونة رافقني</span>
+                            <h2 class="display-5 fw-bold text-dark mb-0">
+                                أحدث المقالات والنصائح
+                            </h2>
                         </div>
                     </div>
-                    
                     <div class="row g-4 mb-5 text-end">
                         {% for article in latest_articles %}
-                        <div class="col-md-6 col-lg-4">
-                            <a href="{% url 'frontend:article_detail' article.slug %}" class="article-card">
-                                <div class="article-img-wrapper">
-                                    {% if article.thumbnail %}
-                                        <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}">
-                                    {% else %}
-                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
-                                            <i class="fa-solid fa-newspaper fa-4x text-primary opacity-20"></i>
+                            <div class="col-md-6 col-lg-4">
+                                <a href="{% url 'frontend:article_detail' article.slug %}"
+                                   class="article-card">
+                                    <div class="article-img-wrapper">
+                                        {% if article.thumbnail %}
+                                            <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" />
+                                        {% else %}
+                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                                                <i class="fa-solid fa-newspaper fa-4x text-primary opacity-20"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="category-pill">
+                                            {{ article.get_category_display }}
                                         </div>
-                                    {% endif %}
-                                    <div class="category-pill">
-                                        {{ article.get_category_display }}
                                     </div>
-                                </div>
-                                
-                                <div class="article-body">
-                                    <div class="article-date">
-                                        <i class="fa-regular fa-calendar-check text-primary"></i>
-                                        {{ article.created_at|date:"d F Y" }}
-                                    </div>
-                                    <h3 class="article-title">{{ article.title }}</h3>
-                                    <p class="article-excerpt">{{ article.content|striptags|truncatechars:100 }}</p>
-                                    <div class="article-footer">
-                                        <div class="d-flex align-items-center text-muted small">
-                                            <i class="fa-solid fa-user-circle me-1"></i>
-                                            <span>{{ article.author.username }}</span>
+                                    <div class="article-body">
+                                        <div class="article-date">
+                                            <i class="fa-regular fa-calendar-check text-primary"></i>
+                                            {{ article.created_at|date:"d F Y" }}
                                         </div>
-                                        <span class="read-more-link">
-                                            <span>اقرأ المزيد</span>
-                                            <i class="fa-solid fa-arrow-left"></i>
-                                        </span>
+                                        <h3 class="article-title">
+                                            {{ article.title }}
+                                        </h3>
+                                        <p class="article-excerpt">
+                                            {{ article.content|striptags|truncatechars:100 }}
+                                        </p>
+                                        <div class="article-footer">
+                                            <div class="d-flex align-items-center text-muted small">
+                                                <i class="fa-solid fa-user-circle me-1"></i>
+                                                <span>{{ article.author.username }}</span>
+                                            </div>
+                                            <span class="read-more-link">
+                                                <span>اقرأ المزيد</span>
+                                                <i class="fa-solid fa-arrow-left"></i>
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                        </div>
+                                </a>
+                            </div>
                         {% empty %}
-                        <div class="col-12 text-center py-5">
-                            <p class="text-muted">قريباً.. ترقبوا مقالاتنا الجديدة.</p>
-                        </div>
+                            <div class="col-12 text-center py-5">
+                                <p class="text-muted">
+                                    قريباً.. ترقبوا مقالاتنا الجديدة.
+                                </p>
+                            </div>
                         {% endfor %}
                     </div>
-
                     <div class="mt-5 pt-3">
-                        <a href="{% url 'frontend:article_list' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow-lg fw-bold">
+                        <a href="{% url 'frontend:article_list' %}"
+                           class="btn btn-primary rounded-pill px-5 py-3 shadow-lg fw-bold">
                             عرض جميع المقالات <i class="fa-solid fa-arrow-left me-2"></i>
                         </a>
                     </div>
                 </div>
             </section>
-
             <!-- Courses Section -->
             <section id="courses" class="py-5" style="background-color: #f8fafc;">
                 <div class="container py-5 text-center">
                     <div class="row mb-5 justify-content-center">
                         <div class="col-lg-8">
-                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1);">تعلم وتطور</span>
-                            <h2 class="display-5 fw-bold text-dark mb-3">الدورات التدريبية</h2>
-                            <p class="text-muted lead">برامج تعليمية متكاملة للأولياء والمربين.</p>
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary"
+                                  style="background: rgba(13, 110, 253, 0.1)">تعلم وتطور</span>
+                            <h2 class="display-5 fw-bold text-dark mb-3">
+                                الدورات التدريبية
+                            </h2>
+                            <p class="text-muted lead">
+                                برامج تعليمية متكاملة للأولياء والمربين.
+                            </p>
                         </div>
                     </div>
                     <div class="row g-4 mb-5">
                         {% for course in latest_courses %}
-                        <div class="col-md-4 text-end">
-                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-                                <div class="position-relative" style="height: 200px;">
-                                    {% if course.thumbnail %}
-                                        <img src="{{ course.thumbnail.url }}" class="card-img-top h-100" alt="{{ course.title }}" style="object-fit: cover;">
-                                    {% else %}
-                                        <div class="bg-soft-primary d-flex align-items-center justify-content-center h-100">
-                                            <i class="fa-solid fa-graduation-cap fa-3x text-primary opacity-50"></i>
+                            <div class="col-md-4 text-end">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                                    <div class="position-relative" style="height: 200px;">
+                                        {% if course.thumbnail %}
+                                            <img src="{{ course.thumbnail.url }}"
+                                                 class="card-img-top h-100"
+                                                 alt="{{ course.title }}"
+                                                 style="object-fit: cover" />
+                                        {% else %}
+                                            <div class="bg-soft-primary d-flex align-items-center justify-content-center h-100">
+                                                <i class="fa-solid fa-graduation-cap fa-3x text-primary opacity-50"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="position-absolute top-0 end-0 m-3">
+                                            <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">
+                                                {% if course.price == 0 %}
+                                                    مجاني
+                                                {% else %}
+                                                    {{ course.price }} د.ج
+                                                {% endif %}
+                                            </span>
                                         </div>
-                                    {% endif %}
-                                    <div class="position-absolute top-0 end-0 m-3">
-                                        <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">
-                                            {% if course.price == 0 %}مجاني{% else %}{{ course.price }} د.ج{% endif %}
-                                        </span>
                                     </div>
-                                </div>
-                                <div class="card-body p-4 text-center">
-                                    <h5 class="fw-bold mb-3">{{ course.title }}</h5>
-                                    <div class="d-flex align-items-center justify-content-center mb-4">
-                                        <i class="fa-solid fa-chalkboard-user text-primary me-2"></i>
-                                        <span class="small text-muted">بواسطة: <strong>{{ course.teacher_name }}</strong></span>
+                                    <div class="card-body p-4 text-center">
+                                        <h5 class="fw-bold mb-3">
+                                            {{ course.title }}
+                                        </h5>
+                                        <div class="d-flex align-items-center justify-content-center mb-4">
+                                            <i class="fa-solid fa-chalkboard-user text-primary me-2"></i>
+                                            <span class="small text-muted">بواسطة: <strong>{{ course.teacher_name }}</strong></span>
+                                        </div>
+                                        <a href="{% url 'frontend:course_detail' course.id %}"
+                                           class="btn btn-outline-primary w-100 rounded-pill fw-bold">التفاصيل</a>
                                     </div>
-                                    <a href="{% url 'frontend:course_detail' course.id %}" class="btn btn-outline-primary w-100 rounded-pill fw-bold">التفاصيل</a>
                                 </div>
                             </div>
-                        </div>
                         {% empty %}
-                        <div class="col-12 text-center py-5">
-                            <p class="text-muted">لا توجد دورات متاحة حالياً.</p>
-                        </div>
+                            <div class="col-12 text-center py-5">
+                                <p class="text-muted">
+                                    لا توجد دورات متاحة حالياً.
+                                </p>
+                            </div>
                         {% endfor %}
                     </div>
                     <div class="mt-5">
-                        <a href="{% url 'frontend:course_list' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg fw-bold">عرض جميع الدورات</a>
+                        <a href="{% url 'frontend:course_list' %}"
+                           class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg fw-bold">عرض جميع الدورات</a>
                     </div>
                 </div>
             </section>
         {% endblock content %}
-
         {% block footer %}
             <!-- Footer -->
             <footer class="pt-5 pb-4 bg-dark text-white">
                 <div class="container text-center">
-                    <h4 class="brand-logo text-white mb-3">رافقني</h4>
-                    <p class="mb-4 opacity-50">منصة طبية ونفسية للأسرة، نرافقكم بإنسانية وعلم.</p>
+                    <h4 class="brand-logo text-white mb-3">
+                        رافقني
+                    </h4>
+                    <p class="mb-4 opacity-50">
+                        منصة طبية ونفسية للأسرة، نرافقكم بإنسانية وعلم.
+                    </p>
                     <div class="d-flex justify-content-center gap-4 mb-4">
                         <a href="#" class="text-white opacity-75 fs-4"><i class="fa-brands fa-facebook"></i></a>
                         <a href="#" class="text-white opacity-75 fs-4"><i class="fa-brands fa-instagram"></i></a>
@@ -245,8 +337,11 @@
         {% endblock footer %}
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="{% static 'js/index.js' %}?v={% now 'U' %}"></script>
         {% block js %}
         {% endblock js %}
-        {% block extra_js %}{% endblock extra_js %}
+        {% block extra_js %}
+        {% endblock extra_js %}
     </body>
 </html>

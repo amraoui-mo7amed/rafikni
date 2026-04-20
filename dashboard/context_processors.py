@@ -44,12 +44,12 @@ def sidebar_menu(request):
                         "icon": "fa-solid fa-users",
                     },
                     {
-                        "name": "الحالات الطبية",
+                        "name": "الحالات",
                         "url_name": "dashboard:medical_case_list",
                         "icon": "fa-solid fa-notes-medical",
                     },
                     {
-                        "name": "الدورات التعليمية",
+                        "name": "الدورات",
                         "url_name": "dashboard:course_list",
                         "icon": "fa-solid fa-graduation-cap",
                     },

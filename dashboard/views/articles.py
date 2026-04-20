@@ -6,9 +6,11 @@ from django.utils.text import slugify
 from django.db import transaction
 from ..models import Article
 import json
+from dashboard.decorators import admin_required
 
 
 @login_required
+@admin_required
 def article_list(request):
     """
     View to list all articles in the dashboard with filtering.
@@ -34,6 +36,7 @@ def article_list(request):
 
 
 @login_required
+@admin_required
 def article_create(request):
     """
     View to create a new article. Returns JsonResponse for AJAX POST requests.
@@ -86,6 +89,7 @@ def article_create(request):
 
 
 @login_required
+@admin_required
 def article_edit(request, pk):
     """
     View to edit an existing article.
@@ -122,6 +126,7 @@ def article_edit(request, pk):
 
 
 @login_required
+@admin_required
 def article_delete(request, pk):
     """
     View to delete an article. Should be called via POST/AJAX with SweetAlert confirmation.

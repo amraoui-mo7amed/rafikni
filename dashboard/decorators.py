@@ -12,7 +12,7 @@ def admin_required(view_func):
     def is_admin(user):
         return user.is_authenticated and (
             user.is_superuser
-            or (hasattr(user, "profile") and user.profile.role == "admin")
+            or (hasattr(user, "profile") and user.profile.role == UserProfile.RoleChoices.ADMIN)
         )
 
     actual_decorator = user_passes_test(
