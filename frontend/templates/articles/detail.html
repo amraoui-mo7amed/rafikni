@@ -7,10 +7,10 @@
     <title>
         {{ article.title }} | {{ settings.site_name }}
     </title>
-    <meta name="description" content="{{ article.summary|default:'' }}" />
+    <meta name="description" content="{{ article.content|truncatechars:"200"|default:'' }}" />
     <meta name="keywords" content="{{ article.tags|default:'' }}" />
     <meta property="og:title" content="{{ article.title }}" />
-    <meta property="og:description" content="{{ article.summary|default:'' }}" />
+    <meta property="og:description" content="{{ article.content|truncatechars:"200"|default:'' }}" />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="{{ request.build_absolute_uri }}" />
     {% if article.thumbnail %}
@@ -93,6 +93,30 @@
                         <div class="article-rich-text">
                             {{ article.content|linebreaks }}
                         </div>
+
+                        <!-- Social Share Section -->
+                        <div class="article-share-section mt-5 pt-4 border-top">
+                            <h6 class="fw-bold mb-3 text-dark">مشاركة المقال:</h6>
+                            <div class="d-flex flex-wrap gap-3">
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="share-btn facebook" title="مشاركة عبر فيسبوك">
+                                    <i class="fa-brands fa-facebook-f"></i>
+                                    <span>فيسبوك</span>
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.title }}" target="_blank" class="share-btn twitter" title="مشاركة عبر X">
+                                    <i class="fa-brands fa-x-twitter"></i>
+                                    <span>X</span>
+                                </a>
+                                <a href="https://api.whatsapp.com/send?text={{ article.title }} {{ request.build_absolute_uri }}" target="_blank" class="share-btn whatsapp" title="مشاركة عبر واتساب">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                    <span>واتساب</span>
+                                </a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ article.title }}" target="_blank" class="share-btn linkedin" title="مشاركة عبر لينكد إن">
+                                    <i class="fa-brands fa-linkedin-in"></i>
+                                    <span>لينكد إن</span>
+                                </a>
+                            </div>
+                        </div>
+
                         {% if article.get_tags_list %}
                             <div class="article-tags-footer mt-5 pt-4 border-top">
                                 <h6 class="fw-bold mb-3 text-primary">
