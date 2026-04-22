@@ -196,7 +196,7 @@
                 </div>
                 <div class="flex-grow-1">
                     <div class="fw-bold small">${notification.title}</div>
-                    <div class="text-muted x-small text-truncate" style="max-width: 250px;">
+                    <div class="text-muted x-small">
                         ${notification.message}
                     </div>
                     <div class="text-muted x-small">

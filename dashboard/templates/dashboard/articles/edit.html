@@ -6,7 +6,7 @@
 {% block css %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'css/ultra_select.css' %}?v={% now 'U' %}" />
-    <link rel="stylesheet" href="{% static 'dashboard/css/articles.css' %}?v={% now 'U' %}" />
+    <link rel="stylesheet" href="{% static 'css/articles.css' %}?v={% now 'U' %}" />
 {% endblock css %}
 
 {% block dash_content %}
@@ -152,5 +152,5 @@
     {{ block.super }}
     <script src="{% static 'js/ultra_select.js' %}?v={% now 'U' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{% static 'dashboard/js/articles.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/articles.js' %}?v={% now 'U' %}"></script>
 {% endblock js %}

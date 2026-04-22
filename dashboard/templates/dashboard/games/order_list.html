@@ -6,6 +6,8 @@
 {% block extra_css %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'css/user_list.css' %}?v={% now 'U' %}" />
+    <link rel="stylesheet" href="{% static 'css/ultra_select.css' %}?v={% now 'U' %}" />
+    <link rel="stylesheet" href="{% static 'css/games.css' %}?v={% now 'U' %}" />
 {% endblock extra_css %}
 
 {% block dash_content %}
@@ -15,17 +17,15 @@
     </div>
 
     <!-- Orders Table -->
-    <div class="table-responsive shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive shadow-sm rounded-4">
         <table class="table table-hover align-middle mb-0 bg-white" id="ordersTable">
             <thead class="bg-light">
                 <tr>
                     <th class="ps-4">رقم الطلب</th>
-                    <th>الزبون</th>
                     <th>اللعبة</th>
-                    <th>الولاية/البلدية</th>
-                    <th>الهاتف</th>
-                    <th>الحالة</th>
-                    <th class="text-end pe-4">التاريخ</th>
+                    <th style="width: 180px;">الحالة</th>
+                    <th>التاريخ</th>
+                    <th class="text-end pe-4">الإجراءات</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,43 +33,34 @@
                     <tr>
                         <td class="ps-4 fw-bold">#{{ order.id }}</td>
                         <td>
-                            <div class="fw-bold text-dark">{{ order.full_name }}</div>
-                            {% if order.user %}
-                                <span class="badge bg-soft-info text-info small">مسجل</span>
-                            {% else %}
-                                <span class="badge bg-soft-secondary text-secondary small">زائر</span>
-                            {% endif %}
-                        </td>
-                        <td>
                             <span class="text-primary fw-bold">{{ order.game.title }}</span>
                             <div class="small text-muted">{{ order.game.price }} د.ج</div>
                         </td>
                         <td>
-                            <div>{{ order.wilaya }}</div>
-                            <small class="text-muted">{{ order.commune }}</small>
+                            {% include "dashboard/games/status_dropdown.html" %}
                         </td>
-                        <td>
-                            <a href="tel:{{ order.phone_number }}" class="text-decoration-none fw-bold text-dark">
-                                <i class="fa-solid fa-phone-flip me-1 text-success"></i> {{ order.phone_number }}
-                            </a>
-                        </td>
-                        <td>
-                            <select class="form-select form-select-sm rounded-pill order-status-select border-primary" 
-                                    data-url="{% url 'dashboard:game_order_status' order.pk %}"
-                                    data-csrf="{{ csrf_token }}"
-                                    style="width: 130px; font-weight: 700;">
-                                {% for val, label in order.OrderStatus.choices %}
-                                    <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td class="text-end pe-4 text-muted small">
+                        <td class="text-muted small">
                             {{ order.created_at|date:"Y-m-d H:i" }}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="action-btn btn-view view-order-details" 
+                                        title="عرض التفاصيل"
+                                        data-id="{{ order.id }}"
+                                        data-name="{{ order.full_name }}"
+                                        data-phone="{{ order.phone_number }}"
+                                        data-wilaya="{{ order.wilaya }}"
+                                        data-commune="{{ order.commune }}"
+                                        data-address="{{ order.address }}"
+                                        data-type="{% if order.user %}مسجل{% else %}زائر{% endif %}">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center py-5">
+                        <td colspan="5" class="text-center py-5">
                             <div class="text-muted">
                                 <i class="fa-solid fa-cart-shopping fa-3x mb-3 d-block opacity-25"></i>
                                 لا توجد طلبات حالياً.
@@ -80,10 +71,51 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="fw-bold m-0">تفاصيل الطلب <span id="modalOrderId"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="order-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">الزبون</span>
+                            <div class="detail-value" id="modalCustomerName"></div>
+                            <span class="badge bg-soft-info text-info mt-1" id="modalCustomerType"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">رقم الهاتف</span>
+                            <a href="" class="detail-value text-decoration-none" id="modalCustomerPhone"></a>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">الولاية</span>
+                            <div class="detail-value" id="modalWilaya"></div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">البلدية</span>
+                            <div class="detail-value" id="modalCommune"></div>
+                        </div>
+                        <div class="detail-item col-12" style="grid-column: span 2;">
+                            <span class="detail-label">العنوان بالتفصيل</span>
+                            <div class="detail-value" id="modalAddress"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock dash_content %}
 
 {% block js %}
     {{ block.super }}
+    <script src="{% static 'js/ultra_select.js' %}?v={% now 'U' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{% static 'dashboard/js/games.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/games.js' %}?v={% now 'U' %}"></script>
 {% endblock js %}

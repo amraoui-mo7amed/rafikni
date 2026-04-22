@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.http import JsonResponse
 from django.db import transaction
 from dashboard.models import Game, GameOrder
@@ -63,7 +64,8 @@ def place_order(request):
                 notify_admins(
                     title="طلب جديد للعبة",
                     message=f"هناك طلب جديد للعبة {game.title} من الزبون {full_name}.",
-                    notification_type="info"
+                    notification_type="info",
+                    link=reverse("dashboard:game_order_list")
                 )
 
                 return JsonResponse({

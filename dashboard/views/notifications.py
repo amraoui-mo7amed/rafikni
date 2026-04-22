@@ -34,7 +34,7 @@ def get_unread_count(request):
 
 
 @login_required
-def get_notifications(request):
+def get_notifications(request): 
     """Get notifications list for current user"""
     notifications = Notification.objects.filter(user=request.user)[:50]
 
@@ -44,7 +44,7 @@ def get_notifications(request):
             {
                 "id": notification.id,
                 "title": notification.title,
-                "message": notification.message,
+                "message": notification.message[:75],
                 "type": notification.notification_type,
                 "is_read": notification.is_read,
                 "created_at": notification.created_at.isoformat(),

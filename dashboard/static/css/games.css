@@ -1,0 +1,155 @@
+/* Game Dashboard Specialized Styles */
+
+/* Fix table overflow for dropdowns */
+.table-responsive {
+    overflow: visible !important;
+}
+
+/* Redesigned Status Select Widget */
+.order-status-wrapper .ultra-select-wrapper {
+    height: 38px !important;
+    min-height: 38px !important;
+    border-radius: 50px !important;
+    padding: 2px 15px !important;
+    background: #f8fafc !important;
+    border: 1px solid rgba(13, 110, 253, 0.2) !important;
+    width: 140px;
+    transition: all 0.3s ease;
+}
+
+.order-status-wrapper .ultra-select-wrapper:hover,
+.order-status-wrapper .ultra-select-wrapper.open {
+    background: #ffffff !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.1) !important;
+    transform: translateY(-1px);
+}
+
+.order-status-wrapper .ultra-selected-value {
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    padding: 0 !important;
+}
+
+.order-status-wrapper .ultra-arrow {
+    font-size: 0.7rem !important;
+    padding: 0 0 0 10px !important;
+}
+
+/* High Z-Index for Dropdown */
+.order-status-wrapper .ultra-dropdown {
+    z-index: 9999 !important;
+    border-radius: 16px !important;
+    margin-top: 5px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+.order-status-wrapper .ultra-option {
+    padding: 10px 15px !important;
+    font-size: 0.85rem !important;
+}
+
+/* Modal Grid Styling */
+.order-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.detail-item {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.02);
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 700;
+}
+
+.detail-value {
+    font-weight: 800;
+    color: #1e293b;
+    word-break: break-word;
+}
+
+/* Custom Game Status Picker */
+.game-status-picker {
+    position: relative;
+    width: 140px;
+    z-index: 1; /* Low base z-index */
+}
+
+.game-status-picker.open {
+    z-index: 9999 !important; /* Force high z-index when open */
+}
+
+.game-status-picker:hover {
+    z-index: 9998; /* Lift on hover slightly */
+}
+
+.status-current {
+    background: #ffffff;
+    border: 2px solid rgba(13, 110, 253, 0.2);
+    padding: 8px 15px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #1e293b;
+}
+
+.status-current:hover, .status-current.active {
+    border-color: #0d6efd;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+}
+
+.status-dropdown-list {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 10000;
+    overflow: hidden;
+}
+
+.status-dropdown-list.show {
+    display: block;
+}
+
+.status-option {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.status-option:last-child {
+    border-bottom: none;
+}
+
+.status-option:hover {
+    background: rgba(13, 110, 253, 0.05);
+    color: #0d6efd;
+}
+
+.status-option.active {
+    background: #0d6efd;
+    color: white;
+}

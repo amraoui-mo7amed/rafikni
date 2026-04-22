@@ -1,0 +1,15 @@
+<div class="game-status-picker" data-order-id="{{ order.id }}" data-url="{% url 'dashboard:game_order_status' order.id %}" data-csrf="{{ csrf_token }}">
+    <div class="status-current" onclick="toggleStatusDropdown('{{ order.id }}')">
+        <span class="status-label">{{ order.get_status_display }}</span>
+        <i class="fa-solid fa-chevron-down ms-2"></i>
+    </div>
+    <div class="status-dropdown-list" id="status-list-{{ order.id }}">
+        {% for val, label in order.OrderStatus.choices %}
+            <div class="status-option {% if order.status == val %}active{% endif %}" 
+                 onclick="updateOrderStatus('{{ order.id }}', '{{ val }}', '{{ label }}')"
+                 data-value="{{ val }}">
+                {{ label }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
