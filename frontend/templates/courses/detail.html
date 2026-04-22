@@ -2,364 +2,255 @@
 {% load static %}
 
 {% block extra_css %}
-<style>
-    :root {
-        --course-primary: #06b6d4;
-        --course-secondary: #10b981;
-        --glass-bg: rgba(255, 255, 255, 0.85);
-        --glass-border: rgba(6, 182, 212, 0.15);
-    }
-
-    .course-hero {
-        position: relative;
-        padding: 100px 0 160px;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        color: white;
-        overflow: hidden;
-    }
-
-    .course-hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: radial-gradient(circle at 70% 30%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
-        pointer-events: none;
-    }
-
-    .course-content-wrapper {
-        margin-top: -100px;
-        position: relative;
-        z-index: 10;
-    }
-
-    .glass-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        border: 1px solid var(--glass-border);
-        border-radius: 24px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-    }
-
-    .sidebar-sticky {
-        position: sticky;
-        top: 100px;
-    }
-
-    .curriculum-item {
-        border: none;
-        border-radius: 16px !important;
-        margin-bottom: 12px;
-        transition: all 0.3s ease;
-        background: #f8fafc;
-        border: 1px solid transparent;
-    }
-
-    .curriculum-item:hover {
-        background: white;
-        border-color: var(--course-primary);
-        transform: translateX(-5px);
-        box-shadow: 0 5px 15px rgba(6, 182, 212, 0.05);
-    }
-
-    .video-icon {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 14px;
-        background: white;
-        color: var(--course-primary);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-    }
-
-    .price-tag {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--course-primary), var(--course-secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .feature-pill {
-        background: white;
-        border: 1px solid #e2e8f0;
-        padding: 12px 20px;
-        border-radius: 16px;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        font-size: 0.9rem;
-        color: #475569;
-    }
-
-    .feature-pill i {
-        color: var(--course-primary);
-        margin-left: 12px;
-        font-size: 1.1rem;
-    }
-
-    .badge-status {
-        padding: 8px 16px;
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 0.85rem;
-    }
-
-    .course-meta-item {
-        display: flex;
-        align-items: center;
-        opacity: 0.9;
-        font-size: 0.95rem;
-    }
-
-    .course-meta-item i {
-        margin-left: 8px;
-        color: var(--course-primary);
-    }
-
-    .breadcrumb-item + .breadcrumb-item::before {
-        color: rgba(255, 255, 255, 0.5);
-    }
-</style>
+<link href="{% static 'frontend/css/articles.css' %}?v={% now 'U' %}" rel="stylesheet" />
+<link href="{% static 'frontend/css/courses.css' %}?v={% now 'U' %}" rel="stylesheet" />
 {% endblock extra_css %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="course-hero">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'frontend:index' %}" class="text-white opacity-75 text-decoration-none">الرئيسية</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'frontend:course_list' %}" class="text-white opacity-75 text-decoration-none">الدورات</a></li>
-                <li class="breadcrumb-item active text-white" aria-current="page">{{ course.title }}</li>
-            </ol>
-        </nav>
+<main class="course-detail-page bg-light" dir="rtl">
+    <!-- Immersive Course Hero -->
+    <header class="article-hero-section">
+        {% if course.thumbnail %}
+            <div class="hero-bg-wrapper">
+                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="hero-bg-img">
+                <div class="hero-overlay-gradient"></div>
+            </div>
+        {% else %}
+            <div class="hero-bg-wrapper bg-primary">
+                <div class="hero-overlay-gradient"></div>
+            </div>
+        {% endif %}
 
-        <div class="row align-items-center mt-5">
+        <div class="container hero-container">
+            <div class="row">
+                <div class="col-lg-10">
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'frontend:index' %}">الرئيسية</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'frontend:course_list' %}">الدورات</a></li>
+                            <li class="breadcrumb-item active text-white opacity-75" aria-current="page">دورة تدريبية</li>
+                        </ol>
+                    </nav>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary rounded-pill px-3 py-2 fw-bold shadow-lg">
+                            {% if course.price == 0 %}مجاني{% else %}{{ course.price }} د.ج{% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Course Title -->
+                    <h1 class="article-main-title text-white mb-4">{{ course.title }}</h1>
+
+                    <!-- Course Meta -->
+                    <div class="article-meta-info d-flex align-items-center gap-4 text-white-50">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            <span>المعلم: {{ course.teacher_name }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-video"></i>
+                            <span>{{ videos|length }} فيديو تعليمي</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content & Sidebar Area -->
+    <div class="container course-content-wrapper">
+        <div class="row g-5">
             <div class="col-lg-8">
-                <div class="d-flex align-items-center mb-3">
-                    <span class="pill px-3 py-1 me-2" style="background: var(--course-secondary)">دورة تعليمية</span>
-                    {% if course.price == 0 %}
-                        <span class="badge bg-success badge-status ms-2">مجاني</span>
-                    {% endif %}
-                </div>
-                <h1 class="display-4 fw-black text-white mb-4">{{ course.title }}</h1>
-                <div class="d-flex flex-wrap gap-4 mt-2">
-                    <div class="course-meta-item">
-                        <i class="fa-solid fa-chalkboard-user"></i>
-                        <span>المعلم: {{ course.teacher_name }}</span>
+            <!-- Video Player Section -->
+            <div class="video-player-section shadow-lg mb-5">
+                <div class="video-aspect-ratio-container">
+                    <div id="videoPlaceholder" class="video-placeholder" style="--placeholder-url: url('{% if course.thumbnail %}{{ course.thumbnail.url }}{% endif %}');">
+                        <div class="bg-white rounded d-flex align-items-center justify-content-center shadow-lg pulse-animation mb-4" style="width: 80px; height: 80px; cursor: pointer;" onclick="document.querySelector('.curriculum-item[data-video-url]').click()">
+                            <i class="fa-solid fa-play text-primary fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-white">اضغط لمشاهدة العرض التجريبي</h4>
+                        <p class="text-white-50">اختر فيديو من المنهج أدناه للبدء</p>
                     </div>
-                    <div class="course-meta-item">
-                        <i class="fa-solid fa-video"></i>
-                        <span>{{ videos|length }} فيديو</span>
-                    </div>
-                    <div class="course-meta-item">
-                        <i class="fa-solid fa-calendar"></i>
-                        <span>تم التحديث: {{ course.updated_at|date:"Y-m-d" }}</span>
+                    
+                    <div id="playerContainer" class="video-container" style="display: none;">
+                        <video id="mainCourseVideo" controls controlsList="nodownload" class="w-100 h-100">
+                            <source src="" type="video/mp4">
+                            متصفحك لا يدعم تشغيل الفيديو.
+                        </video>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
 
-<!-- Content Section -->
-<div class="container course-content-wrapper mb-5 pb-5">
-    <div class="row g-4">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-            <div class="glass-card p-4 p-md-5 mb-4">
-                <div class="mb-5">
-                    <h3 class="fw-bold mb-4 d-flex align-items-center">
-                        <i class="fa-solid fa-circle-info text-primary me-3"></i>
-                        ماذا ستتعلم في هذه الدورة؟
-                    </h3>
-                    <div class="text-muted" style="line-height: 2; font-size: 1.1rem;">
-                        {{ course.description|linebreaks }}
+
+                <div class="article-main-card shadow-lg mb-4">
+                    <div class="mb-5">
+                        <h3 class="fw-bold mb-4 d-flex align-items-center text-dark">
+                            <i class="fa-solid fa-circle-info text-primary me-3"></i>
+                            عن هذه الدورة
+                        </h3>
+                        <div class="article-rich-text">
+                            {{ course.description|linebreaks }}
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <h3 class="fw-bold mb-4 d-flex align-items-center">
-                        <i class="fa-solid fa-layer-group text-primary me-3"></i>
-                        المنهج الدراسي
-                    </h3>
-                    <div class="list-group">
-                        {% for video in videos %}
-                        <div class="list-group-item curriculum-item p-3 d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center">
-                                <div class="video-icon me-3">
-                                    <i class="fa-solid {% if video.is_free %}fa-play{% else %}fa-lock{% endif %}"></i>
+                    <div>
+                        <h3 class="fw-bold mb-4 d-flex align-items-center text-dark">
+                            <i class="fa-solid fa-layer-group text-primary me-3"></i>
+                            المنهج الدراسي
+                        </h3>
+                        <div class="list-group border-0">
+                            {% for video in videos %}
+                            <div class="list-group-item curriculum-item p-4 d-flex align-items-center justify-content-between mb-3 shadow-sm" 
+                                 {% if video.is_free or enrollment.status == 'approved' %}data-video-url="{{ video.video_file.url }}"{% endif %}>
+                                <div class="d-flex align-items-center">
+                                    <div class="video-icon shadow-sm">
+                                        <i class="fa-solid {% if video.is_free or enrollment.status == 'approved' %}fa-play{% else %}fa-lock{% endif %}"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-1 fw-bold text-dark">{{ video.title }}</h6>
+                                        <p class="mb-0 text-muted small">{{ video.description|truncatechars:100 }}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h6 class="mb-1 fw-bold text-dark">{{ video.title }}</h6>
-                                    <p class="mb-0 text-muted small">{{ video.description|truncatechars:80 }}</p>
+                                <div class="text-end">
+                                    {% if video.is_free %}
+                                        <span class="badge bg-soft-success text-success rounded-pill px-3">معاينة مجانية</span>
+                                    {% elif enrollment.status == 'approved' %}
+                                        <span class="text-primary"><i class="fa-solid fa-circle-check"></i></span>
+                                    {% else %}
+                                        <span class="text-muted small"><i class="fa-solid fa-lock opacity-50"></i></span>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="text-end">
-                                {% if video.is_free %}
-                                    <span class="badge bg-soft-success text-success rounded-pill px-3">مجاني</span>
-                                {% else %}
-                                    <span class="text-muted small"><i class="fa-solid fa-lock opacity-50"></i></span>
-                                {% endif %}
+                            {% empty %}
+                            <div class="text-center py-5">
+                                <p class="text-muted">سيتم إضافة المحتوى قريباً.</p>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% empty %}
-                        <div class="text-center py-5">
-                            <img src="{% if course.thumbnail %}{{ course.thumbnail.url }}{% endif %}" class="opacity-25 mb-3" style="width: 100px;">
-                            <p class="text-muted">المحتوى التعليمي سيتم رفعه قريباً جداً.</p>
-                        </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <div class="sidebar-sticky">
-                <div class="glass-card overflow-hidden">
-                    <div class="position-relative">
-                        {% if course.thumbnail %}
-                            <img src="{{ course.thumbnail.url }}" class="img-fluid w-100" alt="{{ course.title }}" style="height: 240px; object-fit: cover;">
-                        {% else %}
-                            <div class="bg-dark d-flex align-items-center justify-content-center" style="height: 240px;">
-                                <i class="fa-solid fa-graduation-cap fa-5x text-white opacity-25"></i>
-                            </div>
-                        {% endif %}
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.2);">
-                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-lg pulse-animation" style="width: 60px; height: 60px;">
-                                <i class="fa-solid fa-play text-primary fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-4">
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <aside class="article-sidebar-sticky">
+                    <div class="sidebar-card mb-4 shadow-lg">
                         <div class="text-center mb-4">
-                            {% if course.price == 0 %}
-                                <div class="price-tag">مجاني</div>
-                            {% else %}
-                                <div class="price-tag">{{ course.price }} د.ج</div>
-                            {% endif %}
-                            <p class="text-muted small">احصل على وصول كامل وفوري</p>
+                            <h2 class="fw-black text-primary mb-1" style="font-size: 2.5rem;">
+                                {% if course.price == 0 %}مجاني{% else %}{{ course.price }} د.ج{% endif %}
+                            </h2>
+                            <p class="text-muted small">احصل على وصول كامل فوري</p>
                         </div>
 
-                        {% if not user.is_authenticated %}
-                            <div class="alert bg-soft-warning text-warning border-0 small mb-4">
-                                <i class="fa-solid fa-circle-info ms-2"></i>
-                                يجب تسجيل الدخول للانضمام إلى الدورة.
+                        <div class="mt-4 pt-4 border-top mb-4">
+                            <h6 class="fw-bold mb-3 text-dark">تتضمن هذه الدورة:</h6>
+                            <div class="d-flex flex-column gap-3">
+                                <div class="d-flex align-items-center gap-3 text-muted small">
+                                    <div class="course-feature-icon">
+                                        <i class="fa-solid fa-clock"></i>
+                                    </div>
+                                    <span>وصول كامل مدى الحياة</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 text-muted small">
+                                    <div class="course-feature-icon">
+                                        <i class="fa-solid fa-mobile-screen"></i>
+                                    </div>
+                                    <span>تعلم من هاتفك أو حاسوبك</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 text-muted small">
+                                    <div class="course-feature-icon">
+                                        <i class="fa-solid fa-certificate"></i>
+                                    </div>
+                                    <span>شهادة إكمال معتمدة</span>
+                                </div>
                             </div>
-                            <a href="{% url 'user_auth:login' %}?next={{ request.path }}" class="btn btn-primary btn-lg w-100 rounded-4 mb-3">
-                                تسجيل الدخول الآن
-                            </a>
-                        {% else %}
-                            {% if user.profile.role == 'patient' %}
+                        </div>
+
+                        <!-- Main Enrollment Button (Always Visible) -->
+                        <div class="enrollment-action-area" 
+                             data-login-url="{% url 'user_auth:login' %}"
+                             data-signup-url="/auth/signup/"
+                             data-current-path="{{ request.path }}">
+                            {% if not user.is_authenticated %}
+                                <!-- Guest -->
+                                <button class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-lg btn-auth-required">
+                                    <i class="fa-solid fa-bolt ms-2"></i> سجل في الدورة الآن
+                                </button>
+                            {% elif user.profile.role == 'patient' %}
+                                <!-- Patient (Logic for subscription states) -->
                                 {% if enrollment %}
                                     {% if enrollment.status == 'approved' %}
-                                        <div class="alert bg-soft-success text-success border-0 text-center mb-4 rounded-4">
-                                            <i class="fa-solid fa-circle-check fa-2x d-block mb-2"></i>
-                                            <span class="fw-bold">أنت مشترك في هذه الدورة!</span>
+                                        <div class="alert bg-soft-success text-success border-0 text-center mb-0 rounded-pill fw-bold">
+                                            <i class="fa-solid fa-circle-check ms-2"></i> أنت مشترك بالفعل
                                         </div>
-                                        <a href="{% url 'dashboard:course_detail' course.id %}" class="btn btn-primary btn-lg w-100 rounded-4">
-                                            ابدأ التعلم الآن
-                                        </a>
                                     {% elif enrollment.status == 'pending' %}
-                                        <div class="alert bg-soft-warning text-warning border-0 text-center mb-4 rounded-4">
-                                            <i class="fa-solid fa-clock fa-2x d-block mb-2"></i>
-                                            <span class="fw-bold">طلبك قيد المراجعة</span>
-                                        </div>
                                         {% if not has_payment %}
-                                            <button class="btn btn-primary btn-lg w-100 rounded-4" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                                            <button class="btn btn-primary btn-lg w-100 rounded-pill shadow-lg py-3 fw-bold" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#paymentModal">
                                                 <i class="fa-solid fa-credit-card ms-2"></i> إكمال الدفع
                                             </button>
+                                        {% else %}
+                                            <div class="alert bg-soft-warning text-warning border-0 text-center mb-0 rounded-pill fw-bold">
+                                                <i class="fa-solid fa-clock ms-2"></i> طلبك قيد المراجعة
+                                            </div>
                                         {% endif %}
                                     {% else %}
-                                        <div class="alert bg-soft-danger text-danger border-0 text-center mb-4 rounded-4">
-                                            <i class="fa-solid fa-circle-xmark fa-2x d-block mb-2"></i>
-                                            <span class="fw-bold">تم رفض طلبك السابق</span>
-                                        </div>
-                                        <button class="btn btn-primary btn-lg w-100 rounded-4 btn-enroll" data-course-id="{{ course.id }}">
+                                        <button class="btn btn-primary btn-lg w-100 rounded-pill btn-enroll shadow-lg py-3 fw-bold" 
+                                                data-course-id="{{ course.id }}" 
+                                                data-enroll-url="{% url 'dashboard:course_enroll' course.id %}"
+                                                data-csrf="{{ csrf_token }}">
                                             إعادة التقديم
                                         </button>
                                     {% endif %}
                                 {% else %}
-                                    <button class="btn btn-primary btn-lg w-100 rounded-4 btn-enroll" data-course-id="{{ course.id }}" data-price="{{ course.price }}">
-                                        <i class="fa-solid fa-user-plus ms-2"></i>
-                                        {% if course.price == 0 %}سجل مجاناً{% else %}سجل في الدورة{% endif %}
+                                    <button class="btn btn-primary btn-lg w-100 rounded-pill btn-enroll shadow-lg py-3 fw-bold" 
+                                            data-course-id="{{ course.id }}" 
+                                            data-enroll-url="{% url 'dashboard:course_enroll' course.id %}"
+                                            data-price="{{ course.price }}"
+                                            data-csrf="{{ csrf_token }}">
+                                        <i class="fa-solid fa-bolt ms-2"></i> سجل في الدورة الآن
                                     </button>
                                 {% endif %}
                             {% else %}
-                                <div class="alert bg-soft-primary text-primary border-0 small text-center rounded-4 mb-0">
-                                    <i class="fa-solid fa-user-shield d-block fa-2x mb-2"></i>
-                                    هذه الميزة متاحة فقط للمرضى وأسرهم.
-                                </div>
+                                <!-- Specialists / Admins -->
+                                <button class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-lg btn-role-restricted">
+                                    <i class="fa-solid fa-bolt ms-2"></i> سجل في الدورة الآن
+                                </button>
+                                <p class="small text-primary text-center mt-3 mb-0">هذه الميزة متاحة للمرضى وأسرهم</p>
                             {% endif %}
-                        {% endif %}
-
-                        <div class="mt-5">
-                            <h6 class="fw-bold mb-3">مميزات الدورة:</h6>
-                            <div class="feature-pill">
-                                <i class="fa-solid fa-clock"></i>
-                                <span>وصول كامل مدى الحياة</span>
-                            </div>
-                            <div class="feature-pill">
-                                <i class="fa-solid fa-mobile-screen"></i>
-                                <span>تعلم من أي جهاز</span>
-                            </div>
-                            <div class="feature-pill">
-                                <i class="fa-solid fa-certificate"></i>
-                                <span>شهادة إكمال معتمدة</span>
-                            </div>
                         </div>
                     </div>
-                </div>
+                </aside>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 {% if user.is_authenticated and user.profile.role == 'patient' %}
-<!-- Modern Payment Modal -->
+<!-- Payment Modal -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 glass-card">
-            <div class="modal-header border-0 pb-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4 p-md-5 pt-0">
+        <div class="modal-content border-0 rounded-4 overflow-hidden shadow-lg">
+            <div class="modal-body p-5">
                 <div class="text-center mb-4">
-                    <div class="icon-badge mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                    <div class="bg-soft-primary text-primary mx-auto mb-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; font-size: 1.5rem;">
                         <i class="fa-solid fa-receipt"></i>
                     </div>
-                    <h3 class="fw-bold">إرسال إيصال الدفع</h3>
-                    <p class="text-muted">يرجى رفع صورة واضحة لإيصال التحويل البنكي أو البريدي</p>
+                    <h3 class="fw-bold">تأكيد الدفع</h3>
+                    <p class="text-muted small">يرجى رفع صورة إيصال التحويل للمبلغ: {{ course.price }} د.ج</p>
                 </div>
 
-                <div class="alert bg-soft-primary text-primary border-0 text-center mb-4 py-3">
-                    <span class="small d-block mb-1">المبلغ المطلوب تحويله:</span>
-                    <h4 class="fw-bold mb-0">{{ course.price }} د.ج</h4>
-                </div>
-
-                <form id="submitPaymentForm">
-                    {% csrf_token %}
+                <form id="submitPaymentForm" 
+                      data-url="{% if enrollment %}{% url 'dashboard:payment_submit' enrollment.id %}{% endif %}"
+                      data-csrf="{{ csrf_token }}">
                     <input type="hidden" name="enrollment_id" id="paymentEnrollmentId" value="{{ enrollment.id }}">
-                    
                     <div class="mb-4">
-                        <label class="form-label fw-bold small mb-2 text-dark">إيصال الدفع (صورة)</label>
                         {% include "partials/ultra_image_upload.html" with name="receipt_image" id="receipt_image" %}
                     </div>
-
-                    <div class="mb-4">
-                        <label class="form-label fw-bold small mb-2 text-dark">ملاحظات (اختياري)</label>
-                        <textarea name="notes" class="form-control rounded-4 bg-light border-0" rows="3" placeholder="أدخل أي معلومات إضافية هنا..."></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-4 py-3 shadow-lg" id="submitPaymentBtn">
-                        <i class="fa-solid fa-paper-plane ms-2"></i> تأكيد وإرسال للمراجعة
+                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow" id="submitPaymentBtn">
+                        تأكيد وإرسال الإيصال
                     </button>
                 </form>
             </div>
@@ -367,111 +258,10 @@
     </div>
 </div>
 {% endif %}
-
 {% endblock content %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const enrollBtns = document.querySelectorAll('.btn-enroll');
-        enrollBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const courseId = this.dataset.courseId;
-                const price = parseFloat(this.dataset.price);
-                
-                Swal.fire({
-                    title: 'تأكيد التسجيل',
-                    text: price === 0 ? 'هذه الدورة مجانية، هل تريد الانضمام إليها الآن؟' : 'سيتم إنشاء طلب تسجيل، وسيتعين عليك رفع إيصال الدفع لتفعيل حسابك.',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'نعم، أريد التسجيل',
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#06b6d4',
-                    cancelButtonColor: '#64748b',
-                    background: '#ffffff',
-                    customClass: {
-                        popup: 'rounded-4 border-0 shadow-lg'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const formData = new FormData();
-                        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-                        
-                        fetch(`/dashboard/courses/${courseId}/enroll/`, {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                if (data.requires_payment) {
-                                    Swal.fire({
-                                        title: 'تم إنشاء الطلب',
-                                        text: data.message,
-                                        icon: 'success',
-                                        confirmButtonColor: '#06b6d4'
-                                    }).then(() => {
-                                        window.location.reload();
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: 'نجاح!',
-                                        text: data.message,
-                                        icon: 'success',
-                                        confirmButtonColor: '#06b6d4'
-                                    }).then(() => {
-                                        window.location.href = data.redirect_url;
-                                    });
-                                }
-                            } else {
-                                Swal.fire('خطأ', data.errors[0], 'error');
-                            }
-                        });
-                    }
-                });
-            });
-        });
-
-        const paymentForm = document.getElementById('submitPaymentForm');
-        if (paymentForm) {
-            paymentForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const enrollmentId = document.getElementById('paymentEnrollmentId').value;
-                const formData = new FormData(this);
-                const submitBtn = document.getElementById('submitPaymentBtn');
-                
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin ms-2"></i> جاري الإرسال...';
-
-                fetch(`/dashboard/courses/payment/${enrollmentId}/submit/`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'تم الإرسال بنجاح',
-                            text: data.message,
-                            icon: 'success',
-                            confirmButtonColor: '#06b6d4'
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    } else {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane ms-2"></i> تأكيد وإرسال للمراجعة';
-                        Swal.fire('خطأ', data.errors[0], 'error');
-                    }
-                })
-                .catch(error => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane ms-2"></i> تأكيد وإرسال للمراجعة';
-                    Swal.fire('خطأ', 'حدث خطأ غير متوقع في الاتصال', 'error');
-                });
-            });
-        }
-    });
-</script>
-{% endblock extra_js %}
+{% block js %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'frontend/js/courses.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}

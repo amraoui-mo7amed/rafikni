@@ -1,0 +1,106 @@
+{% extends "dashboard/dash_index.html" %}
+{% load static %}
+
+{% block title %}دوراتي التعليمية{% endblock title %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/course_list.css' %}?v={% now 'U' %}" />
+{% endblock extra_css %}
+
+{% block dash_content %}
+    <div class="welcome-section mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-dark">دوراتي التعليمية</h2>
+            <p class="text-muted mb-0">هنا يمكنك متابعة تقدمك والوصول إلى الدورات التي اشتركت فيها.</p>
+        </div>
+        <a href="{% url 'frontend:course_list' %}" target="_blank" class="btn btn-outline-primary rounded-pill px-4">
+            <i class="fa-solid fa-up-right-from-square me-2"></i> تصفح جميع الدورات
+        </a>
+    </div>
+
+    <!-- My Enrollments Table -->
+    <div class="table-responsive shadow-sm rounded-4 overflow-hidden">
+        <table class="table table-hover align-middle mb-0 bg-white">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">الدورة</th>
+                    <th>المعلم</th>
+                    <th>تاريخ التسجيل</th>
+                    <th>حالة الاشتراك</th>
+                    <th class="text-end pe-4">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment in enrollments %}
+                    <tr>
+                        <td class="ps-4">
+                            <a href="{% url 'frontend:course_detail' enrollment.course.id %}" target="_blank" class="text-decoration-none d-flex align-items-center gap-3">
+                                {% if enrollment.course.thumbnail %}
+                                    <img src="{{ enrollment.course.thumbnail.url }}" alt="{{ enrollment.course.title }}" class="rounded" width="45" height="45" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-soft-primary text-primary rounded d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                        <i class="fa-solid fa-graduation-cap"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <span class="fw-bold d-block text-dark">{{ enrollment.course.title }}</span>
+                                    <small class="text-muted">{{ enrollment.course.description|truncatechars:50 }}</small>
+                                </div>
+                            </a>
+                        </td>
+                        <td>
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-chalkboard-user me-1"></i>
+                                {{ enrollment.course.teacher_name }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="text-muted small">{{ enrollment.enrolled_at|date:"Y-m-d" }}</span>
+                        </td>
+                        <td>
+                            {% if enrollment.status == 'approved' %}
+                                <span class="badge bg-soft-success text-success border border-success px-3 py-2 rounded-pill">
+                                    <i class="fa-solid fa-circle-check me-1"></i> تم التفعيل
+                                </span>
+                            {% elif enrollment.status == 'pending' %}
+                                <span class="badge bg-soft-warning text-warning border border-warning px-3 py-2 rounded-pill">
+                                    <i class="fa-solid fa-clock me-1"></i> قيد المراجعة
+                                </span>
+                            {% else %}
+                                <span class="badge bg-soft-danger text-danger border border-danger px-3 py-2 rounded-pill">
+                                    <i class="fa-solid fa-circle-xmark me-1"></i> مرفوض
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'frontend:course_detail' enrollment.course.id %}" target="_blank" class="action-btn btn-view" title="عرض التفاصيل">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                {% if enrollment.status == 'approved' %}
+                                    <a href="{% url 'frontend:course_detail' enrollment.course.id %}" target="_blank" class="action-btn btn-play bg-primary text-white" title="ابدأ التعلم">
+                                        <i class="fa-solid fa-play"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fa-solid fa-book-open fa-4x mb-3 d-block opacity-10"></i>
+                                <h5>أنت غير مسجل في أي دورة حالياً</h5>
+                                <p class="mb-4">اكتشف دوراتنا التعليمية وابدأ رحلة تعلمك اليوم.</p>
+                                <a href="{% url 'frontend:course_list' %}" target="_blank" class="btn btn-primary rounded-pill px-4">
+                                    تصفح الدورات المتاحة
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock dash_content %}

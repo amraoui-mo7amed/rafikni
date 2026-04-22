@@ -2,94 +2,95 @@
 {% load static %}
 
 {% block extra_css %}
-<style>
-    .courses-header {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-        padding: 80px 0;
-        margin-bottom: 60px;
-        color: white;
-    }
-    .course-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .course-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
-    }
-    .bg-soft-primary {
-        background-color: rgba(13, 110, 253, 0.1);
-    }
-</style>
+<link href="{% static 'frontend/css/articles.css' %}?v={% now 'U' %}" rel="stylesheet" />
+<link href="{% static 'frontend/css/courses.css' %}?v={% now 'U' %}" rel="stylesheet" />
 {% endblock extra_css %}
 
 {% block content %}
-<section class="courses-header">
-    <div class="container text-center">
-        <h1 class="fw-bold mb-3">الدورات التعليمية</h1>
-        <p class="lead opacity-75">اكتشف مجموعتنا المختارة من الدورات التدريبية المتخصصة</p>
-    </div>
-</section>
-
-<section class="mb-5 pb-5">
+<!-- Immersive Course Header -->
+<header class="courses-header">
     <div class="container">
-        <div class="row g-4">
+        <span class="badge rounded-pill px-4 py-2 mb-4 fw-bold">المنصة التعليمية</span>
+        <h1 class="mb-3">الدورات التدريبية</h1>
+        <p class="lead mx-auto" style="max-width: 700px; color: #475569;">
+            استثمر في مستقبلك ومستقبل طفلك من خلال دورات تعليمية متخصصة صممها نخبة من المختصين في مجالات التوحد والنطق والسلوك.
+        </p>
+    </div>
+</header>
+
+<section class="mb-5 pb-5 mt-5 pt-4">
+    <div class="container">
+        <div class="row g-5 justify-content-center">
             {% for course in courses %}
             <div class="col-md-6 col-lg-4">
-                <div class="course-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="position-relative">
+                <a href="{% url 'frontend:course_detail' course.id %}" class="article-card">
+                    <div class="article-img-wrapper">
                         {% if course.thumbnail %}
-                            <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 220px; object-fit: cover;">
+                            <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
                         {% else %}
-                            <div class="bg-soft-primary d-flex align-items-center justify-content-center" style="height: 220px;">
-                                <i class="fa-solid fa-graduation-cap fa-4x text-primary opacity-50"></i>
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                                <i class="fa-solid fa-graduation-cap fa-4x text-primary opacity-20"></i>
                             </div>
                         {% endif %}
-                        <div class="position-absolute top-0 end-0 m-3">
-                            <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">
-                                {% if course.price == 0 %}مجاني{% else %}{{ course.price }} د.ج{% endif %}
+                        <div class="category-pill">
+                            {% if course.price == 0 %}مجاني{% else %}{{ course.price }} د.ج{% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="article-body">
+                        <div class="article-date">
+                            <i class="fa-solid fa-chalkboard-user text-primary"></i>
+                            {{ course.teacher_name }}
+                        </div>
+                        
+                        <h3 class="article-title">{{ course.title }}</h3>
+                        
+                        <p class="article-excerpt">
+                            {{ course.description|striptags|truncatechars:120 }}
+                        </p>
+                        
+                        <div class="article-footer">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fa-solid fa-video me-1"></i>
+                                <span>محتوى مرئي</span>
+                            </div>
+                            
+                            <span class="read-more-link">
+                                <span>التفاصيل</span>
+                                <i class="fa-solid fa-arrow-left"></i>
                             </span>
                         </div>
                     </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold mb-2">{{ course.title }}</h5>
-                        <p class="text-muted small mb-3">{{ course.description|truncatechars:120 }}</p>
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="bg-soft-primary text-primary rounded-circle p-2 me-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa-solid fa-chalkboard-user"></i>
-                            </div>
-                            <span class="text-muted">بواسطة: <strong>{{ course.teacher_name }}</strong></span>
-                        </div>
-                        <a href="{% url 'frontend:course_detail' course.id %}" class="btn btn-primary w-100 rounded-3 py-2">
-                            <i class="fa-solid fa-eye ms-2"></i> عرض تفاصيل الدورة
-                        </a>
-                    </div>
-                </div>
+                </a>
             </div>
             {% empty %}
             <div class="col-12 text-center py-5">
                 <div class="mb-4">
-                    <i class="fa-solid fa-book-open fa-4x text-muted opacity-25"></i>
+                    <i class="fa-solid fa-book-open fa-5x text-muted opacity-10"></i>
                 </div>
-                <h3 class="text-muted">لا توجد دورات متاحة حالياً</h3>
-                <a href="{% url 'frontend:index' %}" class="btn btn-outline-primary mt-3">العودة للرئيسية</a>
+                <h3 class="text-muted fw-bold">لا توجد دورات متاحة حالياً</h3>
+                <p class="text-muted mb-4">نحن نعمل باستمرار على تطوير محتوى تعليمي جديد، ترقبونا!</p>
+                <a href="{% url 'frontend:index' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow-lg">العودة للرئيسية</a>
             </div>
             {% endfor %}
         </div>
-        
-        <!-- Pagination if needed -->
+
+        <!-- Pagination -->
         {% if is_paginated %}
-        <nav class="mt-5">
-            <ul class="pagination justify-content-center">
+        <nav class="mt-5 pt-4">
+            <ul class="pagination justify-content-center border-0">
                 {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">السابق</a></li>
+                <li class="page-item mx-1"><a class="page-link rounded-circle shadow-sm border-0" href="?page={{ page_obj.previous_page_number }}"><i class="fa-solid fa-chevron-right"></i></a></li>
                 {% endif %}
+                
                 {% for num in page_obj.paginator.page_range %}
-                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                <li class="page-item mx-1 {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link rounded-circle shadow-sm border-0" href="?page={{ num }}">{{ num }}</a>
                 </li>
                 {% endfor %}
+                
                 {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">التالي</a></li>
+                <li class="page-item mx-1"><a class="page-link rounded-circle shadow-sm border-0" href="?page={{ page_obj.next_page_number }}"><i class="fa-solid fa-chevron-left"></i></a></li>
                 {% endif %}
             </ul>
         </nav>
@@ -97,3 +98,7 @@
     </div>
 </section>
 {% endblock content %}
+
+{% block js %}
+<script src="{% static 'frontend/js/courses.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}
