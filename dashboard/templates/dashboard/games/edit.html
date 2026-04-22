@@ -1,0 +1,177 @@
+{% extends "dashboard/dash_index.html" %}
+{% load static %}
+
+{% block title %}تعديل اللعبة: {{ game.title }}{% endblock title %}
+
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/ultra_select.css' %}?v={% now 'U' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/css/articles.css' %}?v={% now 'U' %}" />
+{% endblock css %}
+
+{% block dash_content %}
+    <div class="welcome-section mb-4">
+        <h2 class="fw-bold text-dark">تعديل بيانات اللعبة</h2>
+        <p class="text-muted">قم بتحديث معلومات اللعبة وصورها.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card bg-glass border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form id="gameForm" 
+                          action="{% url 'dashboard:game_edit' game.pk %}" 
+                          method="POST" 
+                          enctype="multipart/form-data"
+                          data-csrf="{{ csrf_token }}"
+                          data-redirect="{% url 'dashboard:game_list' %}"
+                          class="form">
+                        
+                        {% csrf_token %}
+                        {% include "partials/errorList.html" with form_id="gameForm" %}
+
+                        <!-- Hero Thumbnail Upload -->
+                        <div class="article-hero-upload has-image" id="heroUpload" onclick="document.getElementById('input-file-thumbnail').click()">
+                            <img id="heroPreview" class="hero-preview-img" src="{{ game.thumbnail.url }}" alt="Preview">
+                            <div class="hero-upload-content" id="heroContent" style="display: none;">
+                                <i class="fa-solid fa-gamepad"></i>
+                                <h5 class="fw-bold">الصورة الرئيسية للعبة</h5>
+                                <p class="small">اضغط للتغيير</p>
+                            </div>
+                            <div class="hero-upload-overlay">
+                                <i class="fa-solid fa-camera me-1"></i> تغيير الصورة
+                            </div>
+                            <input type="file" name="thumbnail" id="input-file-thumbnail" hidden accept="image/*" onchange="previewHeroImage(this)">
+                        </div>
+
+                        <div class="row g-4">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <i class="fa-solid fa-circle-info me-2"></i>
+                                البيانات الأساسية
+                            </h5>
+
+                            <!-- Title -->
+                            <div class="col-12">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-heading"></i>
+                                    <span>عنوان اللعبة <span class="text-danger">*</span></span>
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="text" name="title" id="title" class="form-control" value="{{ game.title }}" required />
+                                </div>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-tag"></i>
+                                    <span>السعر (د.ج) <span class="text-danger">*</span></span>
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="number" name="price" id="price" class="form-control" value="{{ game.price }}" step="0.01" required />
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-tags"></i>
+                                    <span>الوسوم</span>
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="text" name="tags" id="tags" class="form-control" value="{{ game.tags }}" />
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-align-right"></i>
+                                    <span>الوصف <span class="text-danger">*</span></span>
+                                </label>
+                                <textarea name="description" id="description" class="form-control" rows="8" required style="border: 2px solid rgba(13, 110, 253, 0.3); border-radius: 16px; padding: 20px;">{{ game.description }}</textarea>
+                            </div>
+
+                            <h5 class="fw-bold mb-0 text-primary mt-5">
+                                <i class="fa-solid fa-images me-2"></i>
+                                معرض الصور (Gallery)
+                            </h5>
+
+                            <div class="col-12">
+                                <div class="row g-2 mb-3">
+                                    {% for img in game.images.all %}
+                                        <div class="col-3">
+                                            <div class="rounded-3 overflow-hidden shadow-sm" style="height: 80px;">
+                                                <img src="{{ img.image.url }}" class="w-100 h-100" style="object-fit: cover;">
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="p-4 rounded-4 border-2 border-dashed text-center bg-light mb-3" style="border: 2px dashed rgba(13, 110, 253, 0.3);">
+                                    <input type="file" name="gallery" id="galleryInput" multiple hidden accept="image/*" onchange="previewGalleryImages(this)">
+                                    <button type="button" class="btn btn-outline-primary px-4 rounded-pill fw-bold" onclick="document.getElementById('galleryInput').click()">
+                                        <i class="fa-solid fa-plus ms-2"></i> إضافة المزيد من الصور
+                                    </button>
+                                </div>
+                                <!-- Previews container -->
+                                <div id="galleryPreviewContainer" class="row g-2"></div>
+                            </div>
+
+                            <div class="col-md-6 mt-4">
+                                <div class="ultra-switch-container w-100">
+                                    <div class="form-check form-switch">
+                                        <label class="form-check-label fw-bold" for="is_active">تفعيل العرض في المتجر</label>
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if game.is_active %}checked{% endif %} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-5">
+                                <button type="submit" class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded-3 transition w-100 w-md-auto">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>
+                                    تحديث البيانات
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card border-0 shadow-sm bg-primary text-white mb-4 rounded-4">
+                <div class="card-header border-0 bg-transparent pt-4 px-4">
+                    <h4 class="fw-bold mb-0">نصائح التحديث</h4>
+                </div>
+                <div class="card-body p-4 pt-2">
+                    <p class="small opacity-75 leading-relaxed">
+                        تذكر تحديث صور المعرض بانتظام لإبقاء واجهة المتجر متجددة وجذابة للزبائن.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm bg-white mb-4 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">إدارة الصور</h5>
+                    <div class="d-flex flex-column gap-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="guideline-icon-box bg-soft-primary text-primary">
+                                <i class="fa-solid fa-images"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">المعرض</h6>
+                                <p class="small text-muted mb-0">الصور الإضافية تساعد في توضيح تفاصيل اللعبة.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock dash_content %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'dashboard/js/articles.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'dashboard/js/games.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}

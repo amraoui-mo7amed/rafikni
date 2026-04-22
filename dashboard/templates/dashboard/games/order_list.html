@@ -1,0 +1,89 @@
+{% extends "dashboard/dash_index.html" %}
+{% load static %}
+
+{% block title %}طلبات الألعاب (COD){% endblock title %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/user_list.css' %}?v={% now 'U' %}" />
+{% endblock extra_css %}
+
+{% block dash_content %}
+    <div class="welcome-section mb-4">
+        <h2 class="fw-bold text-dark">إدارة طلبات الألعاب</h2>
+        <p class="text-muted">متابعة وتحديث حالات طلبات الدفع عند الاستلام.</p>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="table-responsive shadow-sm rounded-4 overflow-hidden">
+        <table class="table table-hover align-middle mb-0 bg-white" id="ordersTable">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">رقم الطلب</th>
+                    <th>الزبون</th>
+                    <th>اللعبة</th>
+                    <th>الولاية/البلدية</th>
+                    <th>الهاتف</th>
+                    <th>الحالة</th>
+                    <th class="text-end pe-4">التاريخ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td class="ps-4 fw-bold">#{{ order.id }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ order.full_name }}</div>
+                            {% if order.user %}
+                                <span class="badge bg-soft-info text-info small">مسجل</span>
+                            {% else %}
+                                <span class="badge bg-soft-secondary text-secondary small">زائر</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-primary fw-bold">{{ order.game.title }}</span>
+                            <div class="small text-muted">{{ order.game.price }} د.ج</div>
+                        </td>
+                        <td>
+                            <div>{{ order.wilaya }}</div>
+                            <small class="text-muted">{{ order.commune }}</small>
+                        </td>
+                        <td>
+                            <a href="tel:{{ order.phone_number }}" class="text-decoration-none fw-bold text-dark">
+                                <i class="fa-solid fa-phone-flip me-1 text-success"></i> {{ order.phone_number }}
+                            </a>
+                        </td>
+                        <td>
+                            <select class="form-select form-select-sm rounded-pill order-status-select border-primary" 
+                                    data-url="{% url 'dashboard:game_order_status' order.pk %}"
+                                    data-csrf="{{ csrf_token }}"
+                                    style="width: 130px; font-weight: 700;">
+                                {% for val, label in order.OrderStatus.choices %}
+                                    <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="text-end pe-4 text-muted small">
+                            {{ order.created_at|date:"Y-m-d H:i" }}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fa-solid fa-cart-shopping fa-3x mb-3 d-block opacity-25"></i>
+                                لا توجد طلبات حالياً.
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock dash_content %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'dashboard/js/games.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}

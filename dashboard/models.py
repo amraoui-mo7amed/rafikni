@@ -360,3 +360,92 @@ class Article(models.Model):
         if self.tags:
             return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
         return []
+
+
+class Game(models.Model):
+    """Game model for COD system"""
+
+    title = models.CharField(max_length=255, verbose_name="عنوان اللعبة")
+    slug = models.SlugField(
+        max_length=255, unique=True, verbose_name="الرابط المختصر", allow_unicode=True
+    )
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="السعر (د.ج)"
+    )
+    description = models.TextField(verbose_name="وصف اللعبة")
+    tags = models.CharField(
+        max_length=500, verbose_name="الوسوم (مفصولة بفاصلة)", blank=True
+    )
+    thumbnail = models.ImageField(
+        upload_to="games/thumbnails/", verbose_name="صورة الغلاف"
+    )
+    is_active = models.BooleanField(default=True, verbose_name="نشط")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الإضافة")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="تاريخ التحديث")
+
+    class Meta:
+        verbose_name = "لعبة"
+        verbose_name_plural = "الألعاب"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title
+
+    def get_tags_list(self):
+        if self.tags:
+            return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
+        return []
+
+
+class GameImage(models.Model):
+    """Gallery images for games"""
+
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name="images", verbose_name="اللعبة"
+    )
+    image = models.ImageField(upload_to="games/gallery/", verbose_name="الصورة")
+
+    class Meta:
+        verbose_name = "صورة اللعبة"
+        verbose_name_plural = "صور الألعاب"
+
+
+class GameOrder(models.Model):
+    """COD Order for games"""
+
+    class OrderStatus(models.TextChoices):
+        PENDING = "pending", "قيد الانتظار"
+        CONFIRMED = "confirmed", "تم التأكيد"
+        DELIVERED = "delivered", "تم التوصيل"
+        CANCELLED = "cancelled", "ملغى"
+
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name="orders", verbose_name="اللعبة"
+    )
+    full_name = models.CharField(max_length=255, verbose_name="الاسم الكامل")
+    phone_number = models.CharField(max_length=20, verbose_name="رقم الهاتف")
+    wilaya = models.CharField(max_length=100, verbose_name="الولاية")
+    commune = models.CharField(max_length=100, verbose_name="البلدية")
+    address = models.TextField(verbose_name="العنوان بالتفصيل")
+    status = models.CharField(
+        max_length=20,
+        choices=OrderStatus.choices,
+        default=OrderStatus.PENDING,
+        verbose_name="حالة الطلب",
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="المستخدم (اختياري)",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الطلب")
+
+    class Meta:
+        verbose_name = "طلب لعبة"
+        verbose_name_plural = "طلبات الألعاب"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.full_name}"

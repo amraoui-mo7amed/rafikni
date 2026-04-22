@@ -1,0 +1,77 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'frontend/css/articles.css' %}?v={% now 'U' %}" rel="stylesheet" />
+{% endblock extra_css %}
+
+{% block content %}
+<!-- Immersive Page Header -->
+<header class="articles-header">
+    <div class="container text-center">
+        <span class="badge rounded-pill px-4 py-2 mb-4 fw-bold">متجر الألعاب التعليمية</span>
+        <h1 class="mb-3">ألعاب تنمية المهارات</h1>
+        <p class="lead mx-auto" style="max-width: 700px; color: #475569;">
+            مجموعة مختارة من الألعاب والوسائل التعليمية المصممة خصيصاً لدعم نمو وتطور مهارات أطفالكم.
+        </p>
+    </div>
+</header>
+
+<section class="mb-5 pb-5 mt-5 pt-4">
+    <div class="container">
+        <div class="row g-5 justify-content-center">
+            {% for game in games %}
+            <div class="col-md-6 col-lg-4">
+                <a href="{% url 'frontend:game_detail' game.slug %}" class="article-card">
+                    <div class="article-img-wrapper">
+                        {% if game.thumbnail %}
+                            <img src="{{ game.thumbnail.url }}" alt="{{ game.title }}">
+                        {% else %}
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                                <i class="fa-solid fa-gamepad fa-4x text-primary opacity-20"></i>
+                            </div>
+                        {% endif %}
+                        <div class="category-pill">
+                            {{ game.price }} د.ج
+                        </div>
+                    </div>
+                    
+                    <div class="article-body">
+                        <div class="article-date">
+                            <i class="fa-solid fa-star text-warning"></i>
+                            لعبة تعليمية مميزة
+                        </div>
+                        
+                        <h3 class="article-title">{{ game.title }}</h3>
+                        
+                        <p class="article-excerpt">
+                            {{ game.description|striptags|truncatechars:120 }}
+                        </p>
+                        
+                        <div class="article-footer">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fa-solid fa-boxes-stacked me-1"></i>
+                                <span>متوفر في المتجر</span>
+                            </div>
+                            
+                            <span class="read-more-link">
+                                <span>التفاصيل</span>
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="mb-4">
+                    <i class="fa-solid fa-gamepad fa-5x text-muted opacity-10"></i>
+                </div>
+                <h3 class="text-muted fw-bold">سيتم إضافة الألعاب قريباً</h3>
+                <a href="{% url 'frontend:index' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow">العودة للرئيسية</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock content %}

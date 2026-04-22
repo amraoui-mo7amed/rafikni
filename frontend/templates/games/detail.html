@@ -1,0 +1,163 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/ultra_select.css' %}?v={% now 'U' %}" rel="stylesheet" />
+<link href="{% static 'frontend/css/articles.css' %}?v={% now 'U' %}" rel="stylesheet" />
+<link href="{% static 'frontend/css/games.css' %}?v={% now 'U' %}" rel="stylesheet" />
+{% endblock extra_css %}
+
+{% block content %}
+<main class="game-detail-page bg-white" dir="rtl">
+    <div class="container py-5 mb-5">
+        <nav aria-label="breadcrumb" class="mb-5">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'frontend:index' %}">الرئيسية</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'frontend:game_list' %}">الألعاب</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ game.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            <!-- Product Gallery & Info -->
+            <div class="col-lg-7">
+                <div class="game-gallery-main mb-4">
+                    <img id="mainImage" src="{{ game.thumbnail.url }}" alt="{{ game.title }}">
+                </div>
+                
+                <div class="gallery-thumbs">
+                    <div class="gallery-thumb active" data-image="{{ game.thumbnail.url }}">
+                        <img src="{{ game.thumbnail.url }}" alt="">
+                    </div>
+                    {% for img in game.images.all %}
+                    <div class="gallery-thumb" data-image="{{ img.image.url }}">
+                        <img src="{{ img.image.url }}" alt="">
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-5">
+                    <h1 class="display-4 fw-bold text-dark mb-3">{{ game.title }}</h1>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <span class="badge bg-primary rounded-pill px-4 py-2 fs-5">{{ game.price }} د.ج</span>
+                        <span class="text-success fw-bold"><i class="fa-solid fa-check-circle ms-1"></i> متوفر في المخزن</span>
+                    </div>
+                    
+                    <div class="article-rich-text mt-5">
+                        <h4 class="fw-bold mb-4">وصف اللعبة:</h4>
+                        {{ game.description|linebreaks }}
+                    </div>
+
+                    {% if game.get_tags_list %}
+                    <div class="mt-5 pt-4 border-top">
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for tag in game.get_tags_list %}
+                            <span class="tag-badge">#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Form -->
+            <div class="col-lg-5">
+                <div class="order-form-card shadow-lg order-form-container" data-communes-url="{% url 'frontend:get_communes_ajax' %}">
+                    <div class="text-center mb-5">
+                        <div class="input-icon-box icon-blue mx-auto mb-3 shadow-sm" style="width: 64px; height: 64px; font-size: 1.8rem; border-radius: 18px;">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <h3 class="fw-bold">اطلب الآن (COD)</h3>
+                        <p class="text-muted small">الدفع عند الاستلام متاح في جميع الولايات</p>
+                    </div>
+
+                    <form id="placeOrderForm" 
+                          data-url="{% url 'frontend:place_game_order' %}" 
+                          data-csrf="{{ csrf_token }}">
+                        <input type="hidden" name="game_id" value="{{ game.id }}">
+                        
+                        <!-- Full Name -->
+                        <div class="mb-4">
+                            <label class="ultra-field-label"><span>الاسم الكامل</span></label>
+                            <div class="ultra-input-group">
+                                <div class="input-icon-box icon-blue">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <input type="text" name="full_name" class="form-control" placeholder="أدخل اسمك بالكامل" required>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-4">
+                            <label class="ultra-field-label"><span>رقم الهاتف</span></label>
+                            <div class="ultra-input-group">
+                                <div class="input-icon-box icon-green">
+                                    <i class="fa-solid fa-phone"></i>
+                                </div>
+                                <input type="tel" name="phone_number" class="form-control" placeholder="05 / 06 / 07" required>
+                            </div>
+                        </div>
+
+                        <!-- Location Selectors -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="ultra-field-label"><span>الولاية</span></label>
+                                <div class="ultra-select-container" id="custom-select-wilaya" data-name="wilaya">
+                                    <div class="ultra-select-wrapper">
+                                        <div class="input-icon-box icon-purple">
+                                            <i class="fa-solid fa-map-location-dot"></i>
+                                        </div>
+                                        <div class="ultra-selected-value">اختر الولاية...</div>
+                                        <input type="hidden" name="wilaya" value="" id="input-wilaya">
+                                        <div class="ultra-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+                                    </div>
+                                    <div class="ultra-dropdown">
+                                        <div class="ultra-option active" data-value="">اختر الولاية...</div>
+                                        {% for code, name in wilayas %}
+                                            <div class="ultra-option" data-value="{{ name }}" data-code="{{ code }}">{{ name }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="ultra-field-label"><span>البلدية</span></label>
+                                <div class="ultra-select-container" id="custom-select-commune" data-name="commune">
+                                    <div class="ultra-select-wrapper">
+                                        <div class="input-icon-box icon-orange">
+                                            <i class="fa-solid fa-city"></i>
+                                        </div>
+                                        <div class="ultra-selected-value">اختر البلدية...</div>
+                                        <input type="hidden" name="commune" value="" id="input-commune">
+                                        <div class="ultra-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+                                    </div>
+                                    <div class="ultra-dropdown">
+                                        <div class="ultra-option active" data-value="">اختر البلدية...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Address -->
+                        <div class="mb-4">
+                            <label class="ultra-field-label"><span>العنوان بالتفصيل</span></label>
+                            <div class="ultra-input-group" style="height: auto; min-height: 120px; align-items: flex-start;">
+                                <textarea name="address" class="form-control" rows="3" placeholder="الحي، رقم المنزل..." required style="padding: 15px !important;"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-lg" id="submitOrderBtn">
+                            <i class="fa-solid fa-check ms-2"></i> تأكيد الطلب
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'frontend/js/games.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}

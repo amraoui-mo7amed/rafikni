@@ -1,0 +1,178 @@
+{% extends "dashboard/dash_index.html" %}
+{% load static %}
+
+{% block title %}إضافة لعبة جديدة{% endblock title %}
+
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/ultra_select.css' %}?v={% now 'U' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard/css/articles.css' %}?v={% now 'U' %}" />
+{% endblock css %}
+
+{% block dash_content %}
+    <div class="welcome-section mb-4">
+        <h2 class="fw-bold text-dark">إضافة لعبة جديدة</h2>
+        <p class="text-muted">أدخل تفاصيل اللعبة وصورها المتوفرة في المتجر.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card bg-glass border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form id="gameForm" 
+                          action="{% url 'dashboard:game_create' %}" 
+                          method="POST" 
+                          enctype="multipart/form-data"
+                          data-csrf="{{ csrf_token }}"
+                          data-redirect="{% url 'dashboard:game_list' %}"
+                          class="form">
+                        
+                        {% csrf_token %}
+                        {% include "partials/errorList.html" with form_id="gameForm" %}
+
+                        <!-- Hero Thumbnail Upload -->
+                        <div class="article-hero-upload" id="heroUpload" onclick="document.getElementById('input-file-thumbnail').click()">
+                            <img id="heroPreview" class="hero-preview-img" style="display: none;" src="" alt="Preview">
+                            <div class="hero-upload-content" id="heroContent">
+                                <i class="fa-solid fa-gamepad"></i>
+                                <h5 class="fw-bold">الصورة الرئيسية للعبة</h5>
+                                <p class="small">اسحب الصورة هنا أو اضغط للاختيار</p>
+                            </div>
+                            <div class="hero-upload-overlay">
+                                <i class="fa-solid fa-camera me-1"></i> تغيير الصورة
+                            </div>
+                            <input type="file" name="thumbnail" id="input-file-thumbnail" hidden accept="image/*" onchange="previewHeroImage(this)">
+                        </div>
+
+                        <div class="row g-4">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <i class="fa-solid fa-circle-info me-2"></i>
+                                البيانات الأساسية
+                            </h5>
+
+                            <!-- Title -->
+                            <div class="col-12">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-heading"></i>
+                                    <span>عنوان اللعبة <span class="text-danger">*</span></span>
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="text" name="title" id="title" class="form-control" placeholder="أدخل عنوان اللعبة" required />
+                                </div>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-tag"></i>
+                                    <span>السعر (د.ج) <span class="text-danger">*</span></span>
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="number" name="price" id="price" class="form-control" placeholder="0.00" step="0.01" required />
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="col-md-6">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-tags"></i>
+                                    <span>الوسوم</span>
+                                </label>
+                                <div class="ultra-input-group">
+                                    <input type="text" name="tags" id="tags" class="form-control" placeholder="أدخل الوسوم (مفصولة بفاصلة)" />
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12">
+                                <label class="ultra-field-label">
+                                    <i class="fa-solid fa-align-right"></i>
+                                    <span>الوصف <span class="text-danger">*</span></span>
+                                </label>
+                                <textarea name="description" id="description" class="form-control" rows="8" placeholder="اشرح مميزات اللعبة وفائدتها..." required style="border: 2px solid rgba(13, 110, 253, 0.3); border-radius: 16px; padding: 20px;"></textarea>
+                            </div>
+
+                            <h5 class="fw-bold mb-0 text-primary mt-5">
+                                <i class="fa-solid fa-images me-2"></i>
+                                معرض الصور (Gallery)
+                            </h5>
+
+                            <div class="col-12">
+                                <div class="p-4 rounded-4 border-2 border-dashed text-center bg-light mb-3" style="border: 2px dashed rgba(13, 110, 253, 0.3);">
+                                    <input type="file" name="gallery" id="galleryInput" multiple hidden accept="image/*" onchange="previewGalleryImages(this)">
+                                    <button type="button" class="btn btn-outline-primary px-4 rounded-pill fw-bold" onclick="document.getElementById('galleryInput').click()">
+                                        <i class="fa-solid fa-cloud-arrow-up ms-2"></i> اختر صور المعرض
+                                    </button>
+                                    <p class="text-muted small mt-2 mb-0">يمكنك اختيار عدة صور في وقت واحد.</p>
+                                </div>
+                                <!-- Previews container -->
+                                <div id="galleryPreviewContainer" class="row g-2"></div>
+                            </div>
+
+                            <div class="col-md-6 mt-4">
+                                <div class="ultra-switch-container w-100">
+                                    <div class="form-check form-switch">
+                                        <label class="form-check-label fw-bold" for="is_active">تفعيل العرض في المتجر</label>
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-5">
+                                <button type="submit" class="btn btn-primary px-5 py-3 fw-bold shadow-sm rounded-3 transition w-100 w-md-auto">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>
+                                    حفظ اللعبة
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card border-0 shadow-sm bg-primary text-white mb-4 rounded-4">
+                <div class="card-header border-0 bg-transparent pt-4 px-4">
+                    <h4 class="fw-bold mb-0">حول الألعاب</h4>
+                </div>
+                <div class="card-body p-4 pt-2">
+                    <p class="small opacity-75 leading-relaxed">
+                        الألعاب في منصة رافقني هي أدوات تعليمية تساعد في تطوير مهارات الأطفال ذوي الاحتياجات الخاصة. تأكد من إضافة وصف دقيق لفوائد كل لعبة.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm bg-white mb-4 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">نصائح العرض</h5>
+                    <div class="d-flex flex-column gap-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="guideline-icon-box bg-soft-primary text-primary">
+                                <i class="fa-solid fa-camera-retro"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">الصور</h6>
+                                <p class="small text-muted mb-0">استخدم صوراً حقيقية للمنتج من زوايا مختلفة.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="guideline-icon-box bg-soft-success text-success">
+                                <i class="fa-solid fa-tag"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">التسعير</h6>
+                                <p class="small text-muted mb-0">تأكد من أن السعر يشمل الضرائب والرسوم الأساسية.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock dash_content %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'dashboard/js/articles.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'dashboard/js/games.js' %}?v={% now 'U' %}"></script>
+{% endblock js %}

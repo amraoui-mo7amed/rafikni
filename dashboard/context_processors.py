@@ -63,6 +63,16 @@ def sidebar_menu(request):
                         "url_name": "dashboard:article_list",
                         "icon": "fa-solid fa-newspaper",
                     },
+                    {
+                        "name": "الألعاب",
+                        "url_name": "dashboard:game_list",
+                        "icon": "fa-solid fa-gamepad",
+                    },
+                    {
+                        "name": "طلبات الألعاب",
+                        "url_name": "dashboard:game_order_list",
+                        "icon": "fa-solid fa-cart-shopping",
+                    },
                 ],
             }
         )
