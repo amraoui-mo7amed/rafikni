@@ -154,12 +154,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Validate file size (500MB max)
-        const maxSize = 500 * 1024 * 1024;
+        // Validate file size (1GB max)
+        const maxSize = 1 * 1024 * 1024 * 1024;
         if (file.size > maxSize) {
             Swal.fire({
                 title: 'خطأ',
-                text: 'حجم الملف كبير جداً. الحد الأقصى 500MB',
+                text: 'حجم الملف كبير جداً. الحد الأقصى 1GB',
                 icon: 'error',
                 confirmButtonText: 'حسناً'
             });

@@ -30,7 +30,7 @@ def user_list(request):
     status = request.GET.get("status", "")  # active, inactive, banned (is_active=False)
     page = request.GET.get("page", 1)
 
-    users = User.objects.select_related("profile").all()
+    users = User.objects.select_related("profile").exclude(is_superuser=True)
 
     if query:
         users = users.filter(
@@ -244,7 +244,6 @@ def doctor_create(request):
 
                 # Notify other admins
                 notify_admins(
-                    request,
                     title="حساب طبيب جديد",
                     message=f"تم إنشاء حساب جديد للطبيب {username} بواسطة {request.user.username}",
                     notification_type="success",

@@ -12,7 +12,6 @@ def notify_admins_on_new_payment(sender, instance, created, **kwargs):
     """
     if created:
         notify_admins(
-            None,  # Request is not available in signals
             title="إيصال دفع جديد",
             message=f"قام المستخدم {instance.user.username} برفع إيصال دفع",
             notification_type="info",

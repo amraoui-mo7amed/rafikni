@@ -92,7 +92,6 @@ def payment_submit(request, enrollment_id):
 
             # Notify admins
             notify_admins(
-                request,
                 title="إيصال دفع جديد",
                 message=f"قام المستخدم {request.user.username} برفع إيصال دفع لدورة {enrollment.course.title}",
                 notification_type="info",

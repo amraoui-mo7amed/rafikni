@@ -23,7 +23,7 @@ def test_notification(request):
     return JsonResponse({"success": True, "message": "تم إرسال التنبيه"})
 
 
-# @login_required
+@login_required
 def index(request):
     # Get user statistics
     total_users = User.objects.count()

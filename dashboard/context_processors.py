@@ -1,24 +1,15 @@
+from functools import lru_cache
 from django.urls import reverse, resolve
 from user_auth.models import UserProfile
+import copy
 
 
-def sidebar_menu(request):
-    current_url_name = None
-    try:
-        current_url_name = resolve(request.path_info).url_name
-        namespace = resolve(request.path_info).namespace
-        if namespace:
-            current_url_name = f"{namespace}:{current_url_name}"
-    except:
-        pass
-
-    user = request.user
-    role = getattr(user.profile, "role", None) if hasattr(user, "profile") else None
-
+@lru_cache(maxsize=128)
+def get_menu_structure(is_authenticated, role):
     menu_sections = []
 
     # Home section (All authenticated users)
-    if user.is_authenticated:
+    if is_authenticated:
         menu_sections.append(
             {
                 "label": "القائمة الرئيسية",
@@ -33,7 +24,7 @@ def sidebar_menu(request):
         )
 
     # Management section (Role-based)
-    if role == UserProfile.RoleChoices.ADMIN or user.is_superuser:
+    if role == UserProfile.RoleChoices.ADMIN:
         menu_sections.append(
             {
                 "label": "الإدارة",
@@ -117,25 +108,20 @@ def sidebar_menu(request):
         )
 
     # System section (All authenticated users)
-    if user.is_authenticated:
-        system_items = []
-
-        # Common system items
-        system_items.extend(
-            [
-                {
-                    "name": "الملف الشخصي",
-                    "url_name": "dashboard:profile_update",
-                    "icon": "fa-solid fa-user-pen",
-                },
-                {
-                    "name": "تسجيل الخروج",
-                    "url_name": "user_auth:logout",
-                    "icon": "fa-solid fa-right-from-bracket",
-                    "class": "text-danger",
-                },
-            ]
-        )
+    if is_authenticated:
+        system_items = [
+            {
+                "name": "الملف الشخصي",
+                "url_name": "dashboard:profile_update",
+                "icon": "fa-solid fa-user-pen",
+            },
+            {
+                "name": "تسجيل الخروج",
+                "url_name": "user_auth:logout",
+                "icon": "fa-solid fa-right-from-bracket",
+                "class": "text-danger",
+            },
+        ]
 
         menu_sections.append(
             {
@@ -144,6 +130,29 @@ def sidebar_menu(request):
                 "mt_auto": True,
             }
         )
+    return menu_sections
+
+
+def sidebar_menu(request):
+    current_url_name = None
+    try:
+        current_url_name = resolve(request.path_info).url_name
+        namespace = resolve(request.path_info).namespace
+        if namespace:
+            current_url_name = f"{namespace}:{current_url_name}"
+    except:
+        pass
+
+    user = request.user
+    role = getattr(user.profile, "role", None) if hasattr(user, "profile") else None
+    
+    # Force admin role if superuser for menu visibility
+    effective_role = role
+    if user.is_superuser:
+        effective_role = UserProfile.RoleChoices.ADMIN
+
+    # Get structure from cache
+    menu_sections = copy.deepcopy(get_menu_structure(user.is_authenticated, effective_role))
 
     # Process items for active state and URLs
     for section in menu_sections:
@@ -160,3 +169,4 @@ def sidebar_menu(request):
             item["active"] = current_url_name == item.get("url_name")
 
     return {"sidebar_menu": menu_sections}
+

@@ -69,6 +69,10 @@
                                 <a class="nav-link" href="{% url 'frontend:index' %}#articles">المقالات</a>
                             </li>
                         </ul>
+                        <a href="{% url 'user_auth:login' %}"
+                           class="btn btn-primary rounded px-4 py-2 fw-bold get-started-btn-nav">
+                            ابدأ الآن
+                        </a>
                     </div>
                 </div>
             </nav>
@@ -77,8 +81,14 @@
             <!-- Hero Section -->
             <header class="hero d-flex align-items-center"
                     style="height: 70vh;
-                           background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
                            position: relative">
+                <div class="hero-bg-shapes">
+                    <div class="shape"></div>
+                    <div class="shape"></div>
+                    <div class="shape"></div>
+                    <div class="shape"></div>
+                    <div class="shape"></div>
+                </div>
                 <div class="container text-center text-white"
                      style="position: relative;
                             z-index: 2">
@@ -93,7 +103,7 @@
                         <a href="#doctors"
                            class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary">المختصون</a>
                         <a href="{% url 'frontend:article_list' %}"
-                           class="btn btn-outline-light btn-lg rounded-pill px-5">المقالات</a>
+                           class="btn btn-outline-light btn-lg rounded-pill text-light px-5">المقالات</a>
                     </div>
                 </div>
             </header>

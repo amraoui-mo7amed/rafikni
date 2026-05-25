@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from decouple import config
+from django.urls import reverse_lazy
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +36,8 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = (
     os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else []
 )
+LOGIN_URL = reverse_lazy("user_auth:login")
+LOGIN_REDIRECT_URL = reverse_lazy("dashboard:index")
 
 
 # Application definition
@@ -177,3 +181,9 @@ EVENTSTREAM_REDIS = {
     "db": 0,
 }
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS").split(",")
+
+# 1GB in bytes for the entire request body
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1073741824
+
+# 2.5MB in bytes: Files larger than this are streamed to disk, not kept in RAM
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440

@@ -288,7 +288,6 @@ def medical_case_create(request):
                 category, ""
             )
             notify_admins(
-                request,
                 title="حالة طبية جديدة",
                 message=f"قام المستخدم {request.user.username} بإضافة حالة طبية جديدة ({category_display})",
                 notification_type="info",
