@@ -10,6 +10,8 @@
           href="{% static 'css/user_list.css' %}?v={% now 'U' %}" />
     <link rel="stylesheet"
           href="{% static 'css/medical_case_list.css' %}?v={% now 'U' %}" />
+    <link rel="stylesheet"
+          href="{% static 'css/treatment_plan.css' %}?v={% now 'U' %}" />
 {% endblock extra_css %}
 {% block dash_content %}
     <div class="welcome-section mb-4 d-flex justify-content-between align-items-center">
@@ -144,6 +146,14 @@
                                         {% if case.case_type == 'elderly' %} data-case-alzheimer="{{ case.alzheimer|yesno:'نعم,لا' }}" data-case-parkinson="{{ case.parkinson|yesno:'نعم,لا' }}" {% endif %}>
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
+                                {% if is_admin %}
+                                <button class="action-btn btn-treatment-plan"
+                                        title="الخطة العلاجية"
+                                        data-case-type="{{ case.case_type }}"
+                                        data-case-id="{{ case.id }}">
+                                    <i class="fa-solid fa-brain"></i>
+                                </button>
+                                {% endif %}
                                 <button class="action-btn btn-delete"
                                         title="حذف الحالة"
                                         data-delete-url="{% url 'dashboard:medical_case_delete' case.case_type case.id %}">
@@ -408,9 +418,55 @@
             </div>
         </div>
     </div>
+    <!-- Treatment Plan Modal -->
+    <div class="modal fade" id="treatmentPlanModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header text-white">
+                    <h5 class="modal-title text-white">
+                        <i class="fa-solid fa-brain me-2"></i>
+                        الخطة العلاجية
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="treatmentPlanBody">
+                    <div class="text-center py-5" id="treatmentPlanLoading">
+                        <div class="spinner-border text-primary mb-3" role="status"></div>
+                        <p class="text-muted">جاري تجهيز الخطة العلاجية...</p>
+                    </div>
+                    <div id="treatmentPlanContent" style="display: none;"></div>
+                    <div id="treatmentPlanMeta" class="small text-muted mb-3 text-center" style="display: none;"></div>
+                    <div id="treatmentPlanError" style="display: none;" class="text-center py-5">
+                        <i class="fa-solid fa-triangle-exclamation fa-3x text-danger mb-3"></i>
+                        <p class="text-muted" id="treatmentPlanErrorText"></p>
+                        <button class="btn btn-primary mt-3" id="retryGeneratePlan">
+                            <i class="fa-solid fa-rotate me-2"></i>إعادة المحاولة
+                        </button>
+                    </div>
+                    <div class="text-center py-5" id="treatmentPlanEmpty" style="display: none;">
+                        <i class="fa-solid fa-file-circle-plus fa-4x text-primary opacity-50 mb-3"></i>
+                        <p class="text-muted">لا توجد خطة علاجية لهذه الحالة بعد.</p>
+                        <p class="text-muted small">سيتم استخدام الذكاء الاصطناعي لإنشاء خطة مخصصة بناءً على بيانات الحالة.</p>
+                    </div>
+                </div>
+                <div class="modal-footer" id="treatmentPlanFooter" style="display: none;">
+                    <button type="button" class="btn btn-primary px-4" id="treatmentPlanCreateBtn" style="display: none;">
+                        <i class="fa-solid fa-wand-magic-sparkles me-2"></i>إنشاء الخطة العلاجية
+                    </button>
+                    <button type="button" class="btn btn-warning px-4" id="treatmentPlanRegenerateBtn" style="display: none;">
+                        <i class="fa-solid fa-rotate me-2"></i>إعادة إنشاء الخطة
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark me-1"></i>إغلاق
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock dash_content %}
 {% block extra_js %}
     <script src="{% static 'js/ultra_select.js' %}?v={% now 'U' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{% static 'js/medical_case_list.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/treatment_plan.js' %}?v={% now 'U' %}"></script>
 {% endblock extra_js %}

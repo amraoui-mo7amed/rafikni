@@ -9,6 +9,7 @@ from dashboard.views import (
     payments,
     articles,
     games,
+    treatment_plans,
 )
 
 app_name = "dashboard"
@@ -132,4 +133,15 @@ urlpatterns = [
     path("games/<int:pk>/delete/", games.game_delete, name="game_delete"),
     path("games/orders/", games.game_order_list, name="game_order_list"),
     path("games/orders/<int:pk>/status/", games.game_order_status, name="game_order_status"),
+    # Treatment Plans
+    path(
+        "treatment-plans/generate/<str:case_type>/<int:case_id>/",
+        treatment_plans.generate_plan,
+        name="treatment_plan_generate",
+    ),
+    path(
+        "treatment-plans/get/<str:case_type>/<int:case_id>/",
+        treatment_plans.get_plan,
+        name="treatment_plan_get",
+    ),
 ]

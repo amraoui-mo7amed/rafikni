@@ -1,0 +1,115 @@
+.btn-treatment-plan {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(111, 66, 193, 0.1);
+    color: #6f42c1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-treatment-plan:hover {
+    background: #6f42c1;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+}
+
+.plan-section-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    transition: box-shadow 0.2s ease;
+}
+
+.plan-section-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.plan-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f0f0f5;
+}
+
+.plan-section-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.plan-section-icon.assessment { background: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+.plan-section-icon.goals { background: rgba(25, 135, 84, 0.1); color: #198754; }
+.plan-section-icon.therapy { background: rgba(111, 66, 193, 0.1); color: #6f42c1; }
+.plan-section-icon.recommendations { background: rgba(255, 193, 7, 0.15); color: #b8860b; }
+.plan-section-icon.followup { background: rgba(13, 202, 240, 0.1); color: #0dcaf0; }
+
+.plan-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a2e;
+}
+
+.plan-section-content {
+    color: #4a4a5a;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.plan-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.plan-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0.6rem 1rem;
+    background: #f8f9fc;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.plan-step:hover {
+    background: #f0f2f8;
+}
+
+.plan-step-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #0d6efd;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.plan-step-text {
+    font-size: 0.9rem;
+    color: #3a3a4a;
+    line-height: 1.6;
+}

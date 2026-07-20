@@ -56,17 +56,16 @@
                                 <a class="nav-link active" href="{% url 'frontend:index' %}">الرئيسية</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#doctors">المختصون</a>
+                                <a class="nav-link" href="{% url 'frontend:index' %}#courses">الدورات</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#games">الألعاب</a>
                             </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'frontend:index' %}#courses">الدورات</a>
-                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'frontend:index' %}#articles">المقالات</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#doctors">المختصون</a>
                             </li>
                         </ul>
                         <a href="{% url 'user_auth:login' %}"
@@ -107,91 +106,124 @@
                     </div>
                 </div>
             </header>
-            <!-- Doctors Section -->
-            <section id="doctors" class="py-5" style="background-color: #f8fafc;">
-                <div class="container py-5">
-                    <div class="row mb-5 text-center">
-                        <div class="col-lg-8 mx-auto">
-                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary"
-                                  style="background: rgba(13, 110, 253, 0.1)">نخبة المختصين</span>
-                            <h2 class="display-5 fw-bold text-dark mb-3">
-                                فريق الأطباء والأخصائيين
-                            </h2>
-                            <p class="text-muted lead">
-                                خبرات معتمدة في مجالات الأرطفونيا، التوحد، وADHD.
-                            </p>
+            <!-- Courses Section -->
+            <section id="courses" class="py-5" style="background-color: #f8fafc;">
+                <div class="container py-5 text-center">
+                    <div class="row mb-5 justify-content-center">
+                        <div class="col-lg-8">
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1);">تعلم وتطور</span>
+                            <h2 class="display-5 fw-bold text-dark mb-3">الدورات التدريبية</h2>
+                            <p class="text-muted lead">برامج تعليمية متكاملة للأولياء والمربين.</p>
                         </div>
                     </div>
-                    <div class="row g-4">
-                        <!-- Specialist 1 -->
-                        <div class="col-md-4">
-                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
-                                <img class="mx-auto mb-4"
-                                     src="https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Specialist 1"
-                                     style="width: 120px;
-                                            height: 120px;
-                                            border-radius: 50%;
-                                            object-fit: cover;
-                                            border: 4px solid #f1f5f9" />
-                                <h5 class="fw-bold mb-1">
-                                    أ. هدى مراد
-                                </h5>
-                                <p class="text-primary small fw-bold mb-3">
-                                    أخصائية أرطفونيا معتمدة
-                                </p>
-                                <p class="text-muted small mb-0">
-                                    متخصصة في اضطرابات النطق واللغة عند الأطفال.
-                                </p>
-                            </div>
+                    <div class="row g-4 mb-5 text-end">
+                        {% for course in latest_courses %}
+                        <div class="col-md-6 col-lg-4">
+                            <a href="{% url 'frontend:course_detail' course.id %}" class="article-card">
+                                <div class="article-img-wrapper">
+                                    {% if course.thumbnail %}
+                                        <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                                    {% else %}
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                                            <i class="fa-solid fa-graduation-cap fa-4x text-primary opacity-20"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="category-pill">
+                                        {% if course.price == 0 %}مجاني{% else %}{{ course.price }} د.ج{% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="article-body">
+                                    <div class="article-date">
+                                        <i class="fa-solid fa-chalkboard-user text-primary"></i>
+                                        {{ course.teacher_name }}
+                                    </div>
+                                    <h3 class="article-title">{{ course.title }}</h3>
+                                    <p class="article-excerpt">{{ course.description|striptags|truncatechars:100 }}</p>
+                                    <div class="article-footer">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa-solid fa-video me-1"></i>
+                                            <span>محتوى مرئي</span>
+                                        </div>
+                                        <span class="read-more-link">
+                                            <span>التفاصيل</span>
+                                            <i class="fa-solid fa-arrow-left"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
-                        <!-- Specialist 2 -->
-                        <div class="col-md-4">
-                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
-                                <img class="mx-auto mb-4"
-                                     src="https://images.pexels.com/photos/5327921/pexels-photo-5327921.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Specialist 2"
-                                     style="width: 120px;
-                                            height: 120px;
-                                            border-radius: 50%;
-                                            object-fit: cover;
-                                            border: 4px solid #f1f5f9" />
-                                <h5 class="fw-bold mb-1">
-                                    أ. نجلاء عبّاس
-                                </h5>
-                                <p class="text-primary small fw-bold mb-3">
-                                    خبيرة تأهيل سمعي
-                                </p>
-                                <p class="text-muted small mb-0">
-                                    متخصصة في زراعة القوقعة واضطرابات البلع.
-                                </p>
-                            </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted">لا توجد دورات متاحة حالياً.</p>
                         </div>
-                        <!-- Specialist 3 -->
-                        <div class="col-md-4">
-                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
-                                <img class="mx-auto mb-4"
-                                     src="https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                     alt="Specialist 3"
-                                     style="width: 120px;
-                                            height: 120px;
-                                            border-radius: 50%;
-                                            object-fit: cover;
-                                            border: 4px solid #f1f5f9" />
-                                <h5 class="fw-bold mb-1">
-                                    أ. سارة بن علية
-                                </h5>
-                                <p class="text-primary small fw-bold mb-3">
-                                    أخصائية نطق وتواصل
-                                </p>
-                                <p class="text-muted small mb-0">
-                                    متخصصة في التلعثم واضطرابات الطلاقة الكلامية.
-                                </p>
-                            </div>
-                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-5">
+                        <a href="{% url 'frontend:course_list' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg fw-bold">عرض جميع الدورات</a>
                     </div>
                 </div>
             </section>
+
+            <!-- Games Section -->
+            <section id="games" class="py-5" style="background-color: #ffffff;">
+                <div class="container py-5 text-center">
+                    <div class="row mb-5 justify-content-center">
+                        <div class="col-lg-8">
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1)">متجر الألعاب</span>
+                            <h2 class="display-5 fw-bold text-dark mb-0">ألعاب تعليمية مميزة</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-4 mb-5 text-end">
+                        {% for game in latest_games %}
+                        <div class="col-md-6 col-lg-4">
+                            <a href="{% url 'frontend:game_detail' game.slug %}" class="article-card">
+                                <div class="article-img-wrapper">
+                                    {% if game.thumbnail %}
+                                        <img src="{{ game.thumbnail.url }}" alt="{{ game.title }}">
+                                    {% else %}
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                                            <i class="fa-solid fa-gamepad fa-4x text-primary opacity-20"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="category-pill">
+                                        {{ game.price }} د.ج
+                                    </div>
+                                </div>
+                                
+                                <div class="article-body">
+                                    <div class="article-date">
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                        لعبة تعليمية
+                                    </div>
+                                    <h3 class="article-title">{{ game.title }}</h3>
+                                    <p class="article-excerpt">{{ game.description|striptags|truncatechars:100 }}</p>
+                                    <div class="article-footer">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fa-solid fa-boxes-stacked me-1"></i>
+                                            <span>متوفر الآن</span>
+                                        </div>
+                                        <span class="read-more-link">
+                                            <span>التفاصيل</span>
+                                            <i class="fa-solid fa-arrow-left"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted">ترقبوا مجموعتنا من الألعاب التعليمية قريباً.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-5">
+                        <a href="{% url 'frontend:game_list' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow-lg fw-bold">تصفح المتجر بالكامل</a>
+                    </div>
+                </div>
+            </section>
+
             <!-- Articles Section -->
             <section id="articles" class="py-5 bg-white">
                 <div class="container py-5 text-center">
@@ -262,121 +294,49 @@
                 </div>
             </section>
 
-            <!-- Games Section -->
-            <section id="games" class="py-5" style="background-color: #ffffff;">
-                <div class="container py-5 text-center">
-                    <div class="row mb-5 justify-content-center">
-                        <div class="col-lg-8">
-                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1)">متجر الألعاب</span>
-                            <h2 class="display-5 fw-bold text-dark mb-0">ألعاب تعليمية مميزة</h2>
+            <!-- Doctors Section -->
+            <section id="doctors" class="py-5" style="background-color: #f8fafc;">
+                <div class="container py-5">
+                    <div class="row mb-5 text-center">
+                        <div class="col-lg-8 mx-auto">
+                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary"
+                                  style="background: rgba(13, 110, 253, 0.1)">نخبة المختصين</span>
+                            <h2 class="display-5 fw-bold text-dark mb-3">
+                                فريق الأطباء والأخصائيين
+                            </h2>
+                            <p class="text-muted lead">
+                                خبرات معتمدة في مجالات الأرطفونيا، التوحد، وADHD.
+                            </p>
                         </div>
                     </div>
-                    
-                    <div class="row g-4 mb-5 text-end">
-                        {% for game in latest_games %}
-                        <div class="col-md-6 col-lg-4">
-                            <a href="{% url 'frontend:game_detail' game.slug %}" class="article-card">
-                                <div class="article-img-wrapper">
-                                    {% if game.thumbnail %}
-                                        <img src="{{ game.thumbnail.url }}" alt="{{ game.title }}">
-                                    {% else %}
-                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
-                                            <i class="fa-solid fa-gamepad fa-4x text-primary opacity-20"></i>
-                                        </div>
-                                    {% endif %}
-                                    <div class="category-pill">
-                                        {{ game.price }} د.ج
-                                    </div>
-                                </div>
-                                
-                                <div class="article-body">
-                                    <div class="article-date">
-                                        <i class="fa-solid fa-star text-warning"></i>
-                                        لعبة تعليمية
-                                    </div>
-                                    <h3 class="article-title">{{ game.title }}</h3>
-                                    <p class="article-excerpt">{{ game.description|striptags|truncatechars:100 }}</p>
-                                    <div class="article-footer">
-                                        <div class="d-flex align-items-center text-muted small">
-                                            <i class="fa-solid fa-boxes-stacked me-1"></i>
-                                            <span>متوفر الآن</span>
-                                        </div>
-                                        <span class="read-more-link">
-                                            <span>التفاصيل</span>
-                                            <i class="fa-solid fa-arrow-left"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </a>
+                    <div class="row g-4">
+                        {% for doctor in doctors %}
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 text-center">
+                                <img class="mx-auto mb-4"
+                                     src="{% if doctor.profile.profile_pic %}{{ doctor.profile.profile_pic.url }}{% else %}https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1600{% endif %}"
+                                     alt="{{ doctor.get_full_name }}"
+                                     style="width: 120px;
+                                            height: 120px;
+                                            border-radius: 50%;
+                                            object-fit: cover;
+                                            border: 4px solid #f1f5f9" />
+                                <h5 class="fw-bold mb-1">
+                                    {{ doctor.get_full_name|default:doctor.username }}
+                                </h5>
+                                <p class="text-primary small fw-bold mb-3">
+                                    طبيب متخصص
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    {{ doctor.email }}
+                                </p>
+                            </div>
                         </div>
                         {% empty %}
                         <div class="col-12 text-center py-5">
-                            <p class="text-muted">ترقبوا مجموعتنا من الألعاب التعليمية قريباً.</p>
+                            <p class="text-muted">قريباً.. ترقبوا قائمة المختصين.</p>
                         </div>
                         {% endfor %}
-                    </div>
-                    <div class="mt-5">
-                        <a href="{% url 'frontend:game_list' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow-lg fw-bold">تصفح المتجر بالكامل</a>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Courses Section -->
-
-            <section id="courses" class="py-5" style="background-color: #f8fafc;">
-                <div class="container py-5 text-center">
-                    <div class="row mb-5 justify-content-center">
-                        <div class="col-lg-8">
-                            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill mb-3 fw-bold border border-primary" style="background: rgba(13, 110, 253, 0.1);">تعلم وتطور</span>
-                            <h2 class="display-5 fw-bold text-dark mb-3">الدورات التدريبية</h2>
-                            <p class="text-muted lead">برامج تعليمية متكاملة للأولياء والمربين.</p>
-                        </div>
-                    </div>
-                    <div class="row g-4 mb-5 text-end">
-                        {% for course in latest_courses %}
-                        <div class="col-md-6 col-lg-4">
-                            <a href="{% url 'frontend:course_detail' course.id %}" class="article-card">
-                                <div class="article-img-wrapper">
-                                    {% if course.thumbnail %}
-                                        <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
-                                    {% else %}
-                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
-                                            <i class="fa-solid fa-graduation-cap fa-4x text-primary opacity-20"></i>
-                                        </div>
-                                    {% endif %}
-                                    <div class="category-pill">
-                                        {% if course.price == 0 %}مجاني{% else %}{{ course.price }} د.ج{% endif %}
-                                    </div>
-                                </div>
-                                
-                                <div class="article-body">
-                                    <div class="article-date">
-                                        <i class="fa-solid fa-chalkboard-user text-primary"></i>
-                                        {{ course.teacher_name }}
-                                    </div>
-                                    <h3 class="article-title">{{ course.title }}</h3>
-                                    <p class="article-excerpt">{{ course.description|striptags|truncatechars:100 }}</p>
-                                    <div class="article-footer">
-                                        <div class="d-flex align-items-center text-muted small">
-                                            <i class="fa-solid fa-video me-1"></i>
-                                            <span>محتوى مرئي</span>
-                                        </div>
-                                        <span class="read-more-link">
-                                            <span>التفاصيل</span>
-                                            <i class="fa-solid fa-arrow-left"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        {% empty %}
-                        <div class="col-12 text-center py-5">
-                            <p class="text-muted">لا توجد دورات متاحة حالياً.</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="mt-5">
-                        <a href="{% url 'frontend:course_list' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg fw-bold">عرض جميع الدورات</a>
                     </div>
                 </div>
             </section>

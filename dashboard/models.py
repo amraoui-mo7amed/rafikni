@@ -6,6 +6,26 @@ from django.contrib.contenttypes.models import ContentType
 from user_auth.models import UserProfile
 
 
+class TreatmentPlan(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+    plan_data = models.JSONField(verbose_name="بيانات الخطة", default=dict)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الإنشاء")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="تاريخ التحديث")
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="تم الإنشاء بواسطة"
+    )
+
+    class Meta:
+        verbose_name = "خطة علاجية"
+        verbose_name_plural = "الخطط العلاجية"
+        unique_together = ["content_type", "object_id"]
+
+    def __str__(self):
+        return f"خطة علاجية - {self.content_object}"
+
+
 class BaseMedicalCase(models.Model):
     user = models.ForeignKey(
         User,

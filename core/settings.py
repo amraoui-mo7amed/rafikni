@@ -170,6 +170,9 @@ if _email_user:
 if _email_password:
     EMAIL_HOST_PASSWORD = _email_password
 
+# Gemini AI
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
 # EventStream Configuration
 EVENTSTREAM_CHANNELMANAGER_CLASS = "dashboard.channelmanager.NotificationChannelManager"
 EVENTSTREAM_STORAGE_CLASS = "django_eventstream.storage.DjangoModelStorage"
