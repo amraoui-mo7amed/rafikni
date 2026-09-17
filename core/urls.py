@@ -19,12 +19,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from api.main import api as api_v1
 import django_eventstream
 
 urlpatterns = [
     path("", include("frontend.urls", namespace="frontend")),
     path("dashboard/", include("dashboard.urls", namespace="dashboard")),
     path("auth/", include("user_auth.urls", namespace="user_auth")),
+    # RESTful API v1 powered by Django Ninja
+    path("api/v1/", api_v1.urls),
     # EventStream endpoint - user-specific channels
     # Client selects channel via query parameter: ?channel=user-{user_id}
     path("events/", include(django_eventstream.urls)),
