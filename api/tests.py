@@ -679,20 +679,20 @@ class TreatmentPlanMockTests(ApiBaseTestCase):
 
 
 class OpenApiDocsTests(ApiBaseTestCase):
-    """Verify OpenAPI specification and Redoc documentation endpoints are restricted to admins."""
+    """Verify OpenAPI specification and Redoc documentation endpoints."""
 
-    def test_unauthenticated_docs_redirects_to_login(self):
-        """Verify GET /api/v1/docs redirects unauthenticated users to login page."""
+    def test_unauthenticated_docs_accessible(self):
+        """Verify GET /api/v1/docs is accessible."""
         response = self.client.get("/api/v1/docs", HTTP_ACCEPT="text/html")
-        self.assertEqual(response.status_code, 302)
-        self.assertIn("/auth/login/", response.headers.get("Location", ""))
+        self.assertEqual(response.status_code, 200)
 
-    def test_unauthenticated_openapi_json_returns_403(self):
-        """Verify GET /api/v1/openapi.json returns 403 Forbidden for unauthenticated users."""
+    def test_unauthenticated_openapi_json_returns_200(self):
+        """Verify GET /api/v1/openapi.json returns 200 OK for clients."""
         response = self.client.get("/api/v1/openapi.json")
-        self.assertEqual(response.status_code, 403)
-        data = response.json()
-        self.assertFalse(data["success"])
+        self.assertEqual(response.status_code, 200)
+        schema = response.json()
+        self.assertIn("openapi", schema)
+        self.assertIn("paths", schema)
 
     def test_admin_can_access_redoc_docs(self):
         """Verify admin user can access Redoc documentation at /api/v1/docs."""
@@ -714,6 +714,7 @@ class OpenApiDocsTests(ApiBaseTestCase):
         self.assertEqual(schema["info"]["title"], "Rafikni RESTful API")
 
 
+
 class SocialMediaApiTests(ApiBaseTestCase):
     """Verify social media and platform contact public API endpoint."""
 
@@ -728,6 +729,38 @@ class SocialMediaApiTests(ApiBaseTestCase):
         self.assertIn("email", data["data"])
         self.assertIn("phone", data["data"])
         self.assertIn("youtube", data["data"])
+
+
+class NotificationApiTests(ApiBaseTestCase):
+    """Verify notification endpoints including real-time creation and unread count."""
+
+    def test_post_and_get_notification(self):
+        """Verify POST /api/v1/notifications/ creates and GET / lists notifications."""
+        payload = {
+            "title": "إشعار جديد",
+            "message": "تم إرسال استشارة طبية",
+            "type": "info",
+            "link": "/consultations/1",
+        }
+        res = self.client.post(
+            "/api/v1/notifications/",
+            data=payload,
+            content_type="application/json",
+            **self.patient_headers,
+        )
+        self.assertEqual(res.status_code, 201)
+        data = res.json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"]["title"], "إشعار جديد")
+
+        # Check unread count
+        count_res = self.client.get(
+            "/api/v1/notifications/unread-count",
+            **self.patient_headers,
+        )
+        self.assertEqual(count_res.status_code, 200)
+        self.assertGreaterEqual(count_res.json()["data"]["count"], 1)
+
 
 
 

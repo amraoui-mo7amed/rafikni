@@ -15,3 +15,12 @@ class NotificationSchema(Schema):
     created_at: str
     read_at: Optional[str] = None
     link: Optional[str] = ""
+
+
+class NotificationCreateSchema(Schema):
+    title: str
+    message: str
+    type: Optional[str] = "info"
+    link: Optional[str] = ""
+    user_id: Optional[int] = None
+
