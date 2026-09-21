@@ -30,7 +30,7 @@ api = NinjaAPI(
     description="Official API for Rafikni Platform - Specialized Psych & Special Needs Care in Algeria",
     docs=Redoc(),
     docs_url="/docs",
-    docs_decorator=admin_docs_required,
+    openapi_url="/openapi.json",
 )
 
 
