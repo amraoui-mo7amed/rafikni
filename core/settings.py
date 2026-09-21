@@ -122,6 +122,11 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+ 
+AUTHENTICATION_BACKENDS = [
+    "user_auth.backends.EmailOrUsernameModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 
 # Internationalization

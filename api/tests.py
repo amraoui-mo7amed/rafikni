@@ -109,6 +109,25 @@ class AuthAndRbacApiTests(ApiBaseTestCase):
         self.assertTrue(data["success"])
         self.assertTrue(User.objects.filter(username="newpatient").exists())
 
+    def test_signup_auto_generates_username_when_omitted(self):
+        """Verify API signup automatically generates a user_<uuid> username when username is omitted."""
+        payload = {
+            "email": "autoapiuser@rafikni.dz",
+            "password": "SecurePassword123!",
+            "confirm_password": "SecurePassword123!",
+        }
+        response = self.client.post(
+            "/api/v1/auth/signup",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        self.assertTrue(data["success"])
+        user = User.objects.get(email="autoapiuser@rafikni.dz")
+        self.assertTrue(user.username.startswith("user_"))
+        self.assertGreaterEqual(len(user.username), 10)
+
     @patch("api.routers.auth.send_styled_email")
     def test_signup_atomic_rollback_on_email_failure(self, mock_email):
         """Verify patient signup rolls back atomically if sending activation email fails."""
@@ -171,6 +190,41 @@ class AuthAndRbacApiTests(ApiBaseTestCase):
         self.assertTrue(data["success"])
         self.assertIn("access_token", data["data"])
         self.assertEqual(data["data"]["user"]["username"], "patientuser")
+
+    def test_login_success_with_email(self):
+        """Verify login succeeds when submitting email in the username field."""
+        payload = {
+            "username": "patient@rafikni.dz",
+            "password": "PatientPassword123!",
+        }
+        response = self.client.post(
+            "/api/v1/auth/login",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertIn("access_token", data["data"])
+        self.assertEqual(data["data"]["user"]["username"], "patientuser")
+
+    def test_login_inactive_user_with_email(self):
+        """Verify logging in with email for an inactive account returns 401 with activation reminder."""
+        self.patient_user.is_active = False
+        self.patient_user.save()
+        payload = {
+            "username": "patient@rafikni.dz",
+            "password": "PatientPassword123!",
+        }
+        response = self.client.post(
+            "/api/v1/auth/login",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+        data = response.json()
+        self.assertFalse(data["success"])
+        self.assertIn("يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً", data["errors"])
 
     def test_login_invalid_credentials(self):
         """Verify login failure returns 401 and Arabic error message."""

@@ -9,11 +9,13 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction, IntegrityError
+from django.db.models import Q
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.urls import reverse
 
 from user_auth.models import UserProfile
+from user_auth.utils import generate_unique_username
 from user_auth.views.auth import send_styled_email
 from api.jwt_auth import generate_tokens_for_user, get_user_from_token
 from api.security import JWTAuth
@@ -38,16 +40,22 @@ router = Router()
 def signup(request, data: SignupSchema):
     """
     Register a new patient account and send an email verification link.
+    Generates a unique username formatted like user_<uuid> if not explicitly specified.
     """
     errors = []
-    if not all([data.username, data.email, data.password, data.confirm_password]):
+    if not all([data.email, data.password, data.confirm_password]):
         errors.append("يرجى ملء جميع الحقول المطلوبة")
     elif data.password != data.confirm_password:
         errors.append("كلمات المرور غير متطابقة")
-    elif User.objects.filter(username=data.username).exists():
-        errors.append("اسم المستخدم موجود بالفعل")
     elif User.objects.filter(email=data.email).exists():
         errors.append("البريد الإلكتروني مستخدم بالفعل")
+
+    username = data.username.strip() if (data.username and data.username.strip()) else None
+    if username:
+        if User.objects.filter(username=username).exists():
+            errors.append("اسم المستخدم موجود بالفعل")
+    else:
+        username = generate_unique_username()
 
     if errors:
         return api_response(success=False, message="بيانات التسجيل غير صالحة", errors=errors, status=400)
@@ -55,7 +63,7 @@ def signup(request, data: SignupSchema):
     try:
         with transaction.atomic():
             user = User.objects.create_user(
-                username=data.username,
+                username=username,
                 email=data.email,
                 password=data.password,
                 is_active=False,
@@ -92,22 +100,26 @@ def signup(request, data: SignupSchema):
 @router.post("/login", response={200: ApiResponseSchema[TokenResponseSchema], 401: ApiResponseSchema[None]})
 def login(request, data: LoginSchema):
     """
-    Authenticate with username and password, returning JWT access and refresh tokens.
+    Authenticate with username or email and password, returning JWT access and refresh tokens.
     """
-    user = authenticate(request, username=data.username, password=data.password)
+    username_or_email = data.username.strip()
+    user = authenticate(request, username=username_or_email, password=data.password)
+
     if user is None:
+        existing_user = User.objects.filter(
+            Q(username__iexact=username_or_email) | Q(email__iexact=username_or_email)
+        ).first()
+        if existing_user and existing_user.check_password(data.password) and not existing_user.is_active:
+            return api_response(
+                success=False,
+                message="يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً",
+                errors=["يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً"],
+                status=401,
+            )
         return api_response(
             success=False,
             message="اسم المستخدم أو كلمة المرور غير صحيحة",
             errors=["اسم المستخدم أو كلمة المرور غير صحيحة"],
-            status=401,
-        )
-
-    if not user.is_active:
-        return api_response(
-            success=False,
-            message="يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً",
-            errors=["يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً"],
             status=401,
         )
 

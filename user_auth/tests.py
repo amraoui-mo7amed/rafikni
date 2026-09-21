@@ -48,6 +48,17 @@ class LoginViewTests(TestCase):
         self.assertEqual(data["message"], "تم تسجيل الدخول بنجاح")
         self.assertEqual(data["redirect_url"], reverse("dashboard:index"))
 
+    def test_login_post_success_with_email(self):
+        """Test successful login using email in place of username"""
+        response = self.client.post(
+            self.url,
+            {"username": "test@example.com", "password": "testpass123"},
+        )
+        data = json.loads(response.content)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["message"], "تم تسجيل الدخول بنجاح")
+        self.assertEqual(data["redirect_url"], reverse("dashboard:index"))
+
     def test_login_post_inactive_user(self):
         """Test login with inactive user"""
         self.user.is_active = False
@@ -55,6 +66,18 @@ class LoginViewTests(TestCase):
         response = self.client.post(
             self.url,
             {"username": "testuser", "password": "testpass123"},
+        )
+        data = json.loads(response.content)
+        self.assertFalse(data["success"])
+        self.assertIn("يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً", data["errors"])
+
+    def test_login_post_inactive_user_with_email(self):
+        """Test login with inactive user using their email address"""
+        self.user.is_active = False
+        self.user.save()
+        response = self.client.post(
+            self.url,
+            {"username": "test@example.com", "password": "testpass123"},
         )
         data = json.loads(response.content)
         self.assertFalse(data["success"])
@@ -116,6 +139,20 @@ class SignupViewTests(TestCase):
         self.assertFalse(user.is_active)
         self.assertTrue(hasattr(user, "profile"))
         self.assertEqual(user.profile.role, UserProfile.RoleChoices.PATIENT)
+
+    def test_signup_auto_generates_username_when_empty(self):
+        """Test that signup generates a user_<uuid> username when username is omitted"""
+        data = {
+            "email": "autouser@example.com",
+            "password": "ValidPassword123!",
+            "confirm_password": "ValidPassword123!",
+        }
+        response = self.client.post(self.url, data)
+        data = json.loads(response.content)
+        self.assertTrue(data["success"])
+        user = User.objects.get(email="autouser@example.com")
+        self.assertTrue(user.username.startswith("user_"))
+        self.assertGreaterEqual(len(user.username), 10)
 
     @patch("user_auth.views.auth.send_styled_email")
     def test_signup_atomic_rollback_on_email_failure(self, mock_email):
@@ -226,6 +263,19 @@ class ActivateViewTests(TestCase):
         # Ensure the two action buttons are present in the rendered HTML
         self.assertContains(response, "العودة إلى التطبيق")
         self.assertContains(response, "الانتقال إلى لوحة التحكم")
+
+    def test_activate_logs_out_existing_session(self):
+        """Test that activation explicitly logs out any user session that was already authenticated"""
+        existing_user = User.objects.create_user(
+            username="otheruser", email="other@example.com", password="password123"
+        )
+        self.client.login(username="otheruser", password="password123")
+        self.assertIn("_auth_user_id", self.client.session)
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        # Verify session is strictly terminated
+        self.assertNotIn("_auth_user_id", self.client.session)
 
     def test_activate_invalid_uid(self):
         """Test activation with invalid UID"""

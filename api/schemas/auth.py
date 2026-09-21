@@ -7,7 +7,7 @@ from ninja import Schema
 
 
 class SignupSchema(Schema):
-    username: str
+    username: Optional[str] = None
     email: str
     password: str
     confirm_password: str

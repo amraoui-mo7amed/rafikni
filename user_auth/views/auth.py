@@ -3,8 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.urls import reverse
 from ..models import UserProfile
+from ..utils import generate_unique_username
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -54,11 +56,14 @@ def send_styled_email(request, user, subject, template_name, context_extra):
 
 
 def login_view(request):
+    """
+    Handle user login via username or email and password.
+    """
     if request.user.is_authenticated:
         return redirect("dashboard:index")
 
     if request.method == "POST":
-        username = request.POST.get("username")
+        username = (request.POST.get("username") or "").strip()
         password = request.POST.get("password")
         errors = []
         try:
@@ -73,7 +78,9 @@ def login_view(request):
                     }
                 )
             else:
-                existing_user = User.objects.filter(username=username).first()
+                existing_user = User.objects.filter(
+                    Q(username__iexact=username) | Q(email__iexact=username)
+                ).first()
                 if existing_user and existing_user.check_password(password) and not existing_user.is_active:
                     errors.append("يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً")
                 else:
@@ -88,24 +95,32 @@ def login_view(request):
 
 
 def signup_view(request):
+    """
+    Handle user registration.
+    Generates a unique username formatted as user_<uuid> if not provided.
+    """
     if request.user.is_authenticated:
         return redirect("dashboard:index")
 
     if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
+        username = (request.POST.get("username") or "").strip()
+        email = (request.POST.get("email") or "").strip()
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
         errors = []
 
-        if not all([username, email, password, confirm_password]):
+        if not all([email, password, confirm_password]):
             errors.append("يرجى ملء جميع الحقول")
         elif password != confirm_password:
             errors.append("كلمات المرور غير متطابقة")
-        elif User.objects.filter(username=username).exists():
-            errors.append("اسم المستخدم موجود بالفعل")
         elif User.objects.filter(email=email).exists():
             errors.append("البريد الإلكتروني مستخدم بالفعل")
+
+        if username:
+            if User.objects.filter(username=username).exists():
+                errors.append("اسم المستخدم موجود بالفعل")
+        else:
+            username = generate_unique_username()
 
         if not errors:
             try:
@@ -175,7 +190,9 @@ def activate_view(request, uidb64, token):
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
-        # User is not logged in automatically upon activation
+        # Ensure user is NOT logged in automatically; explicitly terminate any active session
+        if request.user.is_authenticated:
+            logout(request)
         return render(request, "activation_success.html")
     else:
         return render(
