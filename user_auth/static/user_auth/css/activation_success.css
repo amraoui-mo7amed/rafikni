@@ -98,54 +98,65 @@
     line-height: 1.8;
 }
 
+.success-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
 .success-btn {
-    background: linear-gradient(135deg, #06b6d4, #0891b2);
-    color: white;
-    border: none;
-    padding: 15px 50px;
+    padding: 14px 34px;
     border-radius: 50px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
     position: relative;
     overflow: hidden;
+    min-width: 200px;
 }
 
-.success-btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
+.success-btn-app {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: #ffffff;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
 }
 
-.success-btn:hover::before {
-    width: 300px;
-    height: 300px;
-}
-
-.success-btn:hover {
+.success-btn-app:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
-    color: white;
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.55);
+    color: #ffffff;
+}
+
+.success-btn-dashboard {
+    background: #ffffff;
+    color: #0891b2;
+    border: 2px solid #06b6d4;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.1);
+}
+
+.success-btn-dashboard:hover {
+    background: rgba(6, 182, 212, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.25);
+    color: #0e7490;
 }
 
 .success-info {
-    margin-top: 30px;
-    padding-top: 30px;
+    margin-top: 15px;
+    padding-top: 25px;
     border-top: 1px solid #e2e8f0;
 }
 
 .success-info p {
-    color: #94a3b8;
+    color: #64748b;
     font-size: 14px;
     margin: 0;
 }
@@ -157,7 +168,7 @@
 /* Responsive */
 @media (max-width: 768px) {
     .success-card {
-        padding: 40px 30px;
+        padding: 40px 24px;
     }
 
     .success-title {
@@ -165,11 +176,19 @@
     }
 
     .success-message {
-        font-size: 16px;
+        font-size: 15px;
+        margin-bottom: 30px;
+    }
+
+    .success-actions {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
     }
 
     .success-btn {
-        padding: 12px 40px;
-        font-size: 16px;
+        width: 100%;
+        padding: 12px 24px;
+        font-size: 15px;
     }
 }

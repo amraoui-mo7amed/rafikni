@@ -64,19 +64,21 @@ def signup(request, data: SignupSchema):
                 user=user, defaults={"role": UserProfile.RoleChoices.PATIENT}
             )
 
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        activation_url = request.build_absolute_uri(
-            reverse("user_auth:activate", kwargs={"uidb64": uid, "token": token})
-        )
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            activation_url = request.build_absolute_uri(
+                reverse("user_auth:activate", kwargs={"uidb64": uid, "token": token})
+            )
 
-        send_styled_email(
-            request,
-            user,
-            "تفعيل حسابك في رافقني",
-            "emails/email_verification.html",
-            {"activation_url": activation_url},
-        )
+            sent = send_styled_email(
+                request,
+                user,
+                "تفعيل حسابك في رافقني",
+                "emails/email_verification.html",
+                {"activation_url": activation_url},
+            )
+            if not sent:
+                raise RuntimeError("فشل في إرسال بريد التفعيل الإلكتروني")
 
         return api_response(
             success=True,
@@ -84,7 +86,7 @@ def signup(request, data: SignupSchema):
             status=201,
         )
     except Exception as e:
-        return api_response(success=False, message="حدث خطأ أثناء إنشاء الحساب", errors=[str(e)], status=400)
+        return api_response(success=False, message="حدث خطأ أثناء إنشاء الحساب أو إرسال بريد التفعيل", errors=[str(e)], status=400)
 
 
 @router.post("/login", response={200: ApiResponseSchema[TokenResponseSchema], 401: ApiResponseSchema[None]})

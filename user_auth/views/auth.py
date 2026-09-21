@@ -11,6 +11,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
+import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,9 @@ def send_styled_email(request, user, subject, template_name, context_extra):
 
     try:
         result = email.send(fail_silently=False)
+        if not result:
+            logger.error(f"Failed to send email to {user.email}: 0 messages sent")
+            raise RuntimeError("فشل في إرسال بريد التفعيل الإلكتروني")
         logger.info(f"Email sent successfully to {user.email}")
         return result
     except Exception as e:
@@ -60,10 +64,6 @@ def login_view(request):
         try:
             user = authenticate(request, username=username, password=password)
             if user is not None:
-                if not user.is_active:
-                    errors.append("يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً")
-                    return JsonResponse({"success": False, "errors": errors})
-
                 login(request, user)
                 return JsonResponse(
                     {
@@ -73,7 +73,11 @@ def login_view(request):
                     }
                 )
             else:
-                errors.append("اسم المستخدم أو كلمة المرور غير صحيحة")
+                existing_user = User.objects.filter(username=username).first()
+                if existing_user and existing_user.check_password(password) and not existing_user.is_active:
+                    errors.append("يرجى تفعيل حسابك من خلال البريد الإلكتروني أولاً")
+                else:
+                    errors.append("اسم المستخدم أو كلمة المرور غير صحيحة")
                 return JsonResponse({"success": False, "errors": errors})
         except Exception as e:
             logger.error(f"Login error: {str(e)}")
@@ -119,23 +123,25 @@ def signup_view(request):
                         user=user, defaults={"role": UserProfile.RoleChoices.PATIENT}
                     )
 
-                # توليد رابط التفعيل
-                token = default_token_generator.make_token(user)
-                uid = urlsafe_base64_encode(force_bytes(user.pk))
-                activation_url = request.build_absolute_uri(
-                    reverse(
-                        "user_auth:activate", kwargs={"uidb64": uid, "token": token}
+                    # توليد رابط التفعيل
+                    token = default_token_generator.make_token(user)
+                    uid = urlsafe_base64_encode(force_bytes(user.pk))
+                    activation_url = request.build_absolute_uri(
+                        reverse(
+                            "user_auth:activate", kwargs={"uidb64": uid, "token": token}
+                        )
                     )
-                )
 
-                # إرسال البريد
-                send_styled_email(
-                    request,
-                    user,
-                    "تفعيل حسابك في رافقني",
-                    "emails/email_verification.html",
-                    {"activation_url": activation_url},
-                )
+                    # إرسال البريد داخل المعاملة الذرية (atomic) لضمان عدم إنشاء الحساب في حال فشل الإرسال
+                    sent = send_styled_email(
+                        request,
+                        user,
+                        "تفعيل حسابك في رافقني",
+                        "emails/email_verification.html",
+                        {"activation_url": activation_url},
+                    )
+                    if not sent:
+                        raise RuntimeError("فشل في إرسال بريد التفعيل")
 
                 return JsonResponse(
                     {
@@ -147,7 +153,7 @@ def signup_view(request):
                 errors.append("حدث خطأ أثناء إنشاء الحساب")
             except Exception as e:
                 logger.error(f"Signup error: {str(e)}")
-                errors.append("حدث خطأ غير متوقع. يرجى المحاولة لاحقاً.")
+                errors.append("حدث خطأ أثناء إرسال بريد التفعيل. يرجى المحاولة لاحقاً.")
 
         return JsonResponse({"success": False, "errors": errors})
 
@@ -155,6 +161,11 @@ def signup_view(request):
 
 
 def activate_view(request, uidb64, token):
+    """
+    Handle user account activation via email verification link.
+    Validates token and activates the account without logging the user in automatically,
+    then renders the activation status template with options to return to app or dashboard.
+    """
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
@@ -164,7 +175,7 @@ def activate_view(request, uidb64, token):
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
-        login(request, user)
+        # User is not logged in automatically upon activation
         return render(request, "activation_success.html")
     else:
         return render(

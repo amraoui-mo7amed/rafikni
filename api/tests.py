@@ -109,6 +109,52 @@ class AuthAndRbacApiTests(ApiBaseTestCase):
         self.assertTrue(data["success"])
         self.assertTrue(User.objects.filter(username="newpatient").exists())
 
+    @patch("api.routers.auth.send_styled_email")
+    def test_signup_atomic_rollback_on_email_failure(self, mock_email):
+        """Verify patient signup rolls back atomically if sending activation email fails."""
+        mock_email.side_effect = Exception("SMTP Connection Refused")
+        payload = {
+            "username": "atomicuser",
+            "email": "atomicuser@rafikni.dz",
+            "password": "SecurePassword123!",
+            "confirm_password": "SecurePassword123!",
+            "first_name": "Atomic",
+            "last_name": "Test",
+        }
+        response = self.client.post(
+            "/api/v1/auth/signup",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertFalse(data["success"])
+        # Ensure user creation was completely rolled back
+        self.assertFalse(User.objects.filter(username="atomicuser").exists())
+
+    @patch("api.routers.auth.send_styled_email")
+    def test_signup_atomic_rollback_when_email_returns_zero(self, mock_email):
+        """Verify patient signup rolls back atomically if email sending returns zero (no email delivered)."""
+        mock_email.return_value = 0
+        payload = {
+            "username": "atomiczero_api",
+            "email": "atomiczero_api@rafikni.dz",
+            "password": "SecurePassword123!",
+            "confirm_password": "SecurePassword123!",
+            "first_name": "AtomicZero",
+            "last_name": "Test",
+        }
+        response = self.client.post(
+            "/api/v1/auth/signup",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertFalse(data["success"])
+        # Ensure account is not created if the email is not sent
+        self.assertFalse(User.objects.filter(username="atomiczero_api").exists())
+
     def test_login_success(self):
         """Verify login returns valid tokens and profile."""
         payload = {
@@ -423,7 +469,7 @@ class GeoAndAnalyticsTests(ApiBaseTestCase):
 class TreatmentPlanMockTests(ApiBaseTestCase):
     """Test Gemini AI treatment plan generation and patient retrieval."""
 
-    @patch("dashboard.gemini_utils.generate_treatment_plan")
+    @patch("api.routers.treatment_plans.generate_treatment_plan")
     def test_admin_generate_ai_plan(self, mock_gemini):
         """Verify admin triggering Gemini plan generation saves TreatmentPlan."""
         mock_gemini.return_value = {

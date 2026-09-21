@@ -1,4 +1,4 @@
-from django.test import TestCase, Client, RequestFactory
+from django.test import TestCase, Client, RequestFactory, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core import mail
@@ -18,7 +18,6 @@ from user_auth.views.auth import (
     logout_view,
     send_styled_email,
 )
-from dashboard.models import EmailConfiguration
 
 
 class LoginViewTests(TestCase):
@@ -118,6 +117,38 @@ class SignupViewTests(TestCase):
         self.assertTrue(hasattr(user, "profile"))
         self.assertEqual(user.profile.role, UserProfile.RoleChoices.PATIENT)
 
+    @patch("user_auth.views.auth.send_styled_email")
+    def test_signup_atomic_rollback_on_email_failure(self, mock_email):
+        """Test that signup rolls back atomically if sending activation email fails"""
+        mock_email.side_effect = Exception("SMTP Delivery Failed")
+        data = {
+            "username": "atomicuser_web",
+            "email": "atomicweb@example.com",
+            "password": "Password123!",
+            "confirm_password": "Password123!",
+        }
+        response = self.client.post(self.url, data)
+        result = json.loads(response.content)
+        self.assertFalse(result["success"])
+        # Ensure user was not created due to atomic rollback
+        self.assertFalse(User.objects.filter(username="atomicuser_web").exists())
+
+    @patch("user_auth.views.auth.send_styled_email")
+    def test_signup_atomic_rollback_when_email_returns_zero(self, mock_email):
+        """Test that signup rolls back atomically if email sending returns zero (no email delivered)"""
+        mock_email.return_value = 0
+        data = {
+            "username": "atomicuser_zero",
+            "email": "atomiczero@example.com",
+            "password": "Password123!",
+            "confirm_password": "Password123!",
+        }
+        response = self.client.post(self.url, data)
+        result = json.loads(response.content)
+        self.assertFalse(result["success"])
+        # Ensure account is not created if the email is not sent
+        self.assertFalse(User.objects.filter(username="atomicuser_zero").exists())
+
     def test_signup_missing_fields(self):
         """Test signup with missing fields"""
         response = self.client.post(
@@ -184,12 +215,17 @@ class ActivateViewTests(TestCase):
         )
 
     def test_activate_success(self):
-        """Test successful account activation"""
+        """Test successful account activation without logging user in, showing two action buttons"""
         response = self.client.get(self.url)
         self.user.refresh_from_db()
         self.assertTrue(self.user.is_active)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "activation_success.html")
+        # Ensure user is NOT logged in automatically
+        self.assertNotIn("_auth_user_id", self.client.session)
+        # Ensure the two action buttons are present in the rendered HTML
+        self.assertContains(response, "العودة إلى التطبيق")
+        self.assertContains(response, "الانتقال إلى لوحة التحكم")
 
     def test_activate_invalid_uid(self):
         """Test activation with invalid UID"""
@@ -338,6 +374,7 @@ class LogoutViewTests(TestCase):
         self.assertRedirects(response, reverse("user_auth:login"))
 
 
+@override_settings(ALLOWED_HOSTS=["example.com", "testserver", "localhost", "127.0.0.1"])
 class SendStyledEmailTests(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -346,7 +383,6 @@ class SendStyledEmailTests(TestCase):
             email="test@example.com",
             password="testpass123",
         )
-        Site.objects.create(domain="example.com", name="Example")
 
     @patch("user_auth.views.auth.logger")
     def test_send_styled_email_without_config(self, mock_logger):
@@ -372,18 +408,9 @@ class SendStyledEmailTests(TestCase):
             mock_logger.info.assert_called()
 
     @patch("user_auth.views.auth.logger")
+    @patch.dict("os.environ", {"EMAIL_HOST_USER": "noreply@example.com"})
     def test_send_styled_email_with_config(self, mock_logger):
-        """Test sending email with EmailConfiguration"""
-        EmailConfiguration.objects.create(
-            name="Test Config",
-            email_host="smtp.example.com",
-            email_port=587,
-            email_host_user="test@example.com",
-            email_host_password="password",
-            default_from_email="noreply@example.com",
-            is_active=True,
-        )
-
+        """Test sending email with configured from_email"""
         request = self.factory.get("/")
         request.META["SERVER_NAME"] = "example.com"
         request.META["SERVER_PORT"] = "80"
