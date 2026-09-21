@@ -265,6 +265,54 @@ class AuthAndRbacApiTests(ApiBaseTestCase):
         data = response.json()
         self.assertFalse(data["success"])
 
+    def test_patient_can_list_doctors_with_role_doc(self):
+        """Verify patient can retrieve active doctors via GET /api/v1/users/?role=doc."""
+        response = self.client.get(
+            "/api/v1/users/?role=doc",
+            **self.patient_headers,
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        items = data["data"]["items"]
+        self.assertTrue(any(u["username"] == self.doc_user.username for u in items))
+
+    def test_patient_can_list_doctors_with_doctors_endpoint(self):
+        """Verify patient can retrieve active doctors via GET /api/v1/users/doctors."""
+        response = self.client.get(
+            "/api/v1/users/doctors",
+            **self.patient_headers,
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertTrue(any(u["username"] == self.doc_user.username for u in data["data"]))
+
+    def test_patient_can_view_doctor_profile(self):
+        """Verify patient can view certified doctor profile via GET /api/v1/users/{doc_id}."""
+        response = self.client.get(
+            f"/api/v1/users/{self.doc_user.id}",
+            **self.patient_headers,
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["data"]["username"], self.doc_user.username)
+
+    def test_patient_forbidden_from_viewing_other_patient_profile(self):
+        """Verify patient cannot view another patient profile."""
+        other_patient = User.objects.create_user(
+            username="otherpatient",
+            email="other@rafikni.dz",
+            password="OtherPassword123!",
+        )
+        response = self.client.get(
+            f"/api/v1/users/{other_patient.id}",
+            **self.patient_headers,
+        )
+        self.assertEqual(response.status_code, 403)
+
+
     def test_unauthorized_when_token_missing(self):
         """Verify protected endpoint returns 401 when no token is provided."""
         response = self.client.get("/api/v1/auth/me")
@@ -282,6 +330,53 @@ class AuthAndRbacApiTests(ApiBaseTestCase):
         data = response.json()
         self.assertTrue(data["success"])
         self.assertEqual(data["data"]["username"], "patientuser")
+
+    def test_patient_can_get_doctors_list_from_auth_api(self):
+        """Verify patient account can retrieve the doctors list from /api/v1/auth/doctors."""
+        response = self.client.get(
+            "/api/v1/auth/doctors",
+            **self.patient_headers,
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertIsInstance(data["data"], list)
+        doctor_usernames = [d["username"] for d in data["data"]]
+        self.assertIn("doctoruser", doctor_usernames)
+
+    def test_patient_can_get_doctors_list_from_users_api(self):
+        """Verify patient account can retrieve the doctors list from /api/v1/users/doctors."""
+        response = self.client.get(
+            "/api/v1/users/doctors",
+            **self.patient_headers,
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertIsInstance(data["data"], list)
+        doctor_usernames = [d["username"] for d in data["data"]]
+        self.assertIn("doctoruser", doctor_usernames)
+
+    def test_patient_search_doctors_list(self):
+        """Verify doctor list search query filtering works for patient accounts."""
+        response = self.client.get(
+            "/api/v1/auth/doctors?q=doctoruser",
+            **self.patient_headers,
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertEqual(len(data["data"]), 1)
+        self.assertEqual(data["data"][0]["username"], "doctoruser")
+
+        # Non-matching query
+        empty_response = self.client.get(
+            "/api/v1/auth/doctors?q=nonexistent_dr_12345",
+            **self.patient_headers,
+        )
+        self.assertEqual(empty_response.status_code, 200)
+        empty_data = empty_response.json()
+        self.assertEqual(len(empty_data["data"]), 0)
 
 
 class MedicalCaseAndPaymentTests(ApiBaseTestCase):
@@ -617,5 +712,22 @@ class OpenApiDocsTests(ApiBaseTestCase):
         self.assertIn("openapi", schema)
         self.assertIn("paths", schema)
         self.assertEqual(schema["info"]["title"], "Rafikni RESTful API")
+
+
+class SocialMediaApiTests(ApiBaseTestCase):
+    """Verify social media and platform contact public API endpoint."""
+
+    def test_get_social_media_endpoint(self):
+        """Verify GET /api/v1/social-media/ returns platform links and contact info."""
+        response = self.client.get("/api/v1/social-media/")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertIn("facebook", data["data"])
+        self.assertIn("instagram", data["data"])
+        self.assertIn("email", data["data"])
+        self.assertIn("phone", data["data"])
+        self.assertIn("youtube", data["data"])
+
 
 

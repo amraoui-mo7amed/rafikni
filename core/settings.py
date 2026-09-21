@@ -83,6 +83,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "dashboard.context_processors.sidebar_menu",
+                "frontend.context_processors.social_media",
             ],
         },
     },

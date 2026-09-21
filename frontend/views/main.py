@@ -1,9 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from dashboard.models import Course, Article, Game
+from ..utils import load_social_media
 
 
 def index(request):
+    """
+    Render public landing page with featured courses, articles, educational games,
+    certified medical specialists, and platform social media channels.
+    """
     latest_courses = Course.objects.filter(is_active=True)[:6]
     latest_articles = Article.objects.filter(is_published=True).order_by("-created_at")[
         :3
@@ -15,5 +20,6 @@ def index(request):
         "latest_articles": latest_articles,
         "latest_games": latest_games,
         "doctors": doctors,
+        "social_media": load_social_media(),
     }
     return render(request, "index.html", context)

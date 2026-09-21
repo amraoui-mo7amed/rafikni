@@ -3,7 +3,7 @@ Authentication & User Profile Router for Rafikni Platform.
 Endpoints for registration, login, token refresh, password reset, and profile management.
 """
 
-from typing import Optional
+from typing import Optional, List
 from ninja import Router, Form, File, UploadedFile
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -296,3 +296,33 @@ def update_current_user_profile(
         return api_response(success=True, message="تم تحديث الملف الشخصي بنجاح", data=updated_data, status=200)
     except Exception as e:
         return api_response(success=False, message="حدث خطأ أثناء تحديث الملف الشخصي", errors=[str(e)], status=400)
+
+
+@router.get("/doctors", auth=JWTAuth(), response=ApiResponseSchema[List[UserProfileOutSchema]])
+def list_doctors(request, q: Optional[str] = None):
+    """
+    Retrieve list of active certified doctors and specialists.
+    Accessible by authenticated patient and admin accounts.
+    """
+    doctors = (
+        User.objects.select_related("profile")
+        .filter(profile__role=UserProfile.RoleChoices.DOC, is_active=True)
+        .order_by("first_name", "last_name", "username")
+    )
+
+    if q:
+        q_clean = q.strip()
+        doctors = doctors.filter(
+            Q(username__icontains=q_clean)
+            | Q(first_name__icontains=q_clean)
+            | Q(last_name__icontains=q_clean)
+            | Q(email__icontains=q_clean)
+        )
+
+    items = [serialize_user_profile(doc, request) for doc in doctors]
+    return api_response(
+        success=True,
+        message="تم جلب قائمة الأطباء بنجاح",
+        data=items,
+        status=200,
+    )

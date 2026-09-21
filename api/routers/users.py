@@ -3,8 +3,9 @@ User & Doctor Management Router for Rafikni Platform.
 Administrative endpoints for managing accounts, banning/activating users, and onboarding certified specialists.
 """
 
-from typing import Optional
+from typing import Optional, List
 from ninja import Router, Form, File, UploadedFile
+from ninja.errors import HttpError
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
@@ -18,7 +19,7 @@ from dashboard.utils import (
     notify_admins,
     EmailConfigurationError,
 )
-from api.security import AdminAuth
+from api.security import AdminAuth, JWTAuth
 from api.utils import api_response
 from api.serializers import serialize_user_profile
 from api.schemas.common import ApiResponseSchema
@@ -30,7 +31,7 @@ from api.schemas.users import (
 router = Router()
 
 
-@router.get("/", auth=AdminAuth(), response=ApiResponseSchema[PaginatedUsersSchema])
+@router.get("/", auth=JWTAuth(), response=ApiResponseSchema[PaginatedUsersSchema])
 def list_users(
     request,
     q: Optional[str] = None,
@@ -39,8 +40,16 @@ def list_users(
     page: int = 1,
 ):
     """
-    Admin: List platform users with filters for search, role, and active status.
+    List platform users. Admins can list all users; patients and certified users can view doctors (role=doc).
     """
+    user = request.user
+    is_admin = user.is_superuser or (hasattr(user, "profile") and user.profile.role == UserProfile.RoleChoices.ADMIN)
+
+    if not is_admin:
+        if role != UserProfile.RoleChoices.DOC:
+            raise HttpError(403, "ليس لديك صلاحية مدير للوصول إلى هذا المورد")
+        status = "active"
+
     users = User.objects.select_related("profile").exclude(is_superuser=True).order_by("-date_joined")
 
     if q:
@@ -83,13 +92,50 @@ def list_users(
     )
 
 
-@router.get("/{user_id}", auth=AdminAuth(), response={200: ApiResponseSchema[UserListItemSchema], 404: ApiResponseSchema[None]})
+@router.get("/doctors", auth=JWTAuth(), response=ApiResponseSchema[List[UserListItemSchema]])
+def list_doctors_users(request, q: Optional[str] = None):
+    """
+    Retrieve list of active certified doctors and specialists.
+    Accessible by authenticated patient and admin accounts.
+    """
+    doctors = (
+        User.objects.select_related("profile")
+        .filter(profile__role=UserProfile.RoleChoices.DOC, is_active=True)
+        .order_by("first_name", "last_name", "username")
+    )
+
+    if q:
+        q_clean = q.strip()
+        doctors = doctors.filter(
+            Q(username__icontains=q_clean)
+            | Q(first_name__icontains=q_clean)
+            | Q(last_name__icontains=q_clean)
+            | Q(email__icontains=q_clean)
+        )
+
+    items = [serialize_user_profile(doc, request) for doc in doctors]
+    return api_response(
+        success=True,
+        message="تم جلب قائمة الأطباء بنجاح",
+        data=items,
+        status=200,
+    )
+
+
+@router.get("/{user_id}", auth=JWTAuth(), response={200: ApiResponseSchema[UserListItemSchema], 404: ApiResponseSchema[None]})
 def get_user_detail(request, user_id: int):
     """
-    Admin: Retrieve complete profile and activity records for a specific user.
+    Retrieve complete profile for a specific user. Admins can view any user; patients can view doctors or themselves.
     """
     try:
         user = User.objects.select_related("profile").get(id=user_id)
+        current_user = request.user
+        is_admin = current_user.is_superuser or (hasattr(current_user, "profile") and current_user.profile.role == UserProfile.RoleChoices.ADMIN)
+        if not is_admin:
+            target_role = getattr(user.profile, "role", None) if hasattr(user, "profile") else None
+            if target_role != UserProfile.RoleChoices.DOC and user.id != current_user.id:
+                raise HttpError(403, "ليس لديك صلاحية مدير للوصول إلى هذا المورد")
+
         data = serialize_user_profile(user, request)
         return api_response(success=True, message="تم جلب تفاصيل المستخدم بنجاح", data=data, status=200)
     except User.DoesNotExist:

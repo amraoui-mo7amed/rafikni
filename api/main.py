@@ -19,6 +19,7 @@ from api.routers.notifications import router as notifications_router
 from api.routers.users import router as users_router
 from api.routers.geo import router as geo_router
 from api.routers.analytics import router as analytics_router
+from api.routers.social_media import router as social_media_router
 from api.security import admin_docs_required
 
 logger = logging.getLogger(__name__)
@@ -109,3 +110,4 @@ api.add_router("/notifications", notifications_router, tags=["Real-Time Notifica
 api.add_router("/users", users_router, tags=["User & Doctor Management"])
 api.add_router("/geo", geo_router, tags=["Algerian Geographic Data"])
 api.add_router("/analytics", analytics_router, tags=["Admin Dashboard Analytics"])
+api.add_router("/social-media", social_media_router, tags=["Social Media & Contact"])

@@ -18,6 +18,7 @@ class UserListItemSchema(Schema):
     is_active: bool
     phone_number: Optional[str] = None
     birthdate: Optional[str] = None
+    profile_pic: Optional[str] = None
     date_joined: str
     last_login: Optional[str] = None
 
