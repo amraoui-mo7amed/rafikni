@@ -113,13 +113,26 @@ def serialize_treatment_plan(plan: TreatmentPlan) -> Dict[str, Any]:
     if plan.created_by:
         creator_name = plan.created_by.get_full_name() or plan.created_by.username
 
+    patient_name = ""
+    age = 0
+    try:
+        case = plan.content_object
+        if case:
+            patient_name = getattr(case, "full_name", "") or ""
+            age = getattr(case, "age", 0) or 0
+    except Exception:
+        pass
+
     return {
         "id": plan.id,
         "case_type": case_type,
         "case_id": plan.object_id,
+        "patient_name": patient_name,
+        "age": age,
+        "category": case_type,
         "plan_data": plan.plan_data or {},
-        "created_at": plan.created_at.strftime("%Y-%m-%d %H:%M"),
-        "updated_at": plan.updated_at.strftime("%Y-%m-%d %H:%M"),
+        "created_at": plan.created_at.strftime("%Y-%m-%d %H:%M") if plan.created_at else "",
+        "updated_at": plan.updated_at.strftime("%Y-%m-%d %H:%M") if plan.updated_at else "",
         "created_by": creator_name,
     }
 

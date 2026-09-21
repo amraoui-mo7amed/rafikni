@@ -17,6 +17,9 @@ class TreatmentPlanSchema(Schema):
     id: int
     case_type: str
     case_id: int
+    patient_name: Optional[str] = ""
+    age: Optional[int] = 0
+    category: Optional[str] = "child"
     plan_data: Dict[str, Any]
     created_at: str
     updated_at: str
